@@ -14,6 +14,7 @@ return [
     'providers' => [
         \App\Modules\SolutionsCatalog\Infrastructure\Providers\SolutionsCatalogServiceProvider::class,
         \App\Modules\Departments\Infrastructure\Providers\DepartmentsServiceProvider::class,
+        \App\Modules\Subcategories\Infrastructure\Providers\SubcategoriesServiceProvider::class,
         \App\Modules\Brands\Infrastructure\Providers\BrandsServiceProvider::class,
         \App\Modules\Geography\Infrastructure\Providers\GeographyServiceProvider::class,
         \App\Modules\Companies\Infrastructure\Providers\CompaniesServiceProvider::class,
