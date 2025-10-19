@@ -15,6 +15,7 @@ class SolutionData
         public readonly int $id,
         public readonly string $name,
         public readonly array $departments,
+        public readonly array $translations,
         public readonly string $createdAt,
         public readonly string $updatedAt,
     ) {
@@ -42,6 +43,11 @@ class SolutionData
                     ];
                 })
                 ->toArray(),
+
+            translations: $solution->translations
+                ->mapWithKeys(static fn ($translation) => [
+                    $translation->locale => ['name' => $translation->name],
+                ])->toArray(),
             createdAt: $solution->created_at?->toISOString() ?? '',
             updatedAt: $solution->updated_at?->toISOString() ?? '',
         );

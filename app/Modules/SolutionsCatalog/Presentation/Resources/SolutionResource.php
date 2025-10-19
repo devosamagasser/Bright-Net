@@ -29,6 +29,7 @@ class SolutionResource extends JsonResource
                     })->values(),
                 ];
             })->values(),
+            'translations' => $this->when((request()->is('*/solutions/*') && request()->method() === 'GET'), $this->translations),
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
         ];
