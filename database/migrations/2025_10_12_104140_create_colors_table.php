@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('colors', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
             $table->string('hex_code');
             $table->timestamps();
         });
@@ -32,6 +31,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('color_translations');
         Schema::dropIfExists('colors');
     }
 };

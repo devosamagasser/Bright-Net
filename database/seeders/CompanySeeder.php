@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Company;
 use Illuminate\Database\Seeder;
 
 class CompanySeeder extends Seeder
@@ -12,6 +12,26 @@ class CompanySeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        $companies = [
+            [
+                'name' => 'Tech Distribution Co.',
+                'type' => Company::TYPE_SUPPLIER,
+            ],
+            [
+                'name' => 'BritNet Contractors',
+                'type' => Company::TYPE_CONTRACTOR,
+            ],
+            [
+                'name' => 'Insight Consultants',
+                'type' => Company::TYPE_CONSULTANT,
+            ],
+        ];
+
+        foreach ($companies as $companyData) {
+            Company::query()->firstOrCreate(
+                ['name' => $companyData['name']],
+                $companyData
+            );
+        }
     }
 }

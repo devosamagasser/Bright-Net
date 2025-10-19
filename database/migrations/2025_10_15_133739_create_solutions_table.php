@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('solutions', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
             $table->timestamps();
         });
 
@@ -32,6 +31,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('solution_translations');
         Schema::dropIfExists('solutions');
     }
 };

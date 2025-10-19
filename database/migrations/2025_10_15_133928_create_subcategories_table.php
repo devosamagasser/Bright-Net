@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('subcategories', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
             $table->foreignId('department_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
@@ -33,6 +32,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('subcategory_translations');
         Schema::dropIfExists('subcategories');
     }
 };
