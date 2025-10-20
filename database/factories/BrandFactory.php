@@ -2,13 +2,16 @@
 
 namespace Database\Factories;
 
+use App\Modules\Brands\Domain\Models\Brand;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Brand>
+ * @extends Factory<Brand>
  */
 class BrandFactory extends Factory
 {
+    protected $model = Brand::class;
+
     /**
      * Define the model's default state.
      *

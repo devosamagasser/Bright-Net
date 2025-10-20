@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Modules\Brands\Domain\Models\Brand;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SupplierSolutionBrand extends Model

@@ -1,20 +1,25 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Brands\Domain\Models;
 
-use App\Modules\SolutionsCatalog\Domain\Models\Solution;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Database\Eloquent\Model;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
+use App\Modules\Geography\Domain\Models\Region;
+use App\Modules\Departments\Domain\Models\Department;
+use App\Modules\SolutionsCatalog\Domain\Models\Solution;
+use App\Models\SupplierSolution;
+use App\Models\SupplierSolutionBrand;
 
 class Brand extends Model implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\BrandFactory> */
-    use HasFactory, InteractsWithMedia;
+    use HasFactory;
+    use InteractsWithMedia;
 
     /**
      * The attributes that can be mass assigned.
