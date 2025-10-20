@@ -2,14 +2,15 @@
 
 namespace App\Models;
 
-use App\Modules\SolutionsCatalog\Domain\Models\Solution;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Modules\Departments\Domain\Models\Department;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Modules\SolutionsCatalog\Domain\Models\Solution;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Brand extends Model implements HasMedia
 {
@@ -34,6 +35,11 @@ class Brand extends Model implements HasMedia
     protected $casts = [
         'region_id' => 'integer',
     ];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('logo')->singleFile();
+    }
 
     /**
      * Brand -> Region relationship.
