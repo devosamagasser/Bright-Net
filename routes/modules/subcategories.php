@@ -6,7 +6,6 @@ use App\Modules\Subcategories\Presentation\Http\Controllers\SubcategoryControlle
 Route::prefix('subcategories')
     ->name('subcategories.')
     ->group(function (): void {
-        Route::get('/', [SubcategoryController::class, 'index'])->name('index');
         Route::post('/', [SubcategoryController::class, 'store'])->name('store');
         Route::get('{subcategory}', [SubcategoryController::class, 'show'])
             ->whereNumber('subcategory')

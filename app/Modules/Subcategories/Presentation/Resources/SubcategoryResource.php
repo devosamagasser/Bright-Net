@@ -2,8 +2,7 @@
 
 namespace App\Modules\Subcategories\Presentation\Resources;
 
-use Illuminate\Support\Carbon;
-use Illuminate\Support\Collection;
+use Illuminate\Support\{Carbon, Collection};
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class SubcategoryResource extends JsonResource
@@ -18,9 +17,10 @@ class SubcategoryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'department_id' => $this->department_id ?? $this->departmentId,
-            'translations' => $this->transformTranslations(),
-            'created_at' => $this->resolveDate('created_at', 'createdAt'),
-            'updated_at' => $this->resolveDate('updated_at', 'updatedAt'),
+            'translations' => $this->when(
+                request()->is('*/subcategories/*') && request()->method() === 'GET',
+                $this->transformTranslations()
+            ),
         ];
     }
 
@@ -48,24 +48,4 @@ class SubcategoryResource extends JsonResource
         })->all();
     }
 
-    protected function resolveDate(string $snakeCase, string $camelCase): ?string
-    {
-        $value = $this->{$snakeCase} ?? null;
-
-        if ($value instanceof Carbon) {
-            return $value->toISOString();
-        }
-
-        $camel = $this->{$camelCase} ?? null;
-
-        if ($camel instanceof Carbon) {
-            return $camel->toISOString();
-        }
-
-        if (is_string($camel)) {
-            return $camel;
-        }
-
-        return null;
-    }
 }

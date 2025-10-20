@@ -3,14 +3,14 @@
 namespace App\Modules\SolutionsCatalog\Domain\Models;
 
 use App\Models\Brand;
-use App\Models\Department;
 use App\Models\Supplier;
 use App\Models\SupplierSolution;
-use Astrotomic\Translatable\Translatable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Modules\Departments\Domain\Models\Department;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Solution extends Model
 {

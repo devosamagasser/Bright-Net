@@ -7,7 +7,7 @@ use App\Modules\Taxonomy\Domain\Models\Color;
 
 interface ColorRepositoryInterface
 {
-    public function paginate(int $perPage = 15): LengthAwarePaginator;
+    public function paginate(int $perPage = 100): LengthAwarePaginator;
 
     public function find(int $id): ?Color;
 

@@ -2,8 +2,8 @@
 
 namespace App\Modules\Departments\Infrastructure\Persistence\Eloquent;
 
-use App\Models\Department;
 use Illuminate\Database\Eloquent\Builder;
+use App\Modules\Departments\Domain\Models\Department;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Modules\Shared\Support\Traits\HandlesTranslations;
 use App\Modules\Departments\Domain\Repositories\DepartmentRepositoryInterface;
@@ -15,15 +15,11 @@ class EloquentDepartmentRepository implements DepartmentRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function paginate(int $perPage = 15, ?int $solutionId = null): LengthAwarePaginator
+    public function paginate(int $perPage = 15, int $solutionId): LengthAwarePaginator
     {
-        $query = $this->query()->with('subcategories');
-
-        if ($solutionId !== null) {
-            $query->where('solution_id', $solutionId);
-        }
-
-        return $query->orderByDesc('id')->paginate($perPage);
+        return $this->query()->where('solution_id', $solutionId)
+            ->orderByDesc('id')
+            ->paginate($perPage);
     }
 
     /**

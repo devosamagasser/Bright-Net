@@ -1,11 +1,12 @@
 <?php
+namespace App\Modules\Subcategories\Domain\Models;
 
-namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Astrotomic\Translatable\Translatable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Modules\Departments\Domain\Models\Department;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Subcategory extends Model
 {

@@ -16,9 +16,7 @@ class EloquentSolutionRepository implements SolutionRepositoryInterface
      */
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
-        return $this->query()
-            ->with(['departments.subcategories'])
-            ->paginate($perPage);
+        return $this->query()->paginate($perPage);
     }
 
     /**
@@ -27,7 +25,7 @@ class EloquentSolutionRepository implements SolutionRepositoryInterface
     public function find(int $id): ?Solution
     {
         return $this->query()
-            ->with(['departments.subcategories'])
+            ->with(['departments'])
             ->find($id);
     }
 

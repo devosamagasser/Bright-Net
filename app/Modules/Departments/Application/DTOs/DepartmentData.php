@@ -2,8 +2,8 @@
 
 namespace App\Modules\Departments\Application\DTOs;
 
-use App\Models\Department;
 use Illuminate\Support\Collection;
+use App\Modules\Departments\Domain\Models\Department;
 
 class DepartmentData
 {
@@ -15,7 +15,7 @@ class DepartmentData
         public readonly int $id,
         public readonly int $solutionId,
         public readonly string $name,
-        public readonly array $subcategories,
+        public readonly ?Collection $subcategories = null,
         public readonly array $translations,
         public readonly string $createdAt,
         public readonly string $updatedAt,
@@ -28,16 +28,9 @@ class DepartmentData
             id: $department->getKey(),
             solutionId: (int) $department->solution_id,
             name: $department->name,
-            subcategories: $department->subcategories
-                ->map(static fn ($subcategory) => [
-                    'id' => $subcategory->getKey(),
-                    'name' => $subcategory->name,
-                    'department_id' => (int) $subcategory->department_id,
-                    'translations' => $subcategory->translations
-                        ->mapWithKeys(static fn ($translation) => [
-                            $translation->locale => ['name' => $translation->name],
-                        ])->toArray(),
-                ])->toArray(),
+            subcategories: $department->relationLoaded('subcategories')
+                ? $department->subcategories
+                : null,
             translations: $department->translations
                 ->mapWithKeys(static fn ($translation) => [
                     $translation->locale => ['name' => $translation->name],

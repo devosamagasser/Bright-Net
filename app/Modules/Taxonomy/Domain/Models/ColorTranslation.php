@@ -1,14 +1,14 @@
 <?php
+namespace App\Modules\Taxonomy\Domain\Models;
 
-namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class SubcategoryTranslation extends Model
+class ColorTranslation extends Model
 {
     /**
-     * Attributes allowed for mass assignment.
+     * Mass assignable attributes.
      *
      * @var array<int, string>
      */
@@ -28,10 +28,10 @@ class SubcategoryTranslation extends Model
     ];
 
     /**
-     * Parent subcategory.
+     * Parent color record.
      */
-    public function subcategory(): BelongsTo
+    public function color(): BelongsTo
     {
-        return $this->belongsTo(Subcategory::class);
+        return $this->belongsTo(Color::class);
     }
 }

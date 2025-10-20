@@ -14,7 +14,7 @@ class SolutionData
     private function __construct(
         public readonly int $id,
         public readonly string $name,
-        public readonly array $departments,
+        public readonly ?Collection $departments = null,
         public readonly array $translations,
         public readonly string $createdAt,
         public readonly string $updatedAt,
@@ -29,21 +29,9 @@ class SolutionData
         return new self(
             id: $solution->getKey(),
             name: $solution->name,
-            departments: $solution->departments
-                ->map(static function ($department) {
-                    return [
-                        'id' => $department->getKey(),
-                        'name' => $department->name,
-                        'subcategories' => $department->subcategories
-                            ->map(static fn ($subcategory) => [
-                                'id' => $subcategory->getKey(),
-                                'name' => $subcategory->name,
-                            ])
-                            ->toArray(),
-                    ];
-                })
-                ->toArray(),
-
+            departments: $solution->relationLoaded('departments')
+                ? $solution->departments
+                : null,
             translations: $solution->translations
                 ->mapWithKeys(static fn ($translation) => [
                     $translation->locale => ['name' => $translation->name],

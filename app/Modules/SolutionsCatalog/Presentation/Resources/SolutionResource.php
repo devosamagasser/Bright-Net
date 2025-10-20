@@ -17,21 +17,15 @@ class SolutionResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'departments' => collect($this->departments)->map(function ($department) {
-                return [
-                    'id' => $department['id'],
-                    'name' => $department['name'],
-                    'subcategories' => collect($department['subcategories'])->map(function ($subcategory) {
-                        return [
-                            'id' => $subcategory['id'],
-                            'name' => $subcategory['name'],
-                        ];
-                    })->values(),
-                ];
-            })->values(),
+            'departments' => $this->when($this->departments, function () {
+                return collect($this->departments)->map(function ($department) {
+                    return [
+                        'id' => $department['id'],
+                        'name' => $department['name'],
+                    ];
+                })->values();
+            }),
             'translations' => $this->when((request()->is('*/solutions/*') && request()->method() === 'GET'), $this->translations),
-            'created_at' => $this->createdAt,
-            'updated_at' => $this->updatedAt,
         ];
     }
 }

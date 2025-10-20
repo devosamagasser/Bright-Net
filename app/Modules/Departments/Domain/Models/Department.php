@@ -1,16 +1,18 @@
 <?php
+namespace App\Modules\Departments\Domain\Models;
 
-namespace App\Models;
 
-use App\Modules\SolutionsCatalog\Domain\Models\Solution;
-use Astrotomic\Translatable\Translatable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Brand;
+use App\Models\Subcategory;
 use Spatie\MediaLibrary\HasMedia;
+use Illuminate\Database\Eloquent\Model;
+use Astrotomic\Translatable\Translatable;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Modules\SolutionsCatalog\Domain\Models\Solution;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Department extends Model implements HasMedia
 {

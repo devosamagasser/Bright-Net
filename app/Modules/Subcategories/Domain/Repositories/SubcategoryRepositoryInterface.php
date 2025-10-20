@@ -2,12 +2,12 @@
 
 namespace App\Modules\Subcategories\Domain\Repositories;
 
-use App\Models\Subcategory;
+use App\Modules\Subcategories\Domain\Models\Subcategory;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface SubcategoryRepositoryInterface
 {
-    public function paginate(int $perPage = 15, ?int $departmentId = null): LengthAwarePaginator;
+    public function paginate(int $perPage = 15, int $departmentId): LengthAwarePaginator;
 
     public function find(int $id): ?Subcategory;
 

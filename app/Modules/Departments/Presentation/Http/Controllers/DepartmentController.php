@@ -20,12 +20,10 @@ class DepartmentController
     ) {
     }
 
-    public function index(Request $request)
+    public function index(Request $request, int $solutionId)
     {
         $perPage = (int) $request->query('per_page', 15);
         $perPage = max(1, min(100, $perPage));
-        $solutionId = $request->query('solution_id');
-        $solutionId = $solutionId !== null ? (int) $solutionId : null;
 
         $paginator = $this->listDepartments->handle($perPage, $solutionId);
 

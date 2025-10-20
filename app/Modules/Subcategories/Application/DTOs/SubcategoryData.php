@@ -2,8 +2,8 @@
 
 namespace App\Modules\Subcategories\Application\DTOs;
 
-use App\Models\Subcategory;
 use Illuminate\Support\Collection;
+use App\Modules\Subcategories\Domain\Models\Subcategory;
 
 class SubcategoryData
 {

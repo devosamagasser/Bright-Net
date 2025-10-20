@@ -44,7 +44,7 @@ class EloquentColorRepository implements ColorRepositoryInterface
 
     protected function query(): Builder
     {
-        return Color::query()->with('translations');
+        return Color::query();
     }
 
     /**

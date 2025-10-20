@@ -20,12 +20,10 @@ class SubcategoryController
     ) {
     }
 
-    public function index(Request $request)
+    public function index(Request $request, $departmentId)
     {
         $perPage = (int) $request->query('per_page', 15);
         $perPage = max(1, min(100, $perPage));
-        $departmentId = $request->query('department_id');
-        $departmentId = $departmentId !== null ? (int) $departmentId : null;
 
         $paginator = $this->listSubcategories->handle($perPage, $departmentId);
 

@@ -2,7 +2,7 @@
 
 namespace App\Modules\Departments\Domain\Repositories;
 
-use App\Models\Department;
+use App\Modules\Departments\Domain\Models\Department;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface DepartmentRepositoryInterface
@@ -10,7 +10,7 @@ interface DepartmentRepositoryInterface
     /**
      * Paginate departments optionally filtered by solution.
      */
-    public function paginate(int $perPage = 15, ?int $solutionId = null): LengthAwarePaginator;
+    public function paginate(int $perPage = 15, int $solutionId): LengthAwarePaginator;
 
     /**
      * Retrieve a department by its primary key.

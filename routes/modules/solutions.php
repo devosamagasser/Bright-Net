@@ -1,7 +1,8 @@
 <?php
 
-use App\Modules\SolutionsCatalog\Presentation\Http\Controllers\SolutionController;
 use Illuminate\Support\Facades\Route;
+use App\Modules\Departments\Presentation\Http\Controllers\DepartmentController;
+use App\Modules\SolutionsCatalog\Presentation\Http\Controllers\SolutionController;
 
 Route::prefix('solutions')
     ->name('solutions.')
@@ -17,4 +18,6 @@ Route::prefix('solutions')
         Route::delete('{solution}', [SolutionController::class, 'destroy'])
             ->whereNumber('solution')
             ->name('destroy');
+        Route::get('{solutionId}/departments', [DepartmentController::class, 'index'])->name('departments.index');
+
     });

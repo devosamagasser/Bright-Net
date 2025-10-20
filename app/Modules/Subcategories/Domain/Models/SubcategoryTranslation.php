@@ -1,11 +1,10 @@
 <?php
-
-namespace App\Models;
+namespace App\Modules\Subcategories\Domain\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class DepartmentTranslation extends Model
+class SubcategoryTranslation extends Model
 {
     /**
      * Attributes allowed for mass assignment.
@@ -28,10 +27,10 @@ class DepartmentTranslation extends Model
     ];
 
     /**
-     * Parent department.
+     * Parent subcategory.
      */
-    public function department(): BelongsTo
+    public function subcategory(): BelongsTo
     {
-        return $this->belongsTo(Department::class);
+        return $this->belongsTo(Subcategory::class);
     }
 }

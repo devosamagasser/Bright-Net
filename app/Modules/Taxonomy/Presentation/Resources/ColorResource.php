@@ -16,9 +16,10 @@ class ColorResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'hex_code' => $this->hexCode,
-            'translations' => $this->translations,
-            'created_at' => $this->createdAt,
-            'updated_at' => $this->updatedAt,
+            'translations' => $this->when((
+                request()->is('*/colors/*') && request()->method() === 'GET'), 
+                $this->translations
+            ),
         ];
     }
 }

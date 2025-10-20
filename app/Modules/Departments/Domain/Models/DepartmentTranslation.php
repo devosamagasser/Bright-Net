@@ -1,14 +1,13 @@
 <?php
+namespace App\Modules\Departments\Domain\Models;
 
-namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class ColorTranslation extends Model
+class DepartmentTranslation extends Model
 {
     /**
-     * Mass assignable attributes.
+     * Attributes allowed for mass assignment.
      *
      * @var array<int, string>
      */
@@ -27,11 +26,4 @@ class ColorTranslation extends Model
         'locale' => 'string',
     ];
 
-    /**
-     * Parent color record.
-     */
-    public function color(): BelongsTo
-    {
-        return $this->belongsTo(Color::class);
-    }
 }
