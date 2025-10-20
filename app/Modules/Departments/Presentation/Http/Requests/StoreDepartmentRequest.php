@@ -20,6 +20,7 @@ class StoreDepartmentRequest extends FormRequest
             'solution_id' => ['required', 'integer', 'exists:solutions,id'],
             'translations' => ['required', 'array', 'min:1'],
             'translations.*.name' => ['required', 'string', 'min:1', 'max:255'],
+            'cover' => ['required', 'file', 'image', 'max:5120'], // max 5MB
         ];
     }
 }

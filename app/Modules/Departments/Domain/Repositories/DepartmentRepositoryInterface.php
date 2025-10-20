@@ -2,6 +2,7 @@
 
 namespace App\Modules\Departments\Domain\Repositories;
 
+use Illuminate\Http\UploadedFile;
 use App\Modules\Departments\Domain\Models\Department;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
@@ -23,7 +24,7 @@ interface DepartmentRepositoryInterface
      * @param  array<string, mixed>  $attributes
      * @param  array<string, array<string, mixed>>  $translations
      */
-    public function create(array $attributes, array $translations): Department;
+    public function create(array $attributes, array $translations, UploadedFile $cover): Department;
 
     /**
      * Update an existing department.
@@ -31,7 +32,7 @@ interface DepartmentRepositoryInterface
      * @param  array<string, mixed>  $attributes
      * @param  array<string, array<string, mixed>>  $translations
      */
-    public function update(Department $department, array $attributes, array $translations): Department;
+    public function update(Department $department, array $attributes, array $translations, ?UploadedFile $cover = null): Department;
 
     /**
      * Delete the given department.

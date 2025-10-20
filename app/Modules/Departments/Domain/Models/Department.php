@@ -3,7 +3,6 @@ namespace App\Modules\Departments\Domain\Models;
 
 
 use App\Models\Brand;
-use App\Models\Subcategory;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 use Astrotomic\Translatable\Translatable;
@@ -12,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Modules\SolutionsCatalog\Domain\Models\Solution;
+use App\Modules\Subcategories\Domain\Models\Subcategory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Department extends Model implements HasMedia
@@ -54,6 +54,12 @@ class Department extends Model implements HasMedia
     protected $with = [
         'translations',
     ];
+
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('cover')->singleFile();
+    }
 
     /**
      * Department belongs to a solution.

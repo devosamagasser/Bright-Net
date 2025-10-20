@@ -20,6 +20,7 @@ class UpdateDepartmentRequest extends FormRequest
             'solution_id' => ['sometimes', 'integer', 'exists:solutions,id'],
             'translations' => ['sometimes', 'array', 'min:1'],
             'translations.*.name' => ['required_with:translations', 'string', 'min:1', 'max:255'],
+            'cover' => ['nullable', 'file', 'image', 'max:5120'],
         ];
     }
 }

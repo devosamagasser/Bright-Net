@@ -2,6 +2,7 @@
 
 namespace App\Modules\Departments\Infrastructure\Persistence\Eloquent;
 
+use Illuminate\Http\UploadedFile;
 use Illuminate\Database\Eloquent\Builder;
 use App\Modules\Departments\Domain\Models\Department;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -33,11 +34,11 @@ class EloquentDepartmentRepository implements DepartmentRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function create(array $attributes, array $translations): Department
+    public function create(array $attributes, array $translations, UploadedFile $cover): Department
     {
         $department = new Department();
 
-        $this->fillDepartment($department, $attributes, $translations);
+        $this->fillDepartment($department, $attributes, $translations, $cover);
 
         return $department;
     }
@@ -45,9 +46,9 @@ class EloquentDepartmentRepository implements DepartmentRepositoryInterface
     /**
      * @inheritDoc
      */
-    public function update(Department $department, array $attributes, array $translations): Department
+    public function update(Department $department, array $attributes, array $translations, UploadedFile $cover = null): Department
     {
-        $this->fillDepartment($department, $attributes, $translations);
+        $this->fillDepartment($department, $attributes, $translations, $cover);
 
         return $department;
     }
@@ -74,10 +75,13 @@ class EloquentDepartmentRepository implements DepartmentRepositoryInterface
      * @param  array<string, mixed>  $attributes
      * @param  array<string, array<string, mixed>>  $translations
      */
-    protected function fillDepartment(Department $department, array $attributes, array $translations): void
+    protected function fillDepartment(Department $department, array $attributes, array $translations, $cover = null): void
     {
         $department->fill($attributes);
         $this->fillTranslations($department, $translations);
+        if ($cover) {
+            $department->addMedia($cover)->toMediaCollection('cover');
+        }
         $department->save();
     }
 }

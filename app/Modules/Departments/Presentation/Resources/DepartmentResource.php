@@ -18,6 +18,7 @@ class DepartmentResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
+            'cover' => $this->cover,
             'solution_id' => $this->solution_id ?? $this->solutionId,
             'subcategories' => $this->when($this->subcategories, function () {
                 return collect($this->subcategories)->map(function ($subcategory) {

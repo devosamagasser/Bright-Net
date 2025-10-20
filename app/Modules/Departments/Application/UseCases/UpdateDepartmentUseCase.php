@@ -25,6 +25,7 @@ class UpdateDepartmentUseCase
             $department,
             $input->attributes,
             $input->translations,
+            $input->cover,
         );
 
         return DepartmentData::fromModel($department->load('subcategories'));

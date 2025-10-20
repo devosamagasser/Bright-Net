@@ -15,6 +15,7 @@ class DepartmentData
         public readonly int $id,
         public readonly int $solutionId,
         public readonly string $name,
+        public readonly string $cover,
         public readonly ?Collection $subcategories = null,
         public readonly array $translations,
         public readonly string $createdAt,
@@ -35,6 +36,7 @@ class DepartmentData
                 ->mapWithKeys(static fn ($translation) => [
                     $translation->locale => ['name' => $translation->name],
                 ])->toArray(),
+            cover: $department->getFirstMediaUrl('cover'),
             createdAt: $department->created_at?->toISOString() ?? '',
             updatedAt: $department->updated_at?->toISOString() ?? '',
         );

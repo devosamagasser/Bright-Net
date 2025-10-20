@@ -17,6 +17,7 @@ class CreateDepartmentUseCase
         $department = $this->repository->create(
             attributes: $input->attributes,
             translations: $input->translations,
+            cover: $input->cover,
         );
 
         return DepartmentData::fromModel($department->load('subcategories'));
