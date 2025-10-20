@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Modules\SolutionsCatalog\Domain\Models\Solution;
+use App\Modules\Brands\Domain\Models\Brand;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;

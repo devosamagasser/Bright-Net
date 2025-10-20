@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Brands\Domain\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Modules\Departments\Domain\Models\Department;
 
 class BrandDepartment extends Model
 {

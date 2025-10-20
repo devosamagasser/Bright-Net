@@ -178,8 +178,8 @@ return [
     */
 
     'custom' => [
-        'attribute-name' => [
-            'rule-name' => 'custom-message',
+        'solutions.*.departments' => [
+            'belongs_to_solution' => 'The selected departments must belong to the specified solution.',
         ],
     ],
 

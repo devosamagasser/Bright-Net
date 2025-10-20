@@ -3,7 +3,11 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\{Brand, Department, Region, Solution, Subcategory};
+use App\Modules\Brands\Domain\Models\Brand;
+use App\Modules\Departments\Domain\Models\Department;
+use App\Modules\Geography\Domain\Models\Region;
+use App\Modules\SolutionsCatalog\Domain\Models\Solution;
+use App\Modules\Subcategories\Domain\Models\Subcategory;
 use Faker\Factory as Faker;
 
 class BrandSeeder extends Seeder

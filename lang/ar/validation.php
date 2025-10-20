@@ -178,8 +178,8 @@ return [
     */
 
     'custom' => [
-        'attribute-name' => [
-            'rule-name' => 'custom-message',
+        'solutions.*.departments' => [
+            'belongs_to_solution' => 'يجب أن تنتمي الأقسام المختارة إلى الحل المحدد.',
         ],
     ],
 
