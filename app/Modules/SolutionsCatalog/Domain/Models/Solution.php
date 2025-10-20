@@ -2,7 +2,7 @@
 
 namespace App\Modules\SolutionsCatalog\Domain\Models;
 
-use App\Models\Brand;
+use App\Modules\Brands\Domain\Models\Brand;
 use App\Models\Supplier;
 use App\Models\SupplierSolution;
 use Illuminate\Database\Eloquent\Model;

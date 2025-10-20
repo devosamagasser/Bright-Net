@@ -3,7 +3,9 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\{Brand, Company, Solution, Supplier, SupplierSolution};
+use App\Modules\Brands\Domain\Models\Brand;
+use App\Modules\SolutionsCatalog\Domain\Models\Solution;
+use App\Models\{Company, Supplier, SupplierSolution};
 
 class SupplierSeeder extends Seeder
 {

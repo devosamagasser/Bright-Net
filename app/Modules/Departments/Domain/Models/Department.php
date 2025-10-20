@@ -2,7 +2,7 @@
 namespace App\Modules\Departments\Domain\Models;
 
 
-use App\Models\Brand;
+use App\Modules\Brands\Domain\Models\Brand;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 use Astrotomic\Translatable\Translatable;
