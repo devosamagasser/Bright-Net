@@ -3,6 +3,7 @@
 namespace App\Modules\Brands\Application\DTOs;
 
 use Illuminate\Support\Arr;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 
 class BrandInput
@@ -14,6 +15,7 @@ class BrandInput
     private function __construct(
         public readonly array $attributes,
         public readonly array $solutions,
+        public readonly UploadedFile $cover,
     ) {
     }
 
@@ -25,6 +27,7 @@ class BrandInput
     public static function fromArray(array $payload): self
     {
         $solutions = Arr::pull($payload, 'solutions', []);
+        $cover = Arr::pull($payload, 'cover', null);
 
         if (array_key_exists('region_id', $payload)) {
             $payload['region_id'] = (int) $payload['region_id'];
@@ -50,6 +53,7 @@ class BrandInput
         return new self(
             attributes: $payload,
             solutions: $normalizedSolutions,
+            cover: $cover,
         );
     }
 

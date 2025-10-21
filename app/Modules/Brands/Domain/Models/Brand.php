@@ -2,6 +2,7 @@
 
 namespace App\Modules\Brands\Domain\Models;
 
+use EloquentFilter\Filterable;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -20,6 +21,7 @@ class Brand extends Model implements HasMedia
     /** @use HasFactory<\Database\Factories\BrandFactory> */
     use HasFactory;
     use InteractsWithMedia;
+    use Filterable;
 
     /**
      * The attributes that can be mass assigned.

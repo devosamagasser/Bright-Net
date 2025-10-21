@@ -25,8 +25,8 @@ class BrandController
     {
         $perPage = (int) $request->query('per_page', 15);
         $perPage = max(1, min(100, $perPage));
-
-        $paginator = $this->listBrands->handle($perPage);
+        $filter = $request->all(['region', 'name', 'solution']);
+        $paginator = $this->listBrands->handle($perPage, $filter);
 
         return ApiResponse::success(
             BrandResource::collection($paginator)->resource

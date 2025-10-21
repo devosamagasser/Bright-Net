@@ -25,6 +25,7 @@ class UpdateBrandUseCase
             $brand,
             $input->attributes,
             $input->solutions,
+            $input->cover,
         );
 
         return BrandData::fromModel($brand);

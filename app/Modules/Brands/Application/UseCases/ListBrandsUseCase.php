@@ -13,9 +13,9 @@ class ListBrandsUseCase
     ) {
     }
 
-    public function handle(int $perPage = 15): LengthAwarePaginator
+    public function handle(int $perPage = 15, array $filter = []): LengthAwarePaginator
     {
-        $paginator = $this->repository->paginate($perPage);
+        $paginator = $this->repository->paginate($perPage, $filter);
 
         $paginator->setCollection(
             BrandData::collection($paginator->getCollection())

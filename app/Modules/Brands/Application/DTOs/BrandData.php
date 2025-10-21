@@ -16,6 +16,7 @@ class BrandData
     private function __construct(
         public readonly int $id,
         public readonly string $name,
+        public readonly string $cover,
         public readonly int $regionId,
         public readonly ?array $region,
         public readonly array $solutionIds,
@@ -28,42 +29,42 @@ class BrandData
 
     public static function fromModel(Brand $brand): self
     {
-        $brand->loadMissing(['region', 'solutions', 'departments']);
+        if ($brand->relationLoaded('solutions')) {
+            $solutionIds = $brand->solutions->pluck('id')->map(fn ($id) => (int) $id)->all();
 
-        $solutionIds = $brand->solutions->pluck('id')->map(fn ($id) => (int) $id)->all();
+            $departments = $brand->departments;
+            $departmentIds = $departments->pluck('id')->map(fn ($id) => (int) $id)->all();
 
-        $departments = $brand->departments;
-        $departmentIds = $departments->pluck('id')->map(fn ($id) => (int) $id)->all();
+            $departmentsBySolution = $departments->groupBy('solution_id');
 
-        $departmentsBySolution = $departments->groupBy('solution_id');
-
-        $solutions = $brand->solutions->map(function ($solution) use ($departmentsBySolution) {
-            $solutionDepartments = $departmentsBySolution->get($solution->getKey(), collect());
-
-            return [
-                'id' => $solution->getKey(),
-                'name' => $solution->name,
-                'departments' => Collection::make($solutionDepartments)
-                    ->map(static fn ($department) => [
-                        'id' => $department->getKey(),
-                        'name' => $department->name,
-                    ])
-                    ->values()
-                    ->all(),
-            ];
-        })->values()->all();
+            $solutions = $brand->solutions->map(function ($solution) use ($departmentsBySolution) {
+                $solutionDepartments = $departmentsBySolution->get($solution->getKey(), collect());
+                return [
+                    'id' => $solution->getKey(),
+                    'name' => $solution->name,
+                    'departments' => Collection::make($solutionDepartments)
+                        ->map(static fn ($department) => [
+                            'id' => $department->getKey(),
+                            'name' => $department->name,
+                        ])
+                        ->values()
+                        ->all(),
+                ];
+            })->values()->all();
+        }
 
         return new self(
             id: $brand->getKey(),
             name: $brand->name,
+            cover: $brand->getFirstMediaUrl('cover') ,
             regionId: (int) $brand->region_id,
             region: $brand->region ? [
                 'id' => $brand->region->getKey(),
                 'name' => $brand->region->name,
             ] : null,
-            solutionIds: $solutionIds,
-            departmentIds: $departmentIds,
-            solutions: $solutions,
+            solutionIds: $solutionIds ?? [],
+            departmentIds: $departmentIds ?? [],
+            solutions: $solutions ?? [],
             createdAt: $brand->created_at?->toISOString() ?? '',
             updatedAt: $brand->updated_at?->toISOString() ?? '',
         );

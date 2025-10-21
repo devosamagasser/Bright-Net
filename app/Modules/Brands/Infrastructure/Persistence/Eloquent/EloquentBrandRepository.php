@@ -2,50 +2,38 @@
 
 namespace App\Modules\Brands\Infrastructure\Persistence\Eloquent;
 
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Modules\Brands\Domain\Models\Brand;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Modules\Brands\Domain\Repositories\BrandRepositoryInterface;
 
 class EloquentBrandRepository implements BrandRepositoryInterface
 {
-    public function paginate(int $perPage = 15): LengthAwarePaginator
+    public function paginate(int $perPage = 15, array $filter = []): LengthAwarePaginator
     {
         return $this->query()
+            ->with(['region'])
+            ->filter($filter)
             ->orderByDesc('id')
             ->paginate($perPage);
     }
 
     public function find(int $id): ?Brand
     {
-        return $this->query()->find($id);
+        return $this->query()->with(['region', 'solutions', 'departments'])->find($id);
     }
 
-    public function create(array $attributes, array $solutions): Brand
+    public function create(array $attributes, array $solutions, UploadedFile $cover): Brand
     {
-        return DB::transaction(function () use ($attributes, $solutions) {
-            $brand = new Brand();
-            $brand->fill($attributes);
-            $brand->save();
-
-            $this->syncRelations($brand, $solutions);
-
-            return $brand->loadMissing(['region', 'solutions', 'departments']);
-        });
+        return $this->fillBrand(new Brand(), $attributes, $solutions, $cover);
     }
 
-    public function update(Brand $brand, array $attributes, array $solutions): Brand
+    public function update(Brand $brand, array $attributes, array $solutions, ?UploadedFile $cover = null): Brand
     {
-        return DB::transaction(function () use ($brand, $attributes, $solutions) {
-            $brand->fill($attributes);
-            $brand->save();
-
-            $this->syncRelations($brand, $solutions);
-
-            return $brand->loadMissing(['region', 'solutions', 'departments']);
-        });
+        return $this->fillBrand(new Brand(), $attributes, $solutions, $cover);
     }
 
     public function delete(Brand $brand): void
@@ -55,7 +43,7 @@ class EloquentBrandRepository implements BrandRepositoryInterface
 
     protected function query(): Builder
     {
-        return Brand::query()->with(['region', 'solutions', 'departments']);
+        return Brand::query();
     }
 
     /**
@@ -78,5 +66,27 @@ class EloquentBrandRepository implements BrandRepositoryInterface
 
         $brand->solutions()->sync($solutionIds);
         $brand->departments()->sync($departmentIds);
+    }
+
+
+    /**
+     * Shared logic between create and update operations.
+     *
+     * @param  array<string, mixed>  $attributes
+     * @param  array<string, array<string, mixed>>  $translations
+     */
+    protected function fillBrand(Brand $brand, array $attributes, $solutions, $cover = null)
+    {
+        return DB::transaction(function () use ($brand, $attributes, $solutions, $cover) {
+            $brand->fill($attributes);
+            if ($cover) {
+                $brand->addMedia($cover)->toMediaCollection('cover');
+            }
+            $brand->save();
+
+            $this->syncRelations($brand, $solutions);
+
+            return $brand->loadMissing(['region', 'solutions', 'departments']);
+        });
     }
 }

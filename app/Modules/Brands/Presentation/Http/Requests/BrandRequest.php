@@ -22,9 +22,10 @@ abstract class BrandRequest extends FormRequest
             'solutions' => ['required', 'array', 'min:1'],
             'solutions.*.solution_id' => ['required', 'integer', 'distinct', 'exists:solutions,id'],
             'solutions.*.departments' => ['required', 'array', 'min:1'],
-            'solutions.*.departments.*' => ['required', 'integer', 'exists:departments,id'],
+            'solutions.*.departments.*' => ['required', 'integer', 'distinct', 'exists:departments,id'],
         ];
     }
+
 
     public function withValidator(Validator $validator): void
     {
@@ -40,34 +41,45 @@ abstract class BrandRequest extends FormRequest
                     continue;
                 }
 
-                $solutionId = $solution['solution_id'] ?? null;
+                $solutionId  = $solution['solution_id'] ?? null;
                 $departments = $solution['departments'] ?? [];
 
                 if (! $solutionId || ! is_array($departments) || $departments === []) {
                     continue;
                 }
 
-                $departmentIds = collect($departments)
-                    ->map(static fn ($departmentId) => (int) $departmentId)
+                // جهّز الـ IDs المرسلة (بعد تنظيفها وتوحيدها)
+                $providedIds = collect($departments)
+                    ->map(static fn ($id) => (int) $id)
                     ->filter()
+                    ->unique()
                     ->values();
 
-                if ($departmentIds->isEmpty()) {
+                if ($providedIds->isEmpty()) {
                     continue;
                 }
 
-                $count = Department::query()
+                // هات IDs الأقسام اللي فعلاً تابعة للحل ده
+                $validIds = Department::query()
                     ->where('solution_id', (int) $solutionId)
-                    ->whereIn('id', $departmentIds->all())
-                    ->count();
+                    ->whereIn('id', $providedIds)
+                    ->pluck('id')
+                    ->map(fn ($id) => (int) $id);
 
-                if ($count !== $departmentIds->unique()->count()) {
+                // طلع المخالِف: اللي اتبعت ومش راجع من الاستعلام (مش تابع للحل)
+                $invalidIds = $providedIds->diff($validIds)->values();
+
+                if ($invalidIds->isNotEmpty()) {
+                    // تقدر تخصص الرسالة وتعرض IDs المخالفة
                     $validator->errors()->add(
                         "solutions.$index.departments",
-                        trans('validation.custom.solutions.*.departments.belongs_to_solution')
+                        trans('validation.custom.solutions.*.departments.belongs_to_solution', [
+                            'invalid' => $invalidIds->implode(', ')
+                        ])
                     );
                 }
             }
         });
     }
+
 }

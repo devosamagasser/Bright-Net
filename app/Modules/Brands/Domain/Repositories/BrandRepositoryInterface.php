@@ -4,13 +4,14 @@ namespace App\Modules\Brands\Domain\Repositories;
 
 use App\Modules\Brands\Domain\Models\Brand;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\UploadedFile;
 
 interface BrandRepositoryInterface
 {
     /**
      * Paginate available brands with their relations.
      */
-    public function paginate(int $perPage = 15): LengthAwarePaginator;
+    public function paginate(int $perPage = 15, array $filter): LengthAwarePaginator;
 
     /**
      * Retrieve a brand by its primary key.
@@ -23,7 +24,7 @@ interface BrandRepositoryInterface
      * @param  array<string, mixed>  $attributes
      * @param  array<int, array{solution_id:int, departments:array<int, int>}>  $solutions
      */
-    public function create(array $attributes, array $solutions): Brand;
+    public function create(array $attributes, array $solutions, UploadedFile $cover): Brand;
 
     /**
      * Update an existing brand.
@@ -31,7 +32,7 @@ interface BrandRepositoryInterface
      * @param  array<string, mixed>  $attributes
      * @param  array<int, array{solution_id:int, departments:array<int, int>}>  $solutions
      */
-    public function update(Brand $brand, array $attributes, array $solutions): Brand;
+    public function update(Brand $brand, array $attributes, array $solutions, ?UploadedFile $cover = null): Brand;
 
     /**
      * Delete a brand from storage.
