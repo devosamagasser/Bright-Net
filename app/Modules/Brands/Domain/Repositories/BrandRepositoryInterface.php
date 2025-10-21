@@ -5,6 +5,7 @@ namespace App\Modules\Brands\Domain\Repositories;
 use App\Modules\Brands\Domain\Models\Brand;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Collection;
 
 interface BrandRepositoryInterface
 {
@@ -38,4 +39,14 @@ interface BrandRepositoryInterface
      * Delete a brand from storage.
      */
     public function delete(Brand $brand): void;
+
+    /**
+     * Retrieve all brands that are linked to the given solution.
+     */
+    public function getBySolution(int $solutionId): Collection;
+
+    /**
+     * Retrieve a specific brand that is linked to the given solution.
+     */
+    public function findForSolution(int $solutionId, int $brandId): ?Brand;
 }
