@@ -3,20 +3,28 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Modules\Brands\Domain\Models\Brand;
 use App\Modules\SolutionsCatalog\Domain\Models\Solution;
-use App\Models\{Company, Supplier, SupplierSolution};
+use App\Modules\Companies\Domain\Models\Company;
+use App\Modules\Companies\Domain\ValueObjects\CompanyType;
+use App\Models\{Supplier, SupplierSolution};
 
 class SupplierSeeder extends Seeder
 {
     public function run(): void
     {
         // 🏢 هجيب كل الشركات اللي نوعها supplier
-        $companies = Company::where('type', 'supplier')->get();
+        $companies = Company::where('type', CompanyType::SUPPLIER->value)->get();
 
         foreach ($companies as $company) {
             // 🔹 أنشئ الـ Supplier لو مش موجود
-            $supplier = Supplier::firstOrCreate(['id' => $company->id]);
+            $supplier = Supplier::firstOrCreate(
+                ['company_id' => $company->getKey()],
+                [
+                    'contact_email' => fake()->unique()->safeEmail(),
+                    'contact_phone' => fake()->phoneNumber(),
+                    'website' => fake()->url(),
+                ]
+            );
 
             // ⚙️ اختار حلول عشوائية
             $solutions = Solution::inRandomOrder()->take(rand(1, 2))->get();
@@ -27,6 +35,17 @@ class SupplierSeeder extends Seeder
                     'supplier_id' => $supplier->id,
                     'solution_id' => $solution->id,
                 ]);
+
+                // 🧭 الأقسام المرتبطة بالسوليوشن ده
+                $departmentIds = $solution->departments()
+                    ->inRandomOrder()
+                    ->take(rand(1, 3))
+                    ->pluck('departments.id')
+                    ->toArray();
+
+                if (! empty($departmentIds)) {
+                    $supplierSolution->departments()->syncWithoutDetaching($departmentIds);
+                }
 
                 // 🎯 هات البراندات المرتبطة بالسوليوشن ده فقط
                 $brandIds = $solution->brands()
