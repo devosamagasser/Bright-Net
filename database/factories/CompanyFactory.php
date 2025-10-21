@@ -3,12 +3,16 @@
 namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
+use App\Modules\Companies\Domain\Models\Company;
+use App\Modules\Companies\Domain\ValueObjects\CompanyType;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Company>
+ * @extends Factory<Company>
  */
 class CompanyFactory extends Factory
 {
+    protected $model = Company::class;
+
     /**
      * Define the model's default state.
      *
@@ -16,8 +20,11 @@ class CompanyFactory extends Factory
      */
     public function definition(): array
     {
+        $type = $this->faker->randomElement(CompanyType::cases());
+
         return [
-            //
+            'name' => $this->faker->company(),
+            'type' => $type->value,
         ];
     }
 }
