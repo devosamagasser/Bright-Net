@@ -18,7 +18,6 @@ return new class extends Migration
             $table->string('contact_phone')->nullable();
             $table->string('website')->nullable();
             $table->timestamps();
-
             $table->unique('company_id');
         });
     }

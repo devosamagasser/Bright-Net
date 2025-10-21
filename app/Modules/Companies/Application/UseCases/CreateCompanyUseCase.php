@@ -19,7 +19,6 @@ class CreateCompanyUseCase
     public function handle(CompanyInput $input): CompanyData
     {
         $profile = $this->profiles->make($input->type);
-
         return DB::transaction(function () use ($input, $profile) {
             $company = $this->repository->create($input->attributes + [
                 'type' => $input->type->value,

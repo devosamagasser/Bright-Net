@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Region;
 use Illuminate\Database\Seeder;
+use App\Modules\Geography\Domain\Models\Region;
 
 class RegionSeeder extends Seeder
 {

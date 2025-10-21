@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use App\Models\Color;
-use Illuminate\Support\Arr;
 use Illuminate\Database\Seeder;
+use App\Modules\Taxonomy\Domain\Models\Color;
 
 class ColorSeeder extends Seeder
 {
