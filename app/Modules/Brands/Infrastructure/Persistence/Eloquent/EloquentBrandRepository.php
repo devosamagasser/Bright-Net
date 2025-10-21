@@ -26,14 +26,14 @@ class EloquentBrandRepository implements BrandRepositoryInterface
         return $this->query()->with(['region', 'solutions', 'departments'])->find($id);
     }
 
-    public function create(array $attributes, array $solutions, UploadedFile $cover): Brand
+    public function create(array $attributes, array $solutions, UploadedFile $logo): Brand
     {
-        return $this->fillBrand(new Brand(), $attributes, $solutions, $cover);
+        return $this->fillBrand(new Brand(), $attributes, $solutions, $logo);
     }
 
-    public function update(Brand $brand, array $attributes, array $solutions, ?UploadedFile $cover = null): Brand
+    public function update(Brand $brand, array $attributes, array $solutions, ?UploadedFile $logo = null): Brand
     {
-        return $this->fillBrand(new Brand(), $attributes, $solutions, $cover);
+        return $this->fillBrand(new Brand(), $attributes, $solutions, $logo);
     }
 
     public function delete(Brand $brand): void
@@ -75,12 +75,12 @@ class EloquentBrandRepository implements BrandRepositoryInterface
      * @param  array<string, mixed>  $attributes
      * @param  array<string, array<string, mixed>>  $translations
      */
-    protected function fillBrand(Brand $brand, array $attributes, $solutions, $cover = null)
+    protected function fillBrand(Brand $brand, array $attributes, $solutions, $logo = null)
     {
-        return DB::transaction(function () use ($brand, $attributes, $solutions, $cover) {
+        return DB::transaction(function () use ($brand, $attributes, $solutions, $logo) {
             $brand->fill($attributes);
-            if ($cover) {
-                $brand->addMedia($cover)->toMediaCollection('cover');
+            if ($logo) {
+                $brand->addMedia($logo)->toMediaCollection('logo');
             }
             $brand->save();
 

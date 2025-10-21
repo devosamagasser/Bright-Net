@@ -15,7 +15,7 @@ class BrandInput
     private function __construct(
         public readonly array $attributes,
         public readonly array $solutions,
-        public readonly UploadedFile $cover,
+        public readonly UploadedFile $logo,
     ) {
     }
 
@@ -27,7 +27,7 @@ class BrandInput
     public static function fromArray(array $payload): self
     {
         $solutions = Arr::pull($payload, 'solutions', []);
-        $cover = Arr::pull($payload, 'cover', null);
+        $logo = Arr::pull($payload, 'logo', null);
 
         if (array_key_exists('region_id', $payload)) {
             $payload['region_id'] = (int) $payload['region_id'];
@@ -53,7 +53,7 @@ class BrandInput
         return new self(
             attributes: $payload,
             solutions: $normalizedSolutions,
-            cover: $cover,
+            logo: $logo,
         );
     }
 

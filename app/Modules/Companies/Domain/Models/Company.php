@@ -31,4 +31,9 @@ class Company extends Model implements HasMedia
     protected $casts = [
         'type' => CompanyType::class,
     ];
+
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('logo')->singleFile();
+    }
 }

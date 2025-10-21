@@ -17,7 +17,7 @@ class BrandResource extends JsonResource
         return [
             'id' => $this->id,
             'name' => $this->name,
-            'cover' => $this->cover,
+            'logo' => $this->logo,
             'region' => $this->region,
             'solution_ids' => $this->when($this->solutionIds, $this->solutionIds),
             'department_ids' => $this->when($this->departmentIds, $this->departmentIds),

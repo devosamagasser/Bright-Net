@@ -16,7 +16,7 @@ class BrandData
     private function __construct(
         public readonly int $id,
         public readonly string $name,
-        public readonly string $cover,
+        public readonly string $logo,
         public readonly int $regionId,
         public readonly ?array $region,
         public readonly array $solutionIds,
@@ -56,7 +56,7 @@ class BrandData
         return new self(
             id: $brand->getKey(),
             name: $brand->name,
-            cover: $brand->getFirstMediaUrl('cover') ,
+            logo: $brand->getFirstMediaUrl('logo') ,
             regionId: (int) $brand->region_id,
             region: $brand->region ? [
                 'id' => $brand->region->getKey(),

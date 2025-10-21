@@ -24,7 +24,7 @@ interface BrandRepositoryInterface
      * @param  array<string, mixed>  $attributes
      * @param  array<int, array{solution_id:int, departments:array<int, int>}>  $solutions
      */
-    public function create(array $attributes, array $solutions, UploadedFile $cover): Brand;
+    public function create(array $attributes, array $solutions, UploadedFile $logo): Brand;
 
     /**
      * Update an existing brand.
@@ -32,7 +32,7 @@ interface BrandRepositoryInterface
      * @param  array<string, mixed>  $attributes
      * @param  array<int, array{solution_id:int, departments:array<int, int>}>  $solutions
      */
-    public function update(Brand $brand, array $attributes, array $solutions, ?UploadedFile $cover = null): Brand;
+    public function update(Brand $brand, array $attributes, array $solutions, ?UploadedFile $logo = null): Brand;
 
     /**
      * Delete a brand from storage.
