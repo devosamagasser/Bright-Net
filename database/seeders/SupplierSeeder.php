@@ -36,6 +36,17 @@ class SupplierSeeder extends Seeder
                     'solution_id' => $solution->id,
                 ]);
 
+                // 🧭 الأقسام المرتبطة بالسوليوشن ده
+                $departmentIds = $solution->departments()
+                    ->inRandomOrder()
+                    ->take(rand(1, 3))
+                    ->pluck('departments.id')
+                    ->toArray();
+
+                if (! empty($departmentIds)) {
+                    $supplierSolution->departments()->syncWithoutDetaching($departmentIds);
+                }
+
                 // 🎯 هات البراندات المرتبطة بالسوليوشن ده فقط
                 $brandIds = $solution->brands()
                     ->inRandomOrder()

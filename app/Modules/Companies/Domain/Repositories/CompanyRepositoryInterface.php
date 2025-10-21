@@ -16,4 +16,6 @@ interface CompanyRepositoryInterface
     public function update(Company $company, array $attributes): Company;
 
     public function syncLogo(Company $company, ?UploadedFile $logo = null): void;
+
+    public function delete(Company $company): void;
 }

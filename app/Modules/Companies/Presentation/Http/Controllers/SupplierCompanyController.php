@@ -7,6 +7,7 @@ use App\Modules\Companies\Presentation\Resources\CompanyResource;
 use App\Modules\Companies\Application\UseCases\ShowCompanyUseCase;
 use App\Modules\Companies\Application\UseCases\CreateCompanyUseCase;
 use App\Modules\Companies\Application\UseCases\UpdateCompanyUseCase;
+use App\Modules\Companies\Application\UseCases\DeleteCompanyUseCase;
 use App\Modules\Companies\Application\UseCases\ListCompaniesByTypeUseCase;
 use App\Modules\Companies\Domain\ValueObjects\CompanyType;
 use App\Modules\Companies\Presentation\Http\Requests\Suppliers\StoreSupplierRequest;
@@ -20,6 +21,7 @@ class SupplierCompanyController
         private readonly ShowCompanyUseCase $showCompany,
         private readonly CreateCompanyUseCase $createCompany,
         private readonly UpdateCompanyUseCase $updateCompany,
+        private readonly DeleteCompanyUseCase $deleteCompany,
     ) {
     }
 
@@ -57,5 +59,16 @@ class SupplierCompanyController
         $companyData = $this->updateCompany->handle($company, $request->toCompanyInput($company));
 
         return new CompanyResource($companyData);
+    }
+
+    public function destroy(Company $company)
+    {
+        if ($company->type !== CompanyType::SUPPLIER) {
+            abort(404);
+        }
+
+        $this->deleteCompany->handle($company, CompanyType::SUPPLIER);
+
+        return response()->noContent();
     }
 }

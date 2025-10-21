@@ -9,6 +9,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use App\Modules\Companies\Domain\Models\Company;
+use App\Models\SupplierSolution;
+use App\Models\SupplierSolutionBrand;
+use App\Models\SupplierSolutionDepartment;
 
 class Supplier extends Model
 {
@@ -65,6 +68,19 @@ class Supplier extends Model
     {
         return $this->hasManyThrough(
             SupplierSolutionBrand::class,
+            SupplierSolution::class,
+            'supplier_id',
+            'supplier_solution_id'
+        );
+    }
+
+    /**
+     * Pivot records linking this supplier to departments via solutions.
+     */
+    public function supplierSolutionDepartments(): HasManyThrough
+    {
+        return $this->hasManyThrough(
+            SupplierSolutionDepartment::class,
             SupplierSolution::class,
             'supplier_id',
             'supplier_solution_id'

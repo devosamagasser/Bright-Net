@@ -4,6 +4,8 @@ namespace App\Models;
 
 use App\Modules\SolutionsCatalog\Domain\Models\Solution;
 use App\Modules\Brands\Domain\Models\Brand;
+use App\Modules\Departments\Domain\Models\Department;
+use App\Models\SupplierSolutionDepartment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -66,5 +68,26 @@ class SupplierSolution extends Model
     public function supplierSolutionBrands(): HasMany
     {
         return $this->hasMany(SupplierSolutionBrand::class);
+    }
+
+    /**
+     * Departments attached to this supplier-solution mapping.
+     */
+    public function departments(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            Department::class,
+            'supplier_solution_departments',
+            'supplier_solution_id',
+            'department_id'
+        )->withTimestamps();
+    }
+
+    /**
+     * Pivot records relating to departments.
+     */
+    public function supplierSolutionDepartments(): HasMany
+    {
+        return $this->hasMany(SupplierSolutionDepartment::class);
     }
 }

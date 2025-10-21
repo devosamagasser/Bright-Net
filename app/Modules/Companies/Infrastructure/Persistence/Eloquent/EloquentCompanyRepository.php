@@ -38,7 +38,13 @@ class EloquentCompanyRepository implements CompanyRepositoryInterface
             return;
         }
 
-        $company->addMedia($logo)
+        $company
+            ->addMedia($logo)
             ->toMediaCollection('logo');
+    }
+
+    public function delete(Company $company): void
+    {
+        $company->delete();
     }
 }
