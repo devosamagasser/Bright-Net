@@ -17,7 +17,7 @@ class CreateBrandUseCase
         $brand = $this->repository->create(
             $input->attributes,
             $input->solutions,
-            $input->cover,
+            $input->logo,
         );
 
         return BrandData::fromModel($brand);
