@@ -41,6 +41,30 @@ class EloquentBrandRepository implements BrandRepositoryInterface
         $brand->delete();
     }
 
+    public function getBySolution(int $solutionId): Collection
+    {
+        return $this->query()
+            ->whereHas('solutions', fn ($query) => $query->where('solutions.id', $solutionId))
+            ->with([
+                'region',
+                'departments' => fn ($query) => $query->where('solution_id', $solutionId),
+            ])
+            ->orderBy('name')
+            ->get();
+    }
+
+    public function findForSolution(int $solutionId, int $brandId): ?Brand
+    {
+        return $this->query()
+            ->whereKey($brandId)
+            ->whereHas('solutions', fn ($query) => $query->where('solutions.id', $solutionId))
+            ->with([
+                'region',
+                'departments' => fn ($query) => $query->where('solution_id', $solutionId),
+            ])
+            ->first();
+    }
+
     protected function query(): Builder
     {
         return Brand::query();
