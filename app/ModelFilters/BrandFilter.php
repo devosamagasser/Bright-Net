@@ -14,12 +14,10 @@ class BrandFilter extends ModelFilter
     */
     public $relations = [];
 
-
     public function region($regionId)
     {
         return $this->where('region_id', $regionId);
     }
-
 
     public function name($name)
     {

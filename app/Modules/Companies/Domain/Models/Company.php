@@ -1,20 +1,17 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\Companies\Domain\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\HasMedia;
+use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Modules\Companies\Domain\ValueObjects\CompanyType;
 
 class Company extends Model implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\CompanyFactory> */
     use HasFactory, InteractsWithMedia;
-
-    public const TYPE_SUPPLIER = 'supplier';
-    public const TYPE_CONTRACTOR = 'contractor';
-    public const TYPE_CONSULTANT = 'consultant';
 
     /**
      * Mass assignable attributes.
@@ -32,6 +29,6 @@ class Company extends Model implements HasMedia
      * @var array<string, string>
      */
     protected $casts = [
-        'type' => 'string',
+        'type' => CompanyType::class,
     ];
 }

@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\Company;
 use Illuminate\Database\Seeder;
+use App\Modules\Companies\Domain\Models\Company;
+use App\Modules\Companies\Domain\ValueObjects\CompanyType;
 
 class CompanySeeder extends Seeder
 {
@@ -15,15 +16,15 @@ class CompanySeeder extends Seeder
         $companies = [
             [
                 'name' => 'Tech Distribution Co.',
-                'type' => Company::TYPE_SUPPLIER,
+                'type' => CompanyType::SUPPLIER ,
             ],
             [
                 'name' => 'BritNet Contractors',
-                'type' => Company::TYPE_CONTRACTOR,
+                'type' => CompanyType::CONTRACTOR,
             ],
             [
                 'name' => 'Insight Consultants',
-                'type' => Company::TYPE_CONSULTANT,
+                'type' => CompanyType::CONSULTANT,
             ],
         ];
 
