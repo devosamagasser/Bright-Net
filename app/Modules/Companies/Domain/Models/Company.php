@@ -2,7 +2,6 @@
 
 namespace App\Modules\Companies\Domain\Models;
 
-use EloquentFilter\Filterable;
 use Spatie\MediaLibrary\HasMedia;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -12,9 +11,7 @@ use App\Modules\Companies\Domain\ValueObjects\CompanyType;
 class Company extends Model implements HasMedia
 {
     /** @use HasFactory<\Database\Factories\CompanyFactory> */
-    use HasFactory;
-    use InteractsWithMedia;
-    use Filterable;
+    use HasFactory, InteractsWithMedia;
 
     /**
      * Mass assignable attributes.
