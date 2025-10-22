@@ -7,7 +7,6 @@ use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Validator;
-use App\Modules\Departments\Domain\Models\Department;
 use App\Modules\Companies\Application\DTOs\CompanyInput;
 use App\Modules\Companies\Domain\Models\Company;
 use App\Modules\Companies\Domain\ValueObjects\CompanyType;
@@ -30,10 +29,10 @@ class UpdateSupplierRequest extends FormRequest
             'website' => ['nullable', 'url', 'max:255'],
             'solutions' => ['required', 'array', 'min:1'],
             'solutions.*.solution_id' => ['required', 'integer', 'distinct', Rule::exists('solutions', 'id')],
-            'solutions.*.departments' => ['nullable', 'array'],
-            'solutions.*.departments.*' => ['integer', 'distinct', Rule::exists('departments', 'id')],
-            'solutions.*.brands' => ['nullable', 'array'],
-            'solutions.*.brands.*' => ['integer', 'distinct', Rule::exists('brands', 'id')],
+            'solutions.*.brands' => ['required', 'array', 'min:1'],
+            'solutions.*.brands.*.brand_id' => ['required', 'integer', Rule::exists('brands', 'id')],
+            'solutions.*.brands.*.departments' => ['nullable', 'array'],
+            'solutions.*.brands.*.departments.*' => ['integer', 'distinct', Rule::exists('departments', 'id')],
         ];
     }
 
@@ -57,8 +56,7 @@ class UpdateSupplierRequest extends FormRequest
                     continue;
                 }
 
-                $this->validateDepartments($validator, $index, (int) $solutionId, $solution['departments'] ?? []);
-                $this->validateBrands($validator, $index, (int) $solutionId, $solution['brands'] ?? []);
+                $this->validateSolutionBrands($validator, $index, (int) $solutionId, $solution['brands'] ?? []);
             }
         });
     }
@@ -111,8 +109,7 @@ class UpdateSupplierRequest extends FormRequest
 
             $normalized[$solutionId] = [
                 'solution_id' => $solutionId,
-                'departments' => $this->uniqueIds($solution['departments'] ?? []),
-                'brands' => $this->uniqueIds($solution['brands'] ?? []),
+                'brands' => $this->normalizeBrands($solution['brands'] ?? []),
             ];
         }
 
@@ -128,46 +125,105 @@ class UpdateSupplierRequest extends FormRequest
         return array_values(array_unique(array_map(static fn ($value) => (int) $value, $values)));
     }
 
-    private function validateDepartments(Validator $validator, int $index, int $solutionId, mixed $departments): void
+    /**
+     * @param  array<int, mixed>  $brands
+     * @return array<int, array<string, mixed>>
+     */
+    private function normalizeBrands(array $brands): array
     {
+        $normalized = [];
+
+        foreach ($brands as $brand) {
+            if (! is_array($brand) || ! isset($brand['brand_id'])) {
+                continue;
+            }
+
+            $brandId = (int) $brand['brand_id'];
+
+            if ($brandId <= 0) {
+                continue;
+            }
+
+            $normalized[$brandId] = [
+                'brand_id' => $brandId,
+                'departments' => $this->uniqueIds($brand['departments'] ?? []),
+            ];
+        }
+
+        return array_values($normalized);
+    }
+
+    private function validateSolutionBrands(Validator $validator, int $solutionIndex, int $solutionId, mixed $brands): void
+    {
+        if (! is_array($brands) || $brands === []) {
+            return;
+        }
+
+        foreach ($brands as $brandIndex => $brand) {
+            if (! is_array($brand) || ! isset($brand['brand_id'])) {
+                continue;
+            }
+
+            $brandId = (int) $brand['brand_id'];
+
+            if ($brandId <= 0) {
+                continue;
+            }
+
+            if (! $this->brandBelongsToSolution($solutionId, $brandId)) {
+                $validator->errors()->add(
+                    "solutions.$solutionIndex.brands.$brandIndex.brand_id",
+                    'The selected brand is not linked to the specified solution.'
+                );
+
+                continue;
+            }
+
+            $this->validateBrandDepartments(
+                $validator,
+                $solutionIndex,
+                $brandIndex,
+                $solutionId,
+                $brandId,
+                $brand['departments'] ?? []
+            );
+        }
+    }
+
+    private function brandBelongsToSolution(int $solutionId, int $brandId): bool
+    {
+        return DB::table('solution_brands')
+            ->where('solution_id', $solutionId)
+            ->where('brand_id', $brandId)
+            ->exists();
+    }
+
+    private function validateBrandDepartments(
+        Validator $validator,
+        int $solutionIndex,
+        int $brandIndex,
+        int $solutionId,
+        int $brandId,
+        mixed $departments
+    ): void {
         if (! is_array($departments) || $departments === []) {
             return;
         }
 
         $departmentIds = $this->uniqueIds($departments);
 
-        $count = Department::query()
-            ->where('solution_id', $solutionId)
-            ->whereIn('id', $departmentIds)
+        $count = DB::table('brand_departments as bd')
+            ->join('departments as d', 'd.id', '=', 'bd.department_id')
+            ->where('bd.brand_id', $brandId)
+            ->where('d.solution_id', $solutionId)
+            ->whereIn('bd.department_id', $departmentIds)
             ->distinct()
-            ->count('id');
+            ->count('bd.department_id');
 
         if ($count !== count($departmentIds)) {
             $validator->errors()->add(
-                "solutions.$index.departments",
-                'One or more selected departments do not belong to the specified solution.'
-            );
-        }
-    }
-
-    private function validateBrands(Validator $validator, int $index, int $solutionId, mixed $brands): void
-    {
-        if (! is_array($brands) || $brands === []) {
-            return;
-        }
-
-        $brandIds = $this->uniqueIds($brands);
-
-        $count = DB::table('solution_brands')
-            ->where('solution_id', $solutionId)
-            ->whereIn('brand_id', $brandIds)
-            ->distinct()
-            ->count('brand_id');
-
-        if ($count !== count($brandIds)) {
-            $validator->errors()->add(
-                "solutions.$index.brands",
-                'One or more selected brands are not linked to the specified solution.'
+                "solutions.$solutionIndex.brands.$brandIndex.departments",
+                'One or more selected departments are not linked to the specified brand within this solution.'
             );
         }
     }

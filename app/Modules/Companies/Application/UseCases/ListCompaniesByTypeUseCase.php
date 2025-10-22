@@ -22,8 +22,10 @@ class ListCompaniesByTypeUseCase
 
         $paginator = $this->repository->paginateByType($type, $perPage, $profile->relations());
 
+        $includeProfile = $type !== CompanyType::SUPPLIER;
+
         $paginator->setCollection(
-            CompanyData::collection($paginator->getCollection(), $profile)
+            CompanyData::collection($paginator->getCollection(), $profile, $includeProfile)
         );
 
         return $paginator;
