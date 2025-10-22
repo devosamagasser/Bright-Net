@@ -32,7 +32,7 @@ class UpdateSupplierRequest extends FormRequest
             'solutions.*.brands' => ['required', 'array', 'min:1'],
             'solutions.*.brands.*.brand_id' => ['required', 'integer', Rule::exists('brands', 'id')],
             'solutions.*.brands.*.departments' => ['nullable', 'array'],
-            'solutions.*.brands.*.departments.*' => ['integer', 'distinct', Rule::exists('departments', 'id')],
+            'solutions.*.brands.*.departments.*' => ['integer', Rule::exists('departments', 'id')],
         ];
     }
 
