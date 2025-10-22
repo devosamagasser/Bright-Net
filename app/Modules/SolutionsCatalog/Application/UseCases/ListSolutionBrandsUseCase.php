@@ -18,7 +18,7 @@ class ListSolutionBrandsUseCase
 
     public function handle(int $solutionId): Collection
     {
-        if (! $this->solutionRepository->find($solutionId)) {
+        if (! $this->solutionRepository->exists($solutionId)) {
             throw new ModelNotFoundException();
         }
 
