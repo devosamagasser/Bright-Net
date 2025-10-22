@@ -24,6 +24,7 @@ Route::prefix('solutions')
         Route::get('{solution}/brands', [SolutionBrandController::class, 'index'])
             ->whereNumber('solution')
             ->name('brands.index');
+            
         Route::get('{solution}/brands/{brand}', [SolutionBrandController::class, 'show'])
             ->whereNumber('solution')
             ->whereNumber('brand')

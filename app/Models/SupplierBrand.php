@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Modules\Brands\Domain\Models\Brand;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class SupplierSolutionBrand extends Model
+class SupplierBrand extends Model
 {
     /**
      * Mass assignable attributes.
@@ -28,19 +28,4 @@ class SupplierSolutionBrand extends Model
         'brand_id' => 'integer',
     ];
 
-    /**
-     * Related supplier-solution pivot.
-     */
-    public function supplierSolution(): BelongsTo
-    {
-        return $this->belongsTo(SupplierSolution::class);
-    }
-
-    /**
-     * Related brand.
-     */
-    public function brand(): BelongsTo
-    {
-        return $this->belongsTo(Brand::class);
-    }
 }

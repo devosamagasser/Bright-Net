@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('supplier_solution_departments', function (Blueprint $table) {
+        Schema::create('supplier_departments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('supplier_solution_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('supplier_brand_id')->constrained()->cascadeOnDelete();
             $table->foreignId('department_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
-
-            $table->unique(['supplier_solution_id', 'department_id']);
+            $table->unique(['supplier_brand_id', 'department_id']);
         });
     }
 
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('supplier_solution_departments');
+        Schema::dropIfExists('supplier_departments');
     }
 };

@@ -43,47 +43,4 @@ class Supplier extends Model
     {
         return $this->belongsTo(Company::class);
     }
-
-    /**
-     * Pivot records connecting this supplier to solutions.
-     */
-    public function supplierSolutions(): HasMany
-    {
-        return $this->hasMany(SupplierSolution::class);
-    }
-
-    /**
-     * Solutions delivered by this supplier.
-     */
-    public function solutions(): BelongsToMany
-    {
-        return $this->belongsToMany(Solution::class, 'supplier_solutions')
-            ->withTimestamps();
-    }
-
-    /**
-     * Pivot records linking this supplier to brands via solutions.
-     */
-    public function supplierSolutionBrands(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            SupplierSolutionBrand::class,
-            SupplierSolution::class,
-            'supplier_id',
-            'supplier_solution_id'
-        );
-    }
-
-    /**
-     * Pivot records linking this supplier to departments via solutions.
-     */
-    public function supplierSolutionDepartments(): HasManyThrough
-    {
-        return $this->hasManyThrough(
-            SupplierSolutionDepartment::class,
-            SupplierSolution::class,
-            'supplier_id',
-            'supplier_solution_id'
-        );
-    }
 }

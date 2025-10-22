@@ -12,94 +12,94 @@ class SolutionSeeder extends Seeder
         $solutions = [
             [
                 'translations' => [
-                    'en' => ['name' => 'Network Infrastructure'],
-                    'ar' => ['name' => 'البنية التحتية للشبكات'],
+                    'en' => ['name' => 'Lighting'],
+                    'ar' => ['name' => 'الإضاءة'],
                 ],
                 'departments' => [
                     [
                         'translations' => [
-                            'en' => ['name' => 'Switching'],
-                            'ar' => ['name' => 'المبدلات'],
+                            'en' => ['name' => 'Indoor Lighting'],
+                            'ar' => ['name' => 'إضاءة داخلية'],
                         ],
                         'subcategories' => [
                             [
                                 'translations' => [
-                                    'en' => ['name' => 'Core Switching'],
-                                    'ar' => ['name' => 'المبدلات المركزية'],
+                                    'en' => ['name' => 'Downlights'],
+                                    'ar' => ['name' => 'الإضاءة السقفية'],
                                 ],
                             ],
                             [
                                 'translations' => [
-                                    'en' => ['name' => 'Edge Switching'],
-                                    'ar' => ['name' => 'مبدلات الأطراف'],
+                                    'en' => ['name' => 'Spotlights'],
+                                    'ar' => ['name' => 'الإضاءة الموجهة'],
+                                ],
+                            ],
+                            [
+                                'translations' => [
+                                    'en' => ['name' => 'Panel Lights'],
+                                    'ar' => ['name' => 'إضاءة الألواح'],
+                                ],
+                            ],
+                            [
+                                'translations' => [
+                                    'en' => ['name' => 'Track Lights'],
+                                    'ar' => ['name' => 'إضاءة المسار'],
+                                ],
+                            ],
+                            [
+                                'translations' => [
+                                    'en' => ['name' => 'Recessed Lighting'],
+                                    'ar' => ['name' => 'إضاءة داخل الحوائط أو الأسقف'],
+                                ],
+                            ],
+                            [
+                                'translations' => [
+                                    'en' => ['name' => 'Ceiling Lights'],
+                                    'ar' => ['name' => 'إضاءة السقف'],
                                 ],
                             ],
                         ],
                     ],
                     [
                         'translations' => [
-                            'en' => ['name' => 'Wireless'],
-                            'ar' => ['name' => 'الشبكات اللاسلكية'],
+                            'en' => ['name' => 'Outdoor Lighting'],
+                            'ar' => ['name' => 'إضاءة خارجية'],
                         ],
                         'subcategories' => [
                             [
                                 'translations' => [
-                                    'en' => ['name' => 'Indoor Wi-Fi'],
-                                    'ar' => ['name' => 'واي فاي داخلي'],
+                                    'en' => ['name' => 'Street Lights'],
+                                    'ar' => ['name' => 'إضاءة الشوارع'],
                                 ],
                             ],
                             [
                                 'translations' => [
-                                    'en' => ['name' => 'Outdoor Wi-Fi'],
-                                    'ar' => ['name' => 'واي فاي خارجي'],
-                                ],
-                            ],
-                        ],
-                    ],
-                ],
-            ],
-            [
-                'translations' => [
-                    'en' => ['name' => 'Security & Monitoring'],
-                    'ar' => ['name' => 'الأمن والمراقبة'],
-                ],
-                'departments' => [
-                    [
-                        'translations' => [
-                            'en' => ['name' => 'Surveillance'],
-                            'ar' => ['name' => 'المراقبة'],
-                        ],
-                        'subcategories' => [
-                            [
-                                'translations' => [
-                                    'en' => ['name' => 'IP Cameras'],
-                                    'ar' => ['name' => 'كاميرات الشبكة'],
+                                    'en' => ['name' => 'Flood Lights'],
+                                    'ar' => ['name' => 'كشافات'],
                                 ],
                             ],
                             [
                                 'translations' => [
-                                    'en' => ['name' => 'Video Analytics'],
-                                    'ar' => ['name' => 'تحليلات الفيديو'],
-                                ],
-                            ],
-                        ],
-                    ],
-                    [
-                        'translations' => [
-                            'en' => ['name' => 'Access Control'],
-                            'ar' => ['name' => 'التحكم في الدخول'],
-                        ],
-                        'subcategories' => [
-                            [
-                                'translations' => [
-                                    'en' => ['name' => 'Door Controllers'],
-                                    'ar' => ['name' => 'وحدات تحكم الأبواب'],
+                                    'en' => ['name' => 'Bollards'],
+                                    'ar' => ['name' => 'إضاءة الأعمدة القصيرة'],
                                 ],
                             ],
                             [
                                 'translations' => [
-                                    'en' => ['name' => 'Biometric Readers'],
-                                    'ar' => ['name' => 'قارئات بيومترية'],
+                                    'en' => ['name' => 'Wall Mounted'],
+                                    'ar' => ['name' => 'إضاءة الجدران'],
+                                ],
+                            ],
+                            [
+                                'translations' => [
+                                    'en' => ['name' => 'Landscape Lighting'],
+                                    'ar' => ['name' => 'إضاءة الحدائق والمناظر'],
+                                ],
+                            ],
+                            [
+                                'translations' => [
+                                    'en' => ['name' => 'Step Lights'],
+                                    'ar' => ['name' => 'إضاءة السلالم'],
                                 ],
                             ],
                         ],
@@ -107,6 +107,7 @@ class SolutionSeeder extends Seeder
                 ],
             ],
         ];
+
 
         // 🔹 إنشاء الحلول مع الترجمات والعلاقات
         foreach ($solutions as $solutionData) {

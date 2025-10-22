@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use App\Modules\Departments\Domain\Models\Department;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class SupplierSolutionDepartment extends Model
+class SupplierDepartment extends Model
 {
     /**
      * Mass assignable attributes.
@@ -14,7 +14,7 @@ class SupplierSolutionDepartment extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'supplier_solution_id',
+        'supplier_brand_id',
         'department_id',
     ];
 
@@ -24,23 +24,8 @@ class SupplierSolutionDepartment extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'supplier_solution_id' => 'integer',
+        'supplier_brand_id' => 'integer',
         'department_id' => 'integer',
     ];
 
-    /**
-     * Related supplier-solution pivot.
-     */
-    public function supplierSolution(): BelongsTo
-    {
-        return $this->belongsTo(SupplierSolution::class);
-    }
-
-    /**
-     * Related department.
-     */
-    public function department(): BelongsTo
-    {
-        return $this->belongsTo(Department::class);
-    }
 }
