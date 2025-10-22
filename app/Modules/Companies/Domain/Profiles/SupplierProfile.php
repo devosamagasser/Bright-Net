@@ -190,39 +190,68 @@ class SupplierProfile implements CompanyProfileInterface
             return;
         }
 
-        $existing = DB::table('supplier_solutions')
-            ->where('supplier_id', $supplierId)
-            ->pluck('id', 'solution_id');
+        $solutionIds = array_values(array_unique(array_map(
+            static fn (array $solution): int => (int) $solution['solution_id'],
+            $solutions
+        )));
+
+        $solutionIds = array_values(array_filter(
+            $solutionIds,
+            static fn (int $solutionId): bool => $solutionId > 0
+        ));
+
+        if ($solutionIds === []) {
+            DB::table('supplier_solutions')
+                ->where('supplier_id', $supplierId)
+                ->delete();
+
+            return;
+        }
 
         $now = now();
-        $retained = [];
 
-        foreach ($solutions as $solution) {
-            $solutionId = (int) $solution['solution_id'];
-            $supplierSolutionId = $existing[$solutionId] ?? null;
-
-            if ($supplierSolutionId === null) {
-                $supplierSolutionId = (int) DB::table('supplier_solutions')->insertGetId([
+        $records = array_map(
+            static function (int $solutionId) use ($supplierId, $now): array {
+                return [
                     'supplier_id' => $supplierId,
                     'solution_id' => $solutionId,
                     'created_at' => $now,
                     'updated_at' => $now,
-                ]);
-            } else {
-                DB::table('supplier_solutions')
-                    ->where('id', $supplierSolutionId)
-                    ->update(['updated_at' => $now]);
+                ];
+            },
+            $solutionIds
+        );
+
+        DB::table('supplier_solutions')->upsert(
+            $records,
+            ['supplier_id', 'solution_id'],
+            ['updated_at']
+        );
+
+        $solutionRecords = DB::table('supplier_solutions')
+            ->where('supplier_id', $supplierId)
+            ->pluck('id', 'solution_id');
+
+        $currentSolutions = $solutionRecords->only($solutionIds);
+
+        foreach ($solutions as $solution) {
+            $solutionId = (int) $solution['solution_id'];
+            $supplierSolutionId = $currentSolutions->get($solutionId);
+
+            if ($supplierSolutionId === null) {
+                continue;
             }
 
-            $retained[] = $supplierSolutionId;
-
-            $this->syncBrands($supplierSolutionId, $solution['brands'] ?? []);
+            $this->syncBrands((int) $supplierSolutionId, $solution['brands'] ?? []);
         }
 
-        DB::table('supplier_solutions')
-            ->where('supplier_id', $supplierId)
-            ->whereNotIn('id', $retained)
-            ->delete();
+        $removedSolutions = $solutionRecords->except($solutionIds)->values();
+
+        if ($removedSolutions->isNotEmpty()) {
+            DB::table('supplier_solutions')
+                ->whereIn('id', $removedSolutions->all())
+                ->delete();
+        }
     }
 
     /**
@@ -230,14 +259,37 @@ class SupplierProfile implements CompanyProfileInterface
      */
     private function syncBrands(int $supplierSolutionId, array $brands): void
     {
-        if ($brands === []) {
+        $brandMap = [];
+
+        foreach ($brands as $brand) {
+            if (! is_array($brand) || ! isset($brand['brand_id'])) {
+                continue;
+            }
+
+            $brandId = (int) $brand['brand_id'];
+
+            if ($brandId <= 0) {
+                continue;
+            }
+
+            $departments = $this->uniqueIds($brand['departments'] ?? []);
+
+            if (! array_key_exists($brandId, $brandMap)) {
+                $brandMap[$brandId] = $departments;
+                continue;
+            }
+
+            $brandMap[$brandId] = $this->uniqueIds(array_merge($brandMap[$brandId], $departments));
+        }
+
+        if ($brandMap === []) {
             $brandIds = DB::table('supplier_brands')
                 ->where('supplier_solution_id', $supplierSolutionId)
                 ->pluck('id');
 
             if ($brandIds->isNotEmpty()) {
                 DB::table('supplier_departments')
-                    ->whereIn('supplier_brand_id', $brandIds)
+                    ->whereIn('supplier_brand_id', $brandIds->all())
                     ->delete();
             }
 
@@ -248,50 +300,54 @@ class SupplierProfile implements CompanyProfileInterface
             return;
         }
 
-        $existing = DB::table('supplier_brands')
-            ->where('supplier_solution_id', $supplierSolutionId)
-            ->pluck('id', 'brand_id');
-
         $now = now();
-        $retained = [];
+        $brandIds = array_keys($brandMap);
 
-        foreach ($brands as $brand) {
-            $brandId = (int) $brand['brand_id'];
-            $supplierBrandId = $existing[$brandId] ?? null;
-
-            if ($supplierBrandId === null) {
-                $supplierBrandId = (int) DB::table('supplier_brands')->insertGetId([
+        $records = array_map(
+            static function (int $brandId) use ($supplierSolutionId, $now): array {
+                return [
                     'supplier_solution_id' => $supplierSolutionId,
                     'brand_id' => $brandId,
                     'created_at' => $now,
                     'updated_at' => $now,
-                ]);
-            } else {
-                DB::table('supplier_brands')
-                    ->where('id', $supplierBrandId)
-                    ->update(['updated_at' => $now]);
+                ];
+            },
+            $brandIds
+        );
+
+        DB::table('supplier_brands')->upsert(
+            $records,
+            ['supplier_solution_id', 'brand_id'],
+            ['updated_at']
+        );
+
+        $brandRecords = DB::table('supplier_brands')
+            ->where('supplier_solution_id', $supplierSolutionId)
+            ->pluck('id', 'brand_id');
+
+        $currentBrands = $brandRecords->only($brandIds);
+
+        foreach ($brandMap as $brandId => $departments) {
+            $supplierBrandId = $currentBrands->get($brandId);
+
+            if ($supplierBrandId === null) {
+                continue;
             }
 
-            $retained[] = $supplierBrandId;
-
-            $this->syncDepartments($supplierBrandId, $brand['departments'] ?? []);
+            $this->syncDepartments((int) $supplierBrandId, $departments);
         }
 
-        $removed = DB::table('supplier_brands')
-            ->where('supplier_solution_id', $supplierSolutionId)
-            ->whereNotIn('id', $retained)
-            ->pluck('id');
+        $removedBrands = $brandRecords->except($brandIds)->values();
 
-        if ($removed->isNotEmpty()) {
+        if ($removedBrands->isNotEmpty()) {
             DB::table('supplier_departments')
-                ->whereIn('supplier_brand_id', $removed->all())
+                ->whereIn('supplier_brand_id', $removedBrands->all())
+                ->delete();
+
+            DB::table('supplier_brands')
+                ->whereIn('id', $removedBrands->all())
                 ->delete();
         }
-
-        DB::table('supplier_brands')
-            ->where('supplier_solution_id', $supplierSolutionId)
-            ->whereNotIn('id', $retained)
-            ->delete();
     }
 
     /**
@@ -309,30 +365,25 @@ class SupplierProfile implements CompanyProfileInterface
             return;
         }
 
-        $existing = DB::table('supplier_departments')
-            ->where('supplier_brand_id', $supplierBrandId)
-            ->pluck('id', 'department_id');
-
         $now = now();
 
-        foreach ($departmentIds as $departmentId) {
-            $supplierDepartmentId = $existing[$departmentId] ?? null;
-
-            if ($supplierDepartmentId === null) {
-                DB::table('supplier_departments')->insert([
+        $records = array_map(
+            static function (int $departmentId) use ($supplierBrandId, $now): array {
+                return [
                     'supplier_brand_id' => $supplierBrandId,
                     'department_id' => $departmentId,
                     'created_at' => $now,
                     'updated_at' => $now,
-                ]);
+                ];
+            },
+            $departmentIds
+        );
 
-                continue;
-            }
-
-            DB::table('supplier_departments')
-                ->where('id', $supplierDepartmentId)
-                ->update(['updated_at' => $now]);
-        }
+        DB::table('supplier_departments')->upsert(
+            $records,
+            ['supplier_brand_id', 'department_id'],
+            ['updated_at']
+        );
 
         DB::table('supplier_departments')
             ->where('supplier_brand_id', $supplierBrandId)
