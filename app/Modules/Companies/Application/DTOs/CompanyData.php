@@ -23,7 +23,7 @@ class CompanyData
     ) {
     }
 
-    public static function fromModel(Company $company, CompanyProfileInterface $profile): self
+    public static function fromModel(Company $company, CompanyProfileInterface $profile, bool $withProfile = true): self
     {
         return new self(
             id: $company->getKey(),
@@ -31,7 +31,7 @@ class CompanyData
             description: $company->description,
             type: $company->type->value,
             logo: $company->getFirstMediaUrl('logo') ?: null,
-            profile: $profile->serialize($company),
+            profile: $withProfile ? $profile->serialize($company) : [],
             createdAt: $company->created_at?->toISOString() ?? '',
             updatedAt: $company->updated_at?->toISOString() ?? '',
         );
@@ -41,8 +41,8 @@ class CompanyData
      * @param  Collection<int, Company>  $companies
      * @return Collection<int, self>
      */
-    public static function collection(Collection $companies, CompanyProfileInterface $profile): Collection
+    public static function collection(Collection $companies, CompanyProfileInterface $profile, bool $withProfile = true): Collection
     {
-        return $companies->map(static fn (Company $company) => self::fromModel($company, $profile));
+        return $companies->map(static fn (Company $company) => self::fromModel($company, $profile, $withProfile));
     }
 }
