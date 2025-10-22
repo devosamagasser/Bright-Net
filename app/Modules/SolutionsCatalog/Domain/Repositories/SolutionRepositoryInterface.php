@@ -18,6 +18,11 @@ interface SolutionRepositoryInterface
     public function find(int $id): ?Solution;
 
     /**
+     * Determine if a solution exists for the given identifier.
+     */
+    public function exists(int $id): bool;
+
+    /**
      * Persist a new solution with the provided attributes and translated names.
      *
      * @param  array<string, mixed>  $attributes

@@ -45,6 +45,13 @@ class SolutionBrandEndpointsTest extends TestCase
         $response->assertJsonFragment(['id' => $departmentB->getKey(), 'name' => 'Security']);
     }
 
+    public function test_it_returns_not_found_for_missing_solution(): void
+    {
+        $response = $this->getJson(route('api.solutions.brands.index', ['solution' => 999]));
+
+        $response->assertNotFound();
+    }
+
     public function test_it_shows_a_brand_within_a_solution(): void
     {
         $solution = $this->createSolution('Cyber Security');

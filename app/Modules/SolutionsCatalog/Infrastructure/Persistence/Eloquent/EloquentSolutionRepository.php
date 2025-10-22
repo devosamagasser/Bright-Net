@@ -32,6 +32,14 @@ class EloquentSolutionRepository implements SolutionRepositoryInterface
     /**
      * @inheritDoc
      */
+    public function exists(int $id): bool
+    {
+        return $this->query()->whereKey($id)->exists();
+    }
+
+    /**
+     * @inheritDoc
+     */
     public function create(array $attributes, array $translations): Solution
     {
         $solution = new Solution();
