@@ -7,9 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Modules\Companies\Domain\ValueObjects\CompanyType;
-use App\Modules\AccessControl\Domain\Models\CompanyUser;
 use App\Models\Supplier;
-use Illuminate\Database\Eloquent\Relations\{HasMany, HasOne};
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Company extends Model implements HasMedia
 {
@@ -44,10 +43,5 @@ class Company extends Model implements HasMedia
     public function supplier(): HasOne
     {
         return $this->hasOne(Supplier::class);
-    }
-
-    public function users(): HasMany
-    {
-        return $this->hasMany(CompanyUser::class);
     }
 }
