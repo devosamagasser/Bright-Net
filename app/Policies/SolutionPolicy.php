@@ -2,8 +2,9 @@
 
 namespace App\Policies;
 
-use App\Modules\SolutionsCatalog\Domain\Models\Solution;
 use App\Models\User;
+use App\Modules\SolutionsCatalog\Domain\Models\Solution;
+use Illuminate\Auth\Access\Response;
 
 class SolutionPolicy
 {

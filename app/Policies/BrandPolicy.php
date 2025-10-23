@@ -4,6 +4,7 @@ namespace App\Policies;
 
 use App\Modules\Brands\Domain\Models\Brand;
 use App\Models\User;
+use Illuminate\Auth\Access\Response;
 
 class BrandPolicy
 {
