@@ -2,7 +2,9 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -20,6 +22,13 @@ class DatabaseSeeder extends Seeder
             CompanySeeder::class,
             SupplierSeeder::class,
             AccessControlSeeder::class,
+        ]);
+
+        User::create([
+            'name' => 'Owner',
+            'email' => 'owner@owner.com',
+            'password' => Hash::make('password'),
+            'is_owner' => true,
         ]);
     }
 }
