@@ -3,16 +3,17 @@
 namespace App\Modules\Companies\Presentation\Http\Controllers;
 
 use App\Modules\Companies\Domain\Models\Company;
+use App\Modules\Shared\Support\Helper\ApiResponse;
+use App\Modules\Companies\Domain\ValueObjects\CompanyType;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Modules\Companies\Presentation\Resources\CompanyResource;
 use App\Modules\Companies\Application\UseCases\ShowCompanyUseCase;
 use App\Modules\Companies\Application\UseCases\CreateCompanyUseCase;
-use App\Modules\Companies\Application\UseCases\UpdateCompanyUseCase;
 use App\Modules\Companies\Application\UseCases\DeleteCompanyUseCase;
+use App\Modules\Companies\Application\UseCases\UpdateCompanyUseCase;
 use App\Modules\Companies\Application\UseCases\ListCompaniesByTypeUseCase;
-use App\Modules\Companies\Domain\ValueObjects\CompanyType;
 use App\Modules\Companies\Presentation\Http\Requests\Suppliers\StoreSupplierRequest;
 use App\Modules\Companies\Presentation\Http\Requests\Suppliers\UpdateSupplierRequest;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class SupplierCompanyController
 {
@@ -25,11 +26,11 @@ class SupplierCompanyController
     ) {
     }
 
-    public function index(): AnonymousResourceCollection
+    public function index()
     {
         $paginator = $this->listCompanies->handle(CompanyType::SUPPLIER, (int) request()->query('per_page', 15));
 
-        return CompanyResource::collection($paginator);
+        return ApiResponse::success(CompanyResource::collection($paginator));
     }
 
     public function store(StoreSupplierRequest $request): CompanyResource

@@ -15,7 +15,7 @@ class BrandInput
     private function __construct(
         public readonly array $attributes,
         public readonly array $solutions,
-        public readonly UploadedFile $logo,
+        public readonly ?UploadedFile $logo = null,
     ) {
     }
 

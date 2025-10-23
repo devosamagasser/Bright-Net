@@ -33,7 +33,7 @@ class EloquentBrandRepository implements BrandRepositoryInterface
 
     public function update(Brand $brand, array $attributes, array $solutions, ?UploadedFile $logo = null): Brand
     {
-        return $this->fillBrand(new Brand(), $attributes, $solutions, $logo);
+        return $this->fillBrand($brand, $attributes, $solutions, $logo);
     }
 
     public function delete(Brand $brand): void
