@@ -1,5 +1,7 @@
 <?php
 
+use App\Models\CompanyUser;
+
 return [
 
     /*
@@ -40,16 +42,10 @@ return [
             'driver' => 'session',
             'provider' => 'users',
         ],
-
-        'platform' => [
-            'driver' => 'sanctum',
-            'provider' => 'users',
-        ],
-
         'company' => [
-            'driver' => 'sanctum',
-            'provider' => 'company_users',
-        ],
+            'driver' => 'session',
+            'provider' => 'company',
+        ]
     ],
 
     /*
@@ -74,11 +70,15 @@ return [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', App\Models\User::class),
         ],
-
-        'company_users' => [
+        'company' => [
             'driver' => 'eloquent',
-            'model' => App\Modules\AccessControl\Domain\Models\CompanyUser::class,
+            'model' => env('AUTH_MODEL', CompanyUser::class)
         ],
+
+        // 'users' => [
+        //     'driver' => 'database',
+        //     'table' => 'users',
+        // ],
     ],
 
     /*
@@ -107,9 +107,9 @@ return [
             'expire' => 60,
             'throttle' => 60,
         ],
-
-        'company_users' => [
-            'provider' => 'company_users',
+        
+        'company' => [
+            'provider' => 'company',
             'table' => env('AUTH_PASSWORD_RESET_TOKEN_TABLE', 'password_reset_tokens'),
             'expire' => 60,
             'throttle' => 60,

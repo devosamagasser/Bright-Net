@@ -49,17 +49,11 @@ class SupplierProfile implements CompanyProfileInterface
 
         if ($supplier === null) {
             return [
-                'contact_email' => null,
-                'contact_phone' => null,
-                'website' => null,
                 'solutions' => [],
             ];
         }
 
         return [
-            'contact_email' => $supplier['contact_email'],
-            'contact_phone' => $supplier['contact_phone'],
-            'website' => $supplier['website'],
             'solutions' => $this->loadSupplierSolutions((int) $supplier['id']),
         ];
     }
@@ -71,9 +65,6 @@ class SupplierProfile implements CompanyProfileInterface
     private function contactAttributes(array $payload): array
     {
         return [
-            'contact_email' => $payload['contact_email'] ?? null,
-            'contact_phone' => $payload['contact_phone'] ?? null,
-            'website' => $payload['website'] ?? null,
         ];
     }
 
@@ -157,9 +148,6 @@ class SupplierProfile implements CompanyProfileInterface
         if ($existing === null) {
             return (int) DB::table('suppliers')->insertGetId([
                 'company_id' => $company->getKey(),
-                'contact_email' => $attributes['contact_email'] ?? null,
-                'contact_phone' => $attributes['contact_phone'] ?? null,
-                'website' => $attributes['website'] ?? null,
                 'created_at' => $now,
                 'updated_at' => $now,
             ]);
@@ -168,9 +156,6 @@ class SupplierProfile implements CompanyProfileInterface
         DB::table('suppliers')
             ->where('id', $existing->id)
             ->update([
-                'contact_email' => $attributes['contact_email'] ?? null,
-                'contact_phone' => $attributes['contact_phone'] ?? null,
-                'website' => $attributes['website'] ?? null,
                 'updated_at' => $now,
             ]);
 
@@ -183,7 +168,7 @@ class SupplierProfile implements CompanyProfileInterface
     private function syncSolutions(int $supplierId, array $solutions): void
     {
         if ($solutions === []) {
-            DB::table('supplier_solutions')
+            DB::table(table: 'supplier_solutions')
                 ->where('supplier_id', $supplierId)
                 ->delete();
 
@@ -403,9 +388,6 @@ class SupplierProfile implements CompanyProfileInterface
 
         return [
             'id' => (int) $record->id,
-            'contact_email' => $record->contact_email,
-            'contact_phone' => $record->contact_phone,
-            'website' => $record->website,
         ];
     }
 

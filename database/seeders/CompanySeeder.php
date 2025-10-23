@@ -16,7 +16,11 @@ class CompanySeeder extends Seeder
         $companies = [
             [
                 'name' => 'Tech Distribution Co.',
-                'type' => CompanyType::SUPPLIER ,
+                'description' => 'A leading tech distributor.',
+                'contact_email' => 'info@techdistribution.com',
+                'contact_phone' => '123-456-7890',
+                'website' => 'https://www.techdistribution.com',
+                'type' => CompanyType::SUPPLIER,
             ],
             [
                 'name' => 'BritNet Contractors',

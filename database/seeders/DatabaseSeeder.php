@@ -19,16 +19,14 @@ class DatabaseSeeder extends Seeder
             TagSeeder::class,
             SolutionSeeder::class,
             BrandSeeder::class,
-            CompanySeeder::class,
-            SupplierSeeder::class,
-            AccessControlSeeder::class,
+            // CompanySeeder::class,
+            // SupplierSeeder::class,
         ]);
 
         User::create([
             'name' => 'Owner',
             'email' => 'owner@owner.com',
             'password' => Hash::make('password'),
-            'is_owner' => true,
         ]);
     }
 }

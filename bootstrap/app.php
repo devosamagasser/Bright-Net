@@ -3,7 +3,6 @@
 use App\Http\Middleware\SetLocale;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\{Exceptions, Middleware};
-use Spatie\Permission\Middleware\{PermissionMiddleware, RoleMiddleware, RoleOrPermissionMiddleware};
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
@@ -17,9 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             // 'abilities' => CheckAbilities::class,
             // 'ability' => CheckForAnyAbility::class,
             'locale' => SetLocale::class,
-            'role' => RoleMiddleware::class,
-            'permission' => PermissionMiddleware::class,
-            'role_or_permission' => RoleOrPermissionMiddleware::class,
+            // 'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

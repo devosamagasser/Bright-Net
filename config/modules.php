@@ -21,6 +21,7 @@ return [
         \App\Modules\SupplierEngagements\Infrastructure\Providers\SupplierEngagementsServiceProvider::class,
         \App\Modules\Taxonomy\Infrastructure\Providers\TaxonomyServiceProvider::class,
         \App\Modules\AccessControl\Infrastructure\Providers\AccessControlServiceProvider::class,
+        \App\Modules\Authentication\Infrastructure\Providers\AuthenticationServiceProvider::class,
     ],
 ];
 

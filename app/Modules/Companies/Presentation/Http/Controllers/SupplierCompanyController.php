@@ -5,7 +5,6 @@ namespace App\Modules\Companies\Presentation\Http\Controllers;
 use App\Modules\Companies\Domain\Models\Company;
 use App\Modules\Shared\Support\Helper\ApiResponse;
 use App\Modules\Companies\Domain\ValueObjects\CompanyType;
-use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use App\Modules\Companies\Presentation\Resources\CompanyResource;
 use App\Modules\Companies\Application\UseCases\ShowCompanyUseCase;
 use App\Modules\Companies\Application\UseCases\CreateCompanyUseCase;
