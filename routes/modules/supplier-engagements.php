@@ -3,22 +3,22 @@
 use Illuminate\Support\Facades\Route;
 use App\Modules\SupplierEngagements\Presentation\Http\Controllers\SupplierEngagementController;
 
-Route::prefix('companies/suppliers/{company}/engagements')
+Route::prefix('suppliers/{company}')
     ->whereNumber('company')
-    ->name('companies.suppliers.engagements.')
+    ->name('suppliers.')
     ->group(function (): void {
         Route::get('solutions', [SupplierEngagementController::class, 'solutions'])
             ->name('solutions.index');
 
-        Route::get('solutions/{supplierSolution}/brands', [SupplierEngagementController::class, 'brands'])
+        Route::get('solutions/{supplierSolution}', [SupplierEngagementController::class, 'brands'])
             ->whereNumber('supplierSolution')
             ->name('solutions.brands.index');
 
-        Route::get('brands/{supplierBrand}/departments', [SupplierEngagementController::class, 'departments'])
+        Route::get('brands/{supplierBrand}', [SupplierEngagementController::class, 'departments'])
             ->whereNumber('supplierBrand')
             ->name('brands.departments.index');
 
-        Route::get('departments/{supplierDepartment}/subcategories', [SupplierEngagementController::class, 'subcategories'])
+        Route::get('departments/{supplierDepartment}', [SupplierEngagementController::class, 'subcategories'])
             ->whereNumber('supplierDepartment')
             ->name('departments.subcategories.index');
     });
