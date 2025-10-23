@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Modules\Departments\Domain\Models\Department;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class SupplierDepartment extends Model
@@ -28,4 +28,19 @@ class SupplierDepartment extends Model
         'department_id' => 'integer',
     ];
 
+    /**
+     * Parent supplier-brand association.
+     */
+    public function supplierBrand(): BelongsTo
+    {
+        return $this->belongsTo(SupplierBrand::class);
+    }
+
+    /**
+     * Underlying department entity.
+     */
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
 }

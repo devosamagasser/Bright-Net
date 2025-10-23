@@ -3,12 +3,8 @@
 namespace App\Models;
 
 use App\Modules\SolutionsCatalog\Domain\Models\Solution;
-use App\Modules\Brands\Domain\Models\Brand;
-use App\Modules\Departments\Domain\Models\Department;
-use App\Models\SupplierSolutionDepartment;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class SupplierSolution extends Model
@@ -41,4 +37,19 @@ class SupplierSolution extends Model
         return $this->belongsTo(Supplier::class);
     }
 
+    /**
+     * Related solution model.
+     */
+    public function solution(): BelongsTo
+    {
+        return $this->belongsTo(Solution::class);
+    }
+
+    /**
+     * Brands attached to this supplier-solution pairing.
+     */
+    public function brands(): HasMany
+    {
+        return $this->hasMany(SupplierBrand::class);
+    }
 }

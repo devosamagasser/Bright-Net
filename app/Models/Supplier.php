@@ -2,16 +2,11 @@
 
 namespace App\Models;
 
-use App\Modules\SolutionsCatalog\Domain\Models\Solution;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use App\Modules\Companies\Domain\Models\Company;
 use App\Models\SupplierSolution;
-use App\Models\SupplierSolutionBrand;
-use App\Models\SupplierSolutionDepartment;
 
 class Supplier extends Model
 {
@@ -42,5 +37,13 @@ class Supplier extends Model
     public function company(): BelongsTo
     {
         return $this->belongsTo(Company::class);
+    }
+
+    /**
+     * Solutions that this supplier is associated with.
+     */
+    public function solutions(): HasMany
+    {
+        return $this->hasMany(SupplierSolution::class);
     }
 }
