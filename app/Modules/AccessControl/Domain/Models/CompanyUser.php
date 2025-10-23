@@ -1,33 +1,34 @@
 <?php
 
-namespace App\Models;
+namespace App\Modules\AccessControl\Domain\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Modules\Companies\Domain\Models\Company;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-class User extends Authenticatable
+class CompanyUser extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasApiTokens;
     use HasFactory;
     use HasRoles;
     use Notifiable;
 
     /**
-     * The guard associated with the model for Spatie permissions.
+     * The guard associated with the model.
      */
-    protected string $guard_name = 'platform';
+    protected string $guard_name = 'company';
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
+        'company_id',
         'name',
         'email',
         'password',
@@ -37,7 +38,7 @@ class User extends Authenticatable
     /**
      * The attributes that should be hidden for serialization.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -45,16 +46,25 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Attribute casting definitions.
      *
      * @return array<string, string>
      */
     protected function casts(): array
     {
         return [
+            'company_id' => 'int',
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
             'is_owner' => 'boolean',
+            'password' => 'hashed',
         ];
+    }
+
+    /**
+     * The company that the user belongs to.
+     */
+    public function company(): BelongsTo
+    {
+        return $this->belongsTo(Company::class);
     }
 }
