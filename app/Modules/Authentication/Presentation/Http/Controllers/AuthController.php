@@ -34,7 +34,12 @@ class AuthController
 
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        $token = $request->user()->currentAccessToken();
+
+        if ($token !== null) {
+            $token->delete();
+        }
+
         return ApiResponse::message(__('auth.logout_success'));
     }
 

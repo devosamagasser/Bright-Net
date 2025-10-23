@@ -3,10 +3,10 @@
 namespace App\Modules\Authentication\Domain\Types;
 
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Hash;
 use App\Modules\Authentication\Domain\ValueObjects\UserType;
 use App\Modules\Authentication\Domain\Types\UserTypeInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserPlatform implements UserTypeInterface
 {
@@ -40,9 +40,12 @@ class UserPlatform implements UserTypeInterface
     public function checkCredentials($credentials)
     {
         $user = User::where('email', $credentials['email'])
-            ->firstOrFail();
-        if (!Hash::check($credentials['password'], $user->password))
-            throw new NotFoundHttpException('Invalid credentials.');
+            ->first();
+
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+            throw new AuthenticationException(__('auth.invalid_credentials'));
+        }
+
         return $user;
     }
 }
