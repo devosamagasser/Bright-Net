@@ -3,10 +3,10 @@
 namespace App\Modules\Authentication\Domain\Types;
 
 use App\Models\CompanyUser;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Hash;
 use App\Modules\Authentication\Domain\ValueObjects\UserType;
 use App\Modules\Authentication\Domain\Types\UserTypeInterface;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserCompany implements UserTypeInterface
 {
@@ -22,15 +22,24 @@ class UserCompany implements UserTypeInterface
 
     public function serialize($user): array
     {
-        $user->load($this->relations());
+        $user->loadMissing($this->relations());
+
+        $company = $user->company;
+
+        $companyPayload = null;
+
+        if ($company !== null) {
+            $companyPayload = [
+                'id' => $company->id,
+                'name' => $company->name,
+            ];
+        }
+
         return [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'company' => [
-                'id' => $user->company->id,
-                'name' => $user->company->name,
-            ],
+            'company' => $companyPayload,
             'role' => $user->getRoleNames()->first(),
             'permissions' => $user->getAllPermissions()->pluck('name')->toArray(),
         ];
@@ -44,9 +53,12 @@ class UserCompany implements UserTypeInterface
     public function checkCredentials($credentials)
     {
         $user = CompanyUser::where('email', $credentials['email'])
-            ->firstOrFail();
-        if (!Hash::check($credentials['password'], $user->password))
-            throw new NotFoundHttpException('Invalid credentials.');
+            ->first();
+
+        if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+            throw new AuthenticationException(__('auth.invalid_credentials'));
+        }
+
         return $user;
     }
 }
