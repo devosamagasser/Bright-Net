@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use App\Modules\Authentication\Domain\ValueObjects\UserType;
 use App\Modules\Authentication\Domain\Types\UserTypeInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserPlatform implements UserTypeInterface
 {
@@ -41,7 +42,7 @@ class UserPlatform implements UserTypeInterface
         $user = User::where('email', $credentials['email'])
             ->firstOrFail();
         if (!Hash::check($credentials['password'], $user->password))
-            return false;
+            throw new NotFoundHttpException('Invalid credentials.');
         return $user;
     }
 }

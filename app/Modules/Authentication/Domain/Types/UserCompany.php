@@ -3,8 +3,10 @@
 namespace App\Modules\Authentication\Domain\Types;
 
 use App\Models\CompanyUser;
+use Illuminate\Support\Facades\Hash;
 use App\Modules\Authentication\Domain\ValueObjects\UserType;
 use App\Modules\Authentication\Domain\Types\UserTypeInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserCompany implements UserTypeInterface
 {
@@ -41,8 +43,10 @@ class UserCompany implements UserTypeInterface
 
     public function checkCredentials($credentials)
     {
-        return CompanyUser::where('email', $credentials['email'])
-            ->where('password', bcrypt($credentials['password']))
+        $user = CompanyUser::where('email', $credentials['email'])
             ->firstOrFail();
+        if (!Hash::check($credentials['password'], $user->password))
+            throw new NotFoundHttpException('Invalid credentials.');
+        return $user;
     }
 }
