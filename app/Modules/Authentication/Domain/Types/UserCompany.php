@@ -22,15 +22,24 @@ class UserCompany implements UserTypeInterface
 
     public function serialize($user): array
     {
-        $user->load($this->relations());
+        $user->loadMissing($this->relations());
+
+        $company = $user->company;
+
+        $companyPayload = null;
+
+        if ($company !== null) {
+            $companyPayload = [
+                'id' => $company->id,
+                'name' => $company->name,
+            ];
+        }
+
         return [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
-            'company' => [
-                'id' => $user->company->id,
-                'name' => $user->company->name,
-            ],
+            'company' => $companyPayload,
             'role' => $user->getRoleNames()->first(),
             'permissions' => $user->getAllPermissions()->pluck('name')->toArray(),
         ];

@@ -22,7 +22,7 @@ class UserPlatform implements UserTypeInterface
 
     public function serialize($user): array
     {
-        $user->load($this->relations());
+        $user->loadMissing($this->relations());
         return [
             'id' => $user->id,
             'name' => $user->name,

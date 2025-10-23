@@ -20,7 +20,7 @@ class AuthController
     public function login(LoginRequest $request, string $type)
     {
         $input = AuthInput::fromArray(
-            $request->only(['email', 'password']),
+            $request->validated(),
             $type
         );
 
@@ -34,10 +34,33 @@ class AuthController
 
     public function logout(Request $request)
     {
-        $token = $request->user()->currentAccessToken();
+        $user = $request->user();
+
+        if ($user === null) {
+            return ApiResponse::message(__('auth.logout_success'));
+        }
+
+        $token = $user->currentAccessToken();
 
         if ($token !== null) {
             $token->delete();
+
+            return ApiResponse::message(__('auth.logout_success'));
+        }
+
+        $guardName = null;
+
+        if (method_exists($user, 'getDefaultGuardName')) {
+            $guardName = $user->getDefaultGuardName();
+        }
+
+        $guard = $guardName !== null ? auth($guardName) : auth();
+
+        $guard->logout();
+
+        if ($request->hasSession()) {
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
         }
 
         return ApiResponse::message(__('auth.logout_success'));
