@@ -2,9 +2,8 @@
 
 namespace App\Policies;
 
-use App\Models\Company;
+use App\Modules\Companies\Domain\Models\Company;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class CompanyPolicy
 {
