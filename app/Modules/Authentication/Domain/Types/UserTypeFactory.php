@@ -24,6 +24,6 @@ class UserTypeFactory
             }
         }
 
-        throw new InvalidArgumentException("No company profile registered for type {$type->value}.");
+        throw new InvalidArgumentException("No user profile registered for type {$type->value}.");
     }
 }

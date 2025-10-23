@@ -14,6 +14,8 @@ class CompanyUser extends Authenticatable
 
     use HasFactory, Notifiable, HasRoles, HasApiTokens;
 
+    protected string $guard_name = 'company';
+
     protected $fillable = [
         'name',
         'email',
