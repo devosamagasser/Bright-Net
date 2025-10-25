@@ -87,6 +87,7 @@ class SupplierEngagementFlowTest extends TestCase
         $departmentsResponse->assertJsonPath('data.0.supplier_department_id', $supplierDepartment->getKey());
         $departmentsResponse->assertJsonPath('data.0.id', $department->getKey());
         $departmentsResponse->assertJsonPath('data.0.name', 'Infrastructure');
+        $departmentsResponse->assertJsonPath('data.0.cover', null);
 
         $subcategoriesResponse = $this->getJson(route('api.companies.suppliers.engagements.departments.subcategories.index', [
             'company' => $company->getKey(),

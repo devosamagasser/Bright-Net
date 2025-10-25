@@ -6,6 +6,7 @@ use App\Models\SupplierBrand;
 use App\Models\SupplierDepartment;
 use App\Models\SupplierSolution;
 use App\Modules\Companies\Domain\Models\Company;
+use App\Modules\Departments\Domain\Models\Department;
 use Illuminate\Database\Query\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -116,6 +117,10 @@ class SupplierEngagementService
             ->join('supplier_brands as sb', 'sb.id', '=', 'sd.supplier_brand_id')
             ->join('supplier_solutions as ss', 'ss.id', '=', 'sb.supplier_solution_id')
             ->join('departments as d', 'd.id', '=', 'sd.department_id')
+            ->leftJoinSub($this->departmentCoverSubquery(), 'department_covers', function ($join): void {
+                $join->on('department_covers.department_id', '=', 'd.id');
+            })
+            ->leftJoin('media as dm', 'dm.id', '=', 'department_covers.media_id')
             ->leftJoin('department_translations as dt', function ($join) use ($locale): void {
                 $join->on('dt.department_id', '=', 'd.id')
                     ->where('dt.locale', '=', $locale);
@@ -130,15 +135,19 @@ class SupplierEngagementService
                 'sd.id as supplier_department_id',
                 'd.id as department_id',
                 DB::raw('COALESCE(dt.name, fdt.name) as department_name'),
+                'dm.id as cover_media_id',
+                'dm.disk as cover_media_disk',
+                'dm.file_name as cover_media_file_name',
             ])
             ->orderBy('sd.id')
             ->get();
 
-        return $departments->map(static function (object $department): array {
+        return $departments->map(function (object $department): array {
             return [
                 'supplier_department_id' => (int) $department->supplier_department_id,
                 'id' => (int) $department->department_id,
                 'name' => $department->department_name,
+                'cover' => $this->mediaUrl($department->cover_media_disk, $department->cover_media_id, $department->cover_media_file_name),
             ];
         })->all();
     }
@@ -254,6 +263,15 @@ class SupplierEngagementService
             ->selectRaw('MAX(id) as media_id, model_id as brand_id')
             ->where('model_type', '=', \App\Modules\Brands\Domain\Models\Brand::class)
             ->where('collection_name', '=', 'logo')
+            ->groupBy('model_id');
+    }
+
+    private function departmentCoverSubquery(): Builder
+    {
+        return DB::table('media')
+            ->selectRaw('MAX(id) as media_id, model_id as department_id')
+            ->where('model_type', '=', Department::class)
+            ->where('collection_name', '=', 'cover')
             ->groupBy('model_id');
     }
 
