@@ -8,7 +8,8 @@ use Illuminate\Http\Resources\Json\JsonResource;
  * @property array{
  *     supplier_department_id:int,
  *     id:int,
- *     name:string|null
+ *     name:string|null,
+ *     cover:?string
  * } $resource
  */
 class SupplierDepartmentResource extends JsonResource
@@ -23,6 +24,7 @@ class SupplierDepartmentResource extends JsonResource
             'supplier_department_id' => (int) ($this->resource['supplier_department_id'] ?? 0),
             'id' => (int) ($this->resource['id'] ?? 0),
             'name' => $this->resource['name'] ?? null,
+            'cover' => $this->resource['cover'] ?? null,
         ];
     }
 }
