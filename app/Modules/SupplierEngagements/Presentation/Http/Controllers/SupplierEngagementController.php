@@ -36,9 +36,9 @@ class SupplierEngagementController
 
         $this->assertSupplierCompany($company);
 
-        return ApiResponse::success(
-            SupplierBrandResource::collection($this->engagements->listBrands($company, $supplierSolution))->resolve()
-        );
+        $resource = $this->engagements->listBrands($company, $supplierSolution);
+
+        return ApiResponse::success(SupplierBrandResource::collection($resource));
     }
 
     public function departments(Company $company, SupplierBrand $supplierBrand)
@@ -70,7 +70,6 @@ class SupplierEngagementController
 
     private function assertCompanyOwnership(Company $company)
     {
-
         return ($company->id === null) ?
             auth()->user()->company : $company;
     }
