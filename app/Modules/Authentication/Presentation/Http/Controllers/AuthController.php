@@ -35,34 +35,7 @@ class AuthController
     public function logout(Request $request)
     {
         $user = $request->user();
-
-        if ($user === null) {
-            return ApiResponse::message(__('auth.logout_success'));
-        }
-
-        $token = $user->currentAccessToken();
-
-        if ($token !== null) {
-            $token->delete();
-
-            return ApiResponse::message(__('auth.logout_success'));
-        }
-
-        $guardName = null;
-
-        if (method_exists($user, 'getDefaultGuardName')) {
-            $guardName = $user->getDefaultGuardName();
-        }
-
-        $guard = $guardName !== null ? auth($guardName) : auth();
-
-        $guard->logout();
-
-        if ($request->hasSession()) {
-            $request->session()->invalidate();
-            $request->session()->regenerateToken();
-        }
-
+        $user->currentAccessToken()->delete();
         return ApiResponse::message(__('auth.logout_success'));
     }
 

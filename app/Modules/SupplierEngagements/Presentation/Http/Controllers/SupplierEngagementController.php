@@ -18,6 +18,7 @@ class SupplierEngagementController
 
     public function solutions(Company $company)
     {
+        $company = $this->assertCompanyOwnership($company);
         $this->assertSupplierCompany($company);
 
         return ApiResponse::success($this->engagements->listSolutions($company));
@@ -25,6 +26,8 @@ class SupplierEngagementController
 
     public function brands(Company $company, SupplierSolution $supplierSolution)
     {
+        $company = $this->assertCompanyOwnership($company);
+
         $this->assertSupplierCompany($company);
 
         return ApiResponse::success($this->engagements->listBrands($company, $supplierSolution));
@@ -32,6 +35,7 @@ class SupplierEngagementController
 
     public function departments(Company $company, SupplierBrand $supplierBrand)
     {
+        $company = $this->assertCompanyOwnership($company);
         $this->assertSupplierCompany($company);
 
         return ApiResponse::success($this->engagements->listDepartments($company, $supplierBrand));
@@ -39,6 +43,7 @@ class SupplierEngagementController
 
     public function subcategories(Company $company, SupplierDepartment $supplierDepartment)
     {
+        $company = $this->assertCompanyOwnership($company);
         $this->assertSupplierCompany($company);
 
         return ApiResponse::success($this->engagements->listSubcategories($company, $supplierDepartment));
@@ -49,5 +54,12 @@ class SupplierEngagementController
         if ($company->type !== CompanyType::SUPPLIER) {
             abort(404);
         }
+    }
+
+    private function assertCompanyOwnership(Company $company)
+    {
+
+        return ($company->id === null) ?
+            auth()->user()->company : $company;
     }
 }
