@@ -77,6 +77,41 @@ class DataTemplateCreationTest extends TestCase
         $this->assertCount(2, $template->fields);
     }
 
+    public function test_it_creates_a_family_data_template_without_explicit_type(): void
+    {
+        $subcategory = $this->createSubcategory();
+
+        $payload = [
+            'subcategory_id' => $subcategory->getKey(),
+            'translations' => [
+                'en' => [
+                    'name' => 'Family Template',
+                ],
+            ],
+            'fields' => [
+                [
+                    'slug' => 'model_number',
+                    'type' => DataFieldType::TEXT->value,
+                    'translations' => [
+                        'en' => [
+                            'label' => 'Model Number',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $response = $this->postJson(route('api.family-data-templates.store'), $payload);
+
+        $response->assertStatus(Response::HTTP_CREATED);
+        $response->assertJsonPath('data.type', DataTemplateType::FAMILY->value);
+
+        $this->assertDatabaseHas('data_templates', [
+            'subcategory_id' => $subcategory->getKey(),
+            'type' => DataTemplateType::FAMILY->value,
+        ]);
+    }
+
     public function test_it_requires_options_for_select_like_fields(): void
     {
         $subcategory = $this->createSubcategory();
@@ -119,6 +154,68 @@ class DataTemplateCreationTest extends TestCase
         $response->assertOk();
         $response->assertJsonPath('data.data.0.fields.0.slug', 'model_number');
         $this->assertArrayHasKey('meta', $response->json('data'));
+    }
+
+    public function test_family_routes_only_return_family_templates(): void
+    {
+        $subcategory = $this->createSubcategory();
+        $this->createTemplateWithFields($subcategory);
+        $this->createTemplateWithFields($subcategory, 'product_template', DataTemplateType::PRODUCT);
+
+        $response = $this->getJson(route('api.family-data-templates.index'));
+
+        $response->assertOk();
+        $types = collect($response->json('data.data'))
+            ->pluck('type')
+            ->unique()
+            ->all();
+
+        $this->assertSame([DataTemplateType::FAMILY->value], $types);
+    }
+
+    public function test_family_routes_restrict_access_to_product_templates(): void
+    {
+        $subcategory = $this->createSubcategory();
+        $productTemplate = $this->createTemplateWithFields($subcategory, 'product_template', DataTemplateType::PRODUCT);
+
+        $response = $this->getJson(route('api.family-data-templates.show', $productTemplate->getKey()));
+
+        $response->assertNotFound();
+    }
+
+    public function test_it_creates_a_product_data_template_without_explicit_type(): void
+    {
+        $subcategory = $this->createSubcategory();
+
+        $payload = [
+            'subcategory_id' => $subcategory->getKey(),
+            'translations' => [
+                'en' => [
+                    'name' => 'Product Template',
+                ],
+            ],
+            'fields' => [
+                [
+                    'slug' => 'sku',
+                    'type' => DataFieldType::TEXT->value,
+                    'translations' => [
+                        'en' => [
+                            'label' => 'SKU',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $response = $this->postJson(route('api.product-data-templates.store'), $payload);
+
+        $response->assertStatus(Response::HTTP_CREATED);
+        $response->assertJsonPath('data.type', DataTemplateType::PRODUCT->value);
+
+        $this->assertDatabaseHas('data_templates', [
+            'subcategory_id' => $subcategory->getKey(),
+            'type' => DataTemplateType::PRODUCT->value,
+        ]);
     }
 
     public function test_it_shows_a_single_data_template(): void

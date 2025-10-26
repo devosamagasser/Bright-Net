@@ -4,6 +4,7 @@ namespace App\Modules\DataSheets\Application\UseCases;
 
 use App\Modules\DataSheets\Application\DTOs\DataTemplateData;
 use App\Modules\DataSheets\Domain\Repositories\DataTemplateRepositoryInterface;
+use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ShowDataTemplateUseCase
@@ -13,9 +14,9 @@ class ShowDataTemplateUseCase
     ) {
     }
 
-    public function handle(int $templateId): DataTemplateData
+    public function handle(int $templateId, ?DataTemplateType $type = null): DataTemplateData
     {
-        $template = $this->repository->find($templateId);
+        $template = $this->repository->find($templateId, $type);
 
         if (! $template) {
             throw new ModelNotFoundException();

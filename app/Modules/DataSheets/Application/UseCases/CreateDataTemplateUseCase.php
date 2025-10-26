@@ -4,6 +4,7 @@ namespace App\Modules\DataSheets\Application\UseCases;
 
 use App\Modules\DataSheets\Application\DTOs\{DataTemplateData, DataTemplateInput};
 use App\Modules\DataSheets\Domain\Repositories\DataTemplateRepositoryInterface;
+use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 
 class CreateDataTemplateUseCase
 {
@@ -12,10 +13,16 @@ class CreateDataTemplateUseCase
     ) {
     }
 
-    public function handle(DataTemplateInput $input): DataTemplateData
+    public function handle(DataTemplateInput $input, ?DataTemplateType $type = null): DataTemplateData
     {
+        $attributes = $input->attributes;
+
+        if ($type) {
+            $attributes['type'] = $type->value;
+        }
+
         $template = $this->repository->create(
-            attributes: $input->attributes,
+            attributes: $attributes,
             translations: $input->translations,
             fields: $input->fields,
         );

@@ -4,10 +4,10 @@ namespace App\Modules\DataSheets\Presentation\Http\Controllers;
 
 use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 
-class DataTemplateController extends AbstractDataTemplateController
+class FamilyDataTemplateController extends AbstractDataTemplateController
 {
     protected function type(): ?DataTemplateType
     {
-        return null;
+        return DataTemplateType::FAMILY;
     }
 }

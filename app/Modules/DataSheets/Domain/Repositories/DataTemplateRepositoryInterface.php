@@ -5,6 +5,7 @@ namespace App\Modules\DataSheets\Domain\Repositories;
 use App\Modules\DataSheets\Domain\Models\DataTemplate;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Modules\DataSheets\Application\DTOs\DataFieldInput;
+use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 
 interface DataTemplateRepositoryInterface
 {
@@ -20,12 +21,12 @@ interface DataTemplateRepositoryInterface
     /**
      * Retrieve paginated data templates with their fields.
      */
-    public function paginate(int $perPage = 15): LengthAwarePaginator;
+    public function paginate(int $perPage = 15, ?DataTemplateType $type = null): LengthAwarePaginator;
 
     /**
      * Find a template by its identifier including related fields.
      */
-    public function find(int $id): ?DataTemplate;
+    public function find(int $id, ?DataTemplateType $type = null): ?DataTemplate;
 
     /**
      * Update an existing template and sync its fields.
