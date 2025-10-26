@@ -11,6 +11,7 @@ class DataFieldInput
      * @param  array<string, array<string, mixed>>  $translations
      */
     private function __construct(
+        public readonly ?int $id,
         public readonly array $attributes,
         public readonly array $translations,
     ) {
@@ -22,8 +23,10 @@ class DataFieldInput
     public static function fromArray(array $payload): self
     {
         $translations = Arr::pull($payload, 'translations', []);
+        $id = Arr::pull($payload, 'id');
 
         return new self(
+            id: $id !== null ? (int) $id : null,
             attributes: $payload,
             translations: $translations,
         );

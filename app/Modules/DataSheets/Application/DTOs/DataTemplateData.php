@@ -4,6 +4,7 @@ namespace App\Modules\DataSheets\Application\DTOs;
 
 use App\Modules\DataSheets\Domain\Models\DataTemplate;
 use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
+use Illuminate\Support\Collection;
 
 class DataTemplateData
 {
@@ -36,5 +37,14 @@ class DataTemplateData
             })->all(),
             fields: $template->fields->map(fn ($field) => DataFieldData::fromModel($field))->all(),
         );
+    }
+
+    /**
+     * @param  \Illuminate\Support\Collection<int, DataTemplate>  $templates
+     * @return \Illuminate\Support\Collection<int, self>
+     */
+    public static function collection(Collection $templates): Collection
+    {
+        return $templates->map(fn (DataTemplate $template) => self::fromModel($template));
     }
 }

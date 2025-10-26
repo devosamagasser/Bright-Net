@@ -5,7 +5,7 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use Illuminate\Http\Response;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use App\Modules\DataSheets\Domain\Models\DataTemplate;
+use App\Modules\DataSheets\Domain\Models\{DataField, DataTemplate};
 use App\Modules\DataSheets\Domain\ValueObjects\{DataFieldType, DataTemplateType};
 use App\Modules\Departments\Domain\Models\Department;
 use App\Modules\Subcategories\Domain\Models\Subcategory;
@@ -108,6 +108,101 @@ class DataTemplateCreationTest extends TestCase
         $response->assertJsonValidationErrors(['fields.0.options']);
     }
 
+    public function test_it_lists_data_templates(): void
+    {
+        $subcategory = $this->createSubcategory();
+        $this->createTemplateWithFields($subcategory);
+        $this->createTemplateWithFields($subcategory, 'product_template', DataTemplateType::PRODUCT);
+
+        $response = $this->getJson(route('api.data-templates.index'));
+
+        $response->assertOk();
+        $response->assertJsonPath('data.data.0.fields.0.slug', 'model_number');
+        $this->assertArrayHasKey('meta', $response->json('data'));
+    }
+
+    public function test_it_shows_a_single_data_template(): void
+    {
+        $subcategory = $this->createSubcategory();
+        $template = $this->createTemplateWithFields($subcategory);
+
+        $response = $this->getJson(route('api.data-templates.show', $template->getKey()));
+
+        $response->assertOk();
+        $response->assertJsonPath('data.id', $template->getKey());
+        $response->assertJsonPath('data.fields.0.slug', 'model_number');
+    }
+
+    public function test_it_updates_a_data_template(): void
+    {
+        $subcategory = $this->createSubcategory();
+        $template = $this->createTemplateWithFields($subcategory);
+        $field = $template->fields->first();
+
+        $payload = [
+            'subcategory_id' => $subcategory->getKey(),
+            'type' => DataTemplateType::FAMILY->value,
+            'translations' => [
+                'en' => [
+                    'name' => 'Updated Template',
+                    'description' => 'Updated description.',
+                ],
+            ],
+            'fields' => [
+                [
+                    'id' => $field->getKey(),
+                    'slug' => 'model_number',
+                    'type' => DataFieldType::TEXT->value,
+                    'is_required' => false,
+                    'translations' => [
+                        'en' => [
+                            'label' => 'Model',
+                            'placeholder' => 'Model placeholder',
+                        ],
+                    ],
+                ],
+                [
+                    'slug' => 'warranty_period',
+                    'type' => DataFieldType::NUMBER->value,
+                    'translations' => [
+                        'en' => [
+                            'label' => 'Warranty Period',
+                            'placeholder' => 'Enter warranty',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $response = $this->putJson(route('api.data-templates.update', $template->getKey()), $payload);
+
+        $response->assertOk();
+        $response->assertJsonPath('data.fields.1.slug', 'warranty_period');
+        $this->assertDatabaseHas('data_templates', [
+            'id' => $template->getKey(),
+        ]);
+        $this->assertDatabaseHas('data_fields', [
+            'slug' => 'warranty_period',
+        ]);
+        $this->assertDatabaseMissing('data_fields', [
+            'id' => $template->fields->last()->getKey(),
+        ]);
+    }
+
+    public function test_it_deletes_a_data_template(): void
+    {
+        $subcategory = $this->createSubcategory();
+        $template = $this->createTemplateWithFields($subcategory);
+
+        $response = $this->deleteJson(route('api.data-templates.destroy', $template->getKey()));
+
+        $response->assertNoContent();
+        $this->assertDatabaseMissing('data_templates', [
+            'id' => $template->getKey(),
+        ]);
+        $this->assertDatabaseCount('data_fields', 0);
+    }
+
     private function createSubcategory(): Subcategory
     {
         $solution = new Solution();
@@ -136,5 +231,49 @@ class DataTemplateCreationTest extends TestCase
         ]);
 
         return $subcategory->refresh();
+    }
+
+    private function createTemplateWithFields(Subcategory $subcategory, string $slugPrefix = 'lighting_template', DataTemplateType $type = DataTemplateType::FAMILY): DataTemplate
+    {
+        $template = new DataTemplate([
+            'subcategory_id' => $subcategory->getKey(),
+            'type' => $type,
+        ]);
+        $template->save();
+        $template->translations()->create([
+            'locale' => 'en',
+            'name' => ucfirst(str_replace('_', ' ', $slugPrefix)),
+            'description' => 'Description',
+        ]);
+
+        $fieldOne = new DataField([
+            'data_template_id' => $template->getKey(),
+            'slug' => 'model_number',
+            'type' => DataFieldType::TEXT,
+            'is_required' => true,
+            'position' => 1,
+        ]);
+        $fieldOne->save();
+        $fieldOne->translations()->create([
+            'locale' => 'en',
+            'label' => 'Model Number',
+            'placeholder' => 'Enter model',
+        ]);
+
+        $fieldTwo = new DataField([
+            'data_template_id' => $template->getKey(),
+            'slug' => $slugPrefix . '_option',
+            'type' => DataFieldType::SELECT,
+            'options' => ['One', 'Two'],
+            'position' => 2,
+        ]);
+        $fieldTwo->save();
+        $fieldTwo->translations()->create([
+            'locale' => 'en',
+            'label' => 'Options',
+            'placeholder' => 'Select option',
+        ]);
+
+        return $template->refresh()->load('fields');
     }
 }
