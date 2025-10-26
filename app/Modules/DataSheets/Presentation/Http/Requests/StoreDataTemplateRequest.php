@@ -8,6 +8,15 @@ use App\Modules\DataSheets\Domain\ValueObjects\{DataFieldType, DataTemplateType}
 
 class StoreDataTemplateRequest extends FormRequest
 {
+    protected function prepareForValidation(): void
+    {
+        $routeType = $this->route('data_template_type');
+
+        if ($routeType) {
+            $this->merge(['type' => $routeType]);
+        }
+    }
+
     public function authorize(): bool
     {
         return true;

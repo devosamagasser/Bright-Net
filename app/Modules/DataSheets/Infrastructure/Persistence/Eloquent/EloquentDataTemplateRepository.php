@@ -8,6 +8,7 @@ use App\Modules\Shared\Support\Traits\HandlesTranslations;
 use App\Modules\DataSheets\Domain\Models\{DataField, DataTemplate};
 use App\Modules\DataSheets\Application\DTOs\DataFieldInput;
 use App\Modules\DataSheets\Domain\Repositories\DataTemplateRepositoryInterface;
+use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 
 class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
 {
@@ -42,19 +43,30 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
         });
     }
 
-    public function paginate(int $perPage = 15): LengthAwarePaginator
+    public function paginate(int $perPage = 15, ?DataTemplateType $type = null): LengthAwarePaginator
     {
-        return DataTemplate::query()
+        $query = DataTemplate::query()
             ->with(['fields'])
-            ->latest('id')
-            ->paginate($perPage);
+            ->latest('id');
+
+        if ($type) {
+            $query->where('type', $type->value);
+        }
+
+        return $query->paginate($perPage);
     }
 
-    public function find(int $id): ?DataTemplate
+    public function find(int $id, ?DataTemplateType $type = null): ?DataTemplate
     {
-        return DataTemplate::query()
+        $query = DataTemplate::query()
             ->with(['fields'])
-            ->find($id);
+            ->whereKey($id);
+
+        if ($type) {
+            $query->where('type', $type->value);
+        }
+
+        return $query->first();
     }
 
     public function update(DataTemplate $template, array $attributes, array $translations, array $fields): DataTemplate

@@ -4,6 +4,7 @@ namespace App\Modules\DataSheets\Application\UseCases;
 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Modules\DataSheets\Domain\Repositories\DataTemplateRepositoryInterface;
+use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 
 class DeleteDataTemplateUseCase
 {
@@ -12,9 +13,9 @@ class DeleteDataTemplateUseCase
     ) {
     }
 
-    public function handle(int $templateId): void
+    public function handle(int $templateId, ?DataTemplateType $type = null): void
     {
-        $template = $this->repository->find($templateId);
+        $template = $this->repository->find($templateId, $type);
 
         if (! $template) {
             throw new ModelNotFoundException();
