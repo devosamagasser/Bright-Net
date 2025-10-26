@@ -2,6 +2,7 @@
 
 namespace App\Modules\DataSheets\Application\UseCases;
 
+use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Modules\DataSheets\Application\DTOs\{DataTemplateData, DataTemplateInput};
 use App\Modules\DataSheets\Domain\Repositories\DataTemplateRepositoryInterface;
@@ -26,6 +27,21 @@ class UpdateDataTemplateUseCase
 
         if ($type) {
             $attributes['type'] = $type->value;
+        }
+
+        $subcategoryId = $attributes['subcategory_id'] ?? $template->subcategory_id;
+        $currentType = $template->type;
+        $typeValue = $attributes['type'] ?? ($currentType instanceof DataTemplateType ? $currentType->value : $currentType);
+        $typeEnum = is_string($typeValue) ? DataTemplateType::tryFrom($typeValue) : null;
+
+        if ($typeEnum) {
+            $existingTemplate = $this->repository->findBySubcategoryAndType($subcategoryId, $typeEnum);
+
+            if ($existingTemplate && $existingTemplate->getKey() !== $template->getKey()) {
+                throw ValidationException::withMessages([
+                    'type' => trans('validation.unique', ['attribute' => 'type']),
+                ]);
+            }
         }
 
         $template = $this->repository->update(
