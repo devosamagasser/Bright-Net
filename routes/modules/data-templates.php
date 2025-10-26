@@ -6,6 +6,8 @@ use App\Modules\DataSheets\Presentation\Http\Controllers\{
     DataTemplateController,
     FamilyDataTemplateController,
     ProductDataTemplateController,
+    SubcategoryDataTemplateController,
+    SupplierDataTemplateController,
 };
 
 Route::prefix('data-templates')
@@ -15,6 +17,19 @@ Route::prefix('data-templates')
         Route::get('/{dataTemplate}', [DataTemplateController::class, 'show']);
         Route::put('/{dataTemplate}', [DataTemplateController::class, 'update']);
         Route::delete('/{dataTemplate}', [DataTemplateController::class, 'destroy']);
+    });
+
+Route::prefix('subcategories')
+    ->group(function (): void {
+        Route::get('{subcategory}/data-templates', [SubcategoryDataTemplateController::class, 'index'])
+            ->whereNumber('subcategory');
+    });
+
+Route::prefix('suppliers/subcategories')
+    ->group(function (): void {
+        Route::get('{subcategory}/data-templates/{type}', [SupplierDataTemplateController::class, 'show'])
+            ->whereNumber('subcategory')
+            ->whereIn('type', DataTemplateType::values());
     });
 
 Route::prefix('family-data-templates')

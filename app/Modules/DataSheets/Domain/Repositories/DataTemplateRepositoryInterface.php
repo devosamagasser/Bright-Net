@@ -4,6 +4,7 @@ namespace App\Modules\DataSheets\Domain\Repositories;
 
 use App\Modules\DataSheets\Domain\Models\DataTemplate;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 use App\Modules\DataSheets\Application\DTOs\DataFieldInput;
 use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 
@@ -27,6 +28,16 @@ interface DataTemplateRepositoryInterface
      * Find a template by its identifier including related fields.
      */
     public function find(int $id, ?DataTemplateType $type = null): ?DataTemplate;
+
+    /**
+     * Retrieve all templates that belong to a specific subcategory.
+     */
+    public function getBySubcategory(int $subcategoryId, ?DataTemplateType $type = null): Collection;
+
+    /**
+     * Find the template for a given subcategory/type combination.
+     */
+    public function findBySubcategoryAndType(int $subcategoryId, DataTemplateType $type): ?DataTemplate;
 
     /**
      * Update an existing template and sync its fields.

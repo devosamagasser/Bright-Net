@@ -2,6 +2,7 @@
 
 namespace App\Modules\DataSheets\Application\UseCases;
 
+use Illuminate\Validation\ValidationException;
 use App\Modules\DataSheets\Application\DTOs\{DataTemplateData, DataTemplateInput};
 use App\Modules\DataSheets\Domain\Repositories\DataTemplateRepositoryInterface;
 use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
@@ -19,6 +20,22 @@ class CreateDataTemplateUseCase
 
         if ($type) {
             $attributes['type'] = $type->value;
+        }
+
+        $typeValue = $attributes['type'] ?? null;
+        $typeEnum = is_string($typeValue) ? DataTemplateType::tryFrom($typeValue) : null;
+
+        if ($typeEnum) {
+            $existingTemplate = $this->repository->findBySubcategoryAndType(
+                $attributes['subcategory_id'],
+                $typeEnum,
+            );
+
+            if ($existingTemplate) {
+                throw ValidationException::withMessages([
+                    'type' => trans('validation.unique', ['attribute' => 'type']),
+                ]);
+            }
         }
 
         $template = $this->repository->create(

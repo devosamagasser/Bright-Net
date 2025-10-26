@@ -2,6 +2,7 @@
 
 namespace App\Modules\DataSheets\Infrastructure\Persistence\Eloquent;
 
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Modules\Shared\Support\Traits\HandlesTranslations;
@@ -67,6 +68,29 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
         }
 
         return $query->first();
+    }
+
+    public function getBySubcategory(int $subcategoryId, ?DataTemplateType $type = null): Collection
+    {
+        $query = DataTemplate::query()
+            ->with(['fields'])
+            ->where('subcategory_id', $subcategoryId)
+            ->latest('id');
+
+        if ($type) {
+            $query->where('type', $type->value);
+        }
+
+        return $query->get();
+    }
+
+    public function findBySubcategoryAndType(int $subcategoryId, DataTemplateType $type): ?DataTemplate
+    {
+        return DataTemplate::query()
+            ->with(['fields'])
+            ->where('subcategory_id', $subcategoryId)
+            ->where('type', $type->value)
+            ->first();
     }
 
     public function update(DataTemplate $template, array $attributes, array $translations, array $fields): DataTemplate
