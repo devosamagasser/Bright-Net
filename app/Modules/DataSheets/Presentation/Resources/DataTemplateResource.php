@@ -24,7 +24,7 @@ class DataTemplateResource extends JsonResource
              $this->translations
             ),
             'fields' => $this->when(
-            request()->is('*/data-templates/*') && request()->method() === 'GET',
+            request()->is('*/family-data-templates/*', '*/product-data-templates/*') && request()->method() === 'GET',
             array_map(function (DataFieldData $field) {
                 return array_merge(
                         $field->attributes,

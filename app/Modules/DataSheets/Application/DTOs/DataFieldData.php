@@ -22,7 +22,6 @@ class DataFieldData
         return new self(
             attributes: [
                 'id' => $field->getKey(),
-                'slug' => $field->slug,
                 'label' => $field->label,
                 'placeholder' => $field->placeholder,
                 'type' => $field->type instanceof DataFieldType ? $field->type->value : $field->type,
