@@ -14,11 +14,15 @@ return new class extends Migration
         Schema::create('data_fields', function (Blueprint $table) {
             $table->id();
             $table->foreignId('data_template_id')->constrained()->onDelete('cascade');
+            $table->string('slug');
             $table->string('type'); // text, number, select, boolean, date, multiselect
             $table->boolean('is_required')->default(false);
             $table->json('options')->nullable();
             $table->boolean('is_filterable')->default(false);
+            $table->unsignedInteger('position')->default(0);
             $table->timestamps();
+
+            $table->unique(['data_template_id', 'slug']);
         });
 
         Schema::create('data_field_translations', function (Blueprint $table) {
@@ -37,6 +41,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('data_field_translations');
         Schema::dropIfExists('data_fields');
     }
 };
