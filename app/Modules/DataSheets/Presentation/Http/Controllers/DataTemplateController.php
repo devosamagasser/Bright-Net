@@ -35,7 +35,7 @@ class DataTemplateController
         $perPage = max(1, min(100, $perPage));
 
         $paginator = $this->listDataTemplates->handle($perPage);
-
+        
         $collection = DataTemplateResource::collection($paginator);
 
         return ApiResponse::success(

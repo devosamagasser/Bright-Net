@@ -16,16 +16,24 @@ class DataTemplateResource extends JsonResource
         return [
             'id' => $this->attributes['id'] ?? null,
             'subcategory_id' => $this->attributes['subcategory_id'] ?? null,
+            'name' => $this->attributes['name'],
+            'description' => $this->attributes['description'],
             'type' => $this->attributes['type'] ?? null,
-            'translations' => $this->translations,
-            'fields' => array_map(function (DataFieldData $field) {
+            'translations' => $this->when(
+            request()->is('*/data-templates/*') && request()->method() === 'GET',
+             $this->translations
+            ),
+            'fields' => $this->when(
+            request()->is('*/data-templates/*') && request()->method() === 'GET',
+            array_map(function (DataFieldData $field) {
                 return array_merge(
-                    $field->attributes,
-                    [
-                        'translations' => $field->translations,
-                    ],
-                );
-            }, $this->fields),
+                        $field->attributes,
+                        [
+                            'translations' => $field->translations,
+                        ],
+                    );
+                }, $this->fields),
+            ),
         ];
     }
 }

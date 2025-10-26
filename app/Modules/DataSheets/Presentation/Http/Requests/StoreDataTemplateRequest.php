@@ -25,7 +25,6 @@ class StoreDataTemplateRequest extends FormRequest
             'translations.*.name' => ['required', 'string', 'min:1', 'max:255'],
             'translations.*.description' => ['nullable', 'string'],
             'fields' => ['required', 'array', 'min:1'],
-            'fields.*.slug' => ['required', 'string', 'max:255', 'regex:/^[A-Za-z0-9_\-]+$/'],
             'fields.*.type' => ['required', 'string', new Enum(DataFieldType::class)],
             'fields.*.is_required' => ['sometimes', 'boolean'],
             'fields.*.is_filterable' => ['sometimes', 'boolean'],
@@ -45,14 +44,6 @@ class StoreDataTemplateRequest extends FormRequest
             $seenSlugs = [];
 
             foreach ($fields as $index => $field) {
-                $slug = $field['slug'] ?? null;
-                if ($slug) {
-                    if (in_array($slug, $seenSlugs, true)) {
-                        $validator->errors()->add("fields.$index.slug", trans('validation.distinct', ['attribute' => 'slug']));
-                    }
-                    $seenSlugs[] = $slug;
-                }
-
                 $type = $field['type'] ?? null;
                 $fieldType = is_string($type) ? DataFieldType::tryFrom($type) : null;
 

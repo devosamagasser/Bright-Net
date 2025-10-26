@@ -26,6 +26,8 @@ class DataTemplateData
             attributes: [
                 'id' => $template->getKey(),
                 'subcategory_id' => $template->subcategory_id,
+                'name' => $template->name,
+                'description' => $template->description,
                 'type' => $template->type instanceof DataTemplateType ? $template->type->value : $template->type,
             ],
             translations: $template->translations->map(function ($translation) {
