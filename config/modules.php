@@ -22,6 +22,7 @@ return [
         \App\Modules\Taxonomy\Infrastructure\Providers\TaxonomyServiceProvider::class,
         \App\Modules\AccessControl\Infrastructure\Providers\AccessControlServiceProvider::class,
         \App\Modules\Authentication\Infrastructure\Providers\AuthenticationServiceProvider::class,
+        \App\Modules\DataSheets\Infrastructure\Providers\DataSheetsServiceProvider::class,
     ],
 ];
 
