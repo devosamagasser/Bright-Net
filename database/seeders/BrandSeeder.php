@@ -16,7 +16,36 @@ class BrandSeeder extends Seeder
         $faker = Faker::create();
 
         $brandNames = [
-            'Cisco', 'Hikvision', 'Aruba Networks', 'TP-Link', 'Dahua', 'Juniper', 'Fortinet',
+            'Philips Lighting (Signify)',
+            'Osram',
+            'GE Lighting (Current)',
+            'Panasonic Lighting',
+            'Cree Lighting',
+            'Zumtobel Group',
+            'Trilux',
+            'Acuity Brands',
+            'Fagerhult',
+            'Eaton (Cooper Lighting)',
+            'Thorn Lighting',
+            'Sylvania',
+            'Havells Sylvania',
+            'Disano Illuminazione',
+            'ELMARK',
+            'NVC Lighting',
+            'Opple Lighting',
+            'Lutron',
+            'Targetti Sankey',
+            'Artemide',
+            'Erco',
+            'Flos',
+            'iGuzzini',
+            'Beghelli',
+            'Luxon LED',
+            'Liteway',
+            'Ledvance',
+            'V-TAC Lighting',
+            'Technoled',
+            'Zumtobel Thorn',
         ];
 
         foreach ($brandNames as $name) {
@@ -31,7 +60,7 @@ class BrandSeeder extends Seeder
             ]);
 
             // ⚙️ اختار حلول عشوائية
-            $solutions = Solution::inRandomOrder()->take(rand(1, 2))->pluck('id')->toArray();
+            $solutions = Solution::inRandomOrder()->take(rand(1, 1))->pluck('id')->toArray();
 
             // 🔗 اربط الحلول
             $brand->solutions()->syncWithoutDetaching($solutions);
