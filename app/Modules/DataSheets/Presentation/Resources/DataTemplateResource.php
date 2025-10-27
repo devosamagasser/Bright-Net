@@ -19,15 +19,18 @@ class DataTemplateResource extends JsonResource
             'name' => $this->attributes['name'],
             'description' => $this->attributes['description'],
             'type' => $this->attributes['type'] ?? null,
-            'translations' => $this->translations,
+            'translations' => $this->when(
+                $request->is('api/data-templates/*') ?? $request->method() === 'GET',
+                $this->translations
+            ),
             'fields' => array_map(
-                function (DataFieldData $field) {
-                    return array_merge(
-                        $field->attributes,
-                        [
-                            'translations' => $field->translations,
-                        ],
-                    );
+                function (DataFieldData $field) use ($request) {
+                    return $this->when(
+                            $request->is('api/data-templates/*') ?? $request->method() === 'GET',
+                            array_merge(
+                                $field->attributes, ['translations' => $field->translations],
+                            )
+                        , $field->attributes);
                 },
                 $this->fields
             ),

@@ -4,7 +4,6 @@ namespace App\Modules\DataSheets\Infrastructure\Persistence\Eloquent;
 
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Modules\Shared\Support\Traits\HandlesTranslations;
 use App\Modules\DataSheets\Domain\Models\{DataField, DataTemplate};
 use App\Modules\DataSheets\Application\DTOs\DataFieldInput;
@@ -42,19 +41,6 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
 
             return $template->load(['fields']);
         });
-    }
-
-    public function paginate(int $perPage = 15, ?DataTemplateType $type = null): LengthAwarePaginator
-    {
-        $query = DataTemplate::query()
-            ->with(['fields'])
-            ->latest('id');
-
-        if ($type) {
-            $query->where('type', $type->value);
-        }
-
-        return $query->paginate($perPage);
     }
 
     public function find(int $id, ?DataTemplateType $type = null): ?DataTemplate

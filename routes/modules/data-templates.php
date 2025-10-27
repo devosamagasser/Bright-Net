@@ -12,42 +12,10 @@ use App\Modules\DataSheets\Presentation\Http\Controllers\{
 
 Route::prefix('data-templates')
     ->group(function (): void {
-        Route::get('/', [DataTemplateController::class, 'index']);
+        Route::get('subcategories/{subcategory}', [DataTemplateController::class, 'index']);
         Route::post('/', [DataTemplateController::class, 'store']);
         Route::get('/{dataTemplate}', [DataTemplateController::class, 'show']);
         Route::put('/{dataTemplate}', [DataTemplateController::class, 'update']);
         Route::delete('/{dataTemplate}', [DataTemplateController::class, 'destroy']);
     });
 
-Route::prefix('subcategories')
-    ->group(function (): void {
-        Route::get('{subcategory}/data-templates', [SubcategoryDataTemplateController::class, 'index'])
-            ->whereNumber('subcategory');
-    });
-
-Route::prefix('suppliers/subcategories')
-    ->group(function (): void {
-        Route::get('{subcategory}/data-templates/{type}', [SupplierDataTemplateController::class, 'show'])
-            ->whereNumber('subcategory')
-            ->whereIn('type', DataTemplateType::values());
-    });
-
-Route::prefix('family-data-templates')
-    // ->defaults('data_template_type', DataTemplateType::FAMILY->value)
-    ->group(function (): void {
-        Route::get('/', [FamilyDataTemplateController::class, 'index']);
-        Route::post('/', [FamilyDataTemplateController::class, 'store']);
-        Route::get('/{dataTemplate}', [FamilyDataTemplateController::class, 'show']);
-        Route::put('/{dataTemplate}', [FamilyDataTemplateController::class, 'update']);
-        Route::delete('/{dataTemplate}', [FamilyDataTemplateController::class, 'destroy']);
-    });
-
-Route::prefix('product-data-templates')
-    // ->defaults('data_template_type', DataTemplateType::PRODUCT->value)
-    ->group(function (): void {
-        Route::get('/', [ProductDataTemplateController::class, 'index']);
-        Route::post('/', [ProductDataTemplateController::class, 'store']);
-        Route::get('/{dataTemplate}', [ProductDataTemplateController::class, 'show']);
-        Route::put('/{dataTemplate}', [ProductDataTemplateController::class, 'update']);
-        Route::delete('/{dataTemplate}', [ProductDataTemplateController::class, 'destroy']);
-    });

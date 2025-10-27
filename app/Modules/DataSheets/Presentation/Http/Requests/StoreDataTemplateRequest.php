@@ -29,7 +29,7 @@ class StoreDataTemplateRequest extends FormRequest
     {
         return [
             'subcategory_id' => ['required', 'integer', 'exists:subcategories,id'],
-            // 'type' => ['required', 'string', new Enum(DataTemplateType::class)],
+            'type' => ['required', 'string', new Enum(DataTemplateType::class)],
             'translations' => ['required', 'array', 'min:1'],
             'translations.*.name' => ['required', 'string', 'min:1', 'max:255'],
             'translations.*.description' => ['nullable', 'string'],

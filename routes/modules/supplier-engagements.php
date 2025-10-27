@@ -1,6 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
+use App\Modules\DataSheets\Presentation\Http\Controllers\SupplierDataTemplateController;
 use App\Modules\SupplierEngagements\Presentation\Http\Controllers\SupplierEngagementController;
 
 
@@ -33,4 +35,8 @@ Route::prefix('suppliers')
 
         Route::get('departments/{supplierDepartment}', [SupplierEngagementController::class, 'subcategories'])
             ->whereNumber('supplierDepartment');
+
+        Route::get('subcategories/{subcategory}/data-templates/{type}', [SupplierDataTemplateController::class, 'show'])
+            ->whereNumber('subcategory')
+            ->whereIn('type', DataTemplateType::values());
 });
