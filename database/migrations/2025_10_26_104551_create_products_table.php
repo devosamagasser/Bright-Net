@@ -18,6 +18,17 @@ return new class extends Migration
             $table->foreignId('data_template_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
+
+        Schema::create('product_translations', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->string('description')->nullable();
+            $table->char('locale', 5)->index();
+            $table->unique(['product_id', 'locale']);
+            $table->timestamps();
+        });
+
     }
 
     /**
