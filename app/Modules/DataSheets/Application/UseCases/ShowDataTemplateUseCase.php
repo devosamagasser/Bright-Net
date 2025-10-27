@@ -17,7 +17,7 @@ class ShowDataTemplateUseCase
     public function handle(int $templateId, ?DataTemplateType $type = null): DataTemplateData
     {
         $template = $this->repository->find($templateId, $type);
-
+        
         if (! $template) {
             throw new ModelNotFoundException();
         }

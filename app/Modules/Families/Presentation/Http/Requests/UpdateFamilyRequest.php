@@ -3,6 +3,7 @@
 namespace App\Modules\Families\Presentation\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use App\Modules\Shared\Support\Helper\RequestValidationBuilder;
 
 class UpdateFamilyRequest extends FormRequest
 {
@@ -16,14 +17,17 @@ class UpdateFamilyRequest extends FormRequest
      */
     public function rules(): array
     {
-        return [
-            'subcategory_id' => ['sometimes', 'integer', 'exists:subcategories,id'],
-            'supplier_id' => ['sometimes', 'integer', 'exists:suppliers,id'],
-            'data_template_id' => ['sometimes', 'integer', 'exists:data_templates,id'],
-            'translations' => ['sometimes', 'array', 'min:1'],
-            'translations.*.name' => ['required_with:translations', 'string', 'min:1', 'max:255'],
+        $keys = [
+            'subcategory_id' => ['required', 'integer', 'exists:subcategories,id'],
+            'data_template_id' => ['required', 'integer', 'exists:data_templates,id'],
+            'translations' => ['required', 'array', 'min:1'],
+            'translations.*.name' => ['required', 'string', 'min:1', 'max:255'],
             'translations.*.description' => ['nullable', 'string'],
-            'values' => ['sometimes', 'array'],
         ];
+
+        return array_merge(
+            $keys,
+            RequestValidationBuilder::build($this->input('data_template_id'))
+        );
     }
 }

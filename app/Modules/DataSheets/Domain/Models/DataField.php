@@ -2,8 +2,9 @@
 
 namespace App\Modules\DataSheets\Domain\Models;
 
-use Astrotomic\Translatable\Translatable;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
+use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Modules\DataSheets\Domain\ValueObjects\DataFieldType;
 
@@ -16,7 +17,6 @@ class DataField extends Model
      */
     protected $fillable = [
         'data_template_id',
-        'slug',
         'type',
         'is_required',
         'options',
@@ -57,5 +57,12 @@ class DataField extends Model
     public function template(): BelongsTo
     {
         return $this->belongsTo(DataTemplate::class, 'data_template_id');
+    }
+
+    public static function booted(): void
+    {
+        static::saving(function (DataField $dataField) {
+            $dataField->name = Str::slug($dataField->type->value . '-' . $dataField->position);
+        });
     }
 }

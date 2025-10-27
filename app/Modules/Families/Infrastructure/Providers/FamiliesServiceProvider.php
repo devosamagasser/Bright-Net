@@ -12,8 +12,8 @@ class FamiliesServiceProvider extends AbstractModuleServiceProvider
     protected function registerBindings(): void
     {
         $this->app->bind(
-            FamilyRepositoryInterface::class,
-            EloquentFamilyRepository::class,
+            // FamilyRepositoryInterface::class,
+            // EloquentFamilyRepository::class,
         );
     }
 
@@ -23,9 +23,9 @@ class FamiliesServiceProvider extends AbstractModuleServiceProvider
             return;
         }
 
-        Route::middleware(['api', 'locale'])
-            ->prefix('api')
-            ->name('api.')
-            ->group(base_path('routes/modules/families.php'));
+        // Route::middleware(['api', 'locale'])
+        //     ->prefix('api')
+        //     ->name('api.')
+        //     ->group(base_path('routes/modules/families.php'));
     }
 }

@@ -11,9 +11,6 @@ enum DataFieldType: string
     case DATE = 'date';
     case MULTISELECT = 'multiselect';
 
-    /**
-     * @return array<int, string>
-     */
     public static function values(): array
     {
         return array_map(static fn (self $type) => $type->value, self::cases());
@@ -27,5 +24,17 @@ enum DataFieldType: string
     public function requiresOptions(): bool
     {
         return in_array($this, self::selectable(), true);
+    }
+
+    public function validation(): string
+    {
+        return match ($this) {
+            self::TEXT => 'string',
+            self::NUMBER => 'numeric',
+            self::SELECT => 'string',
+            self::MULTISELECT => 'array',
+            self::BOOLEAN => 'boolean',
+            self::DATE => 'date',
+        };
     }
 }
