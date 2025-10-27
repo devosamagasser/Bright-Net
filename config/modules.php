@@ -23,6 +23,7 @@ return [
         \App\Modules\AccessControl\Infrastructure\Providers\AccessControlServiceProvider::class,
         \App\Modules\Authentication\Infrastructure\Providers\AuthenticationServiceProvider::class,
         \App\Modules\DataSheets\Infrastructure\Providers\DataSheetsServiceProvider::class,
+        \App\Modules\Families\Infrastructure\Providers\FamiliesServiceProvider::class,
     ],
 ];
 
