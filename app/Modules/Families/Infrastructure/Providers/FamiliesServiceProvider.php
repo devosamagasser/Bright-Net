@@ -11,10 +11,7 @@ class FamiliesServiceProvider extends AbstractModuleServiceProvider
 {
     protected function registerBindings(): void
     {
-        $this->app->bind(
-            // FamilyRepositoryInterface::class,
-            // EloquentFamilyRepository::class,
-        );
+
     }
 
     protected function bootRoutes(): void
