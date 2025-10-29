@@ -3,15 +3,10 @@
 namespace App\Modules\SupplierEngagements\Presentation\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Modules\Families\Application\DTOs\FamilyValueData;
+use App\Modules\Families\Presentation\Resources\FamilyResource;
 
-/**
- * @property array{
- *     supplier_department: array{id:int, name:string|null},
- *     id:int,
- *     name:string|null,
- *     families?: array<int, array{id:int, name:string|null}>
- * } $resource
- */
+
 class SupplierSubcategoryResource extends JsonResource
 {
     /**
@@ -20,26 +15,23 @@ class SupplierSubcategoryResource extends JsonResource
      */
     public function toArray($request): array
     {
-        $supplierDepartment = $this->resource['supplier_department'] ?? [];
-        $families = $this->resource['families'] ?? [];
-
-        if (! is_array($families)) {
-            $families = [];
-        }
-
         return [
-            'supplier_department' => [
-                'id' => (int) ($supplierDepartment['id'] ?? 0),
-                'name' => $supplierDepartment['name'] ?? null,
-            ],
-            'id' => (int) ($this->resource['id'] ?? 0),
-            'name' => $this->resource['name'] ?? null,
-            'families' => array_map(static function (array $family): array {
+            'id' => $this->id,
+            'name' => $this->name,
+            'families' => $this->families->map(function ($family): array {
                 return [
-                    'id' => (int) ($family['id'] ?? 0),
-                    'name' => $family['name'] ?? null,
+                    'id' => $family->id,
+                    'data_template_id' => $family->data_template_id,
+                    'name' => $family->name,
+                    'description' => $family->description,
+                    'values' => $family->fieldValues->map(function ($value): array {
+                        return [
+                            'type' => $value->field->type->value,
+                            'value' => $value->value,
+                        ];
+                    })
                 ];
-            }, $families),
+            })
         ];
     }
 }

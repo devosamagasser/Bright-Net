@@ -17,7 +17,7 @@ class StoreFamilyRequest extends FormRequest
         $keys = [
             'subcategory_id' => ['required', 'integer', 'exists:subcategories,id'],
             'data_template_id' => ['required', 'integer', 'exists:data_templates,id'],
-            'supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
+            'name' => ['required', 'string', 'min:1', 'max:255'],
             'translations' => ['required', 'array', 'min:1'],
             'translations.*.description' => ['nullable', 'string'],
             'values' => ['required', 'array']

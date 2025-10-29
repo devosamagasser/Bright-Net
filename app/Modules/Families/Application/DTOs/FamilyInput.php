@@ -26,33 +26,9 @@ class FamilyInput
         $translations = Arr::pull($payload, 'translations', []);
         $values = Arr::pull($payload, 'values', []);
 
-        $normalizedTranslations = [];
-        $name = $payload['name'] ?? null;
-
-        foreach ($translations as $locale => $fields) {
-            if ($name === null && isset($fields['name'])) {
-                $name = $fields['name'];
-            }
-
-            $filtered = array_filter(
-                [
-                    'description' => $fields['description'] ?? null,
-                ],
-                static fn ($value) => $value !== null,
-            );
-
-            if ($filtered !== []) {
-                $normalizedTranslations[$locale] = $filtered;
-            }
-        }
-
-        if ($name !== null) {
-            $payload['name'] = $name;
-        }
-
         return new self(
             attributes: $payload,
-            translations: $normalizedTranslations,
+            translations: $translations,
             values: is_array($values) ? $values : [],
         );
     }

@@ -17,7 +17,6 @@ return new class extends Migration
             $table->foreignId('data_field_id')->constrained()->cascadeOnDelete();
             $table->json('value')->nullable();
             $table->timestamps();
-
             $table->unique(['family_id', 'data_field_id']);
         });
     }

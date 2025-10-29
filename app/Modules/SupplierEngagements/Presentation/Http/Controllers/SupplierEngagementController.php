@@ -20,7 +20,7 @@ class SupplierEngagementController
     {
     }
 
-    public function solutions(Company $company)
+    public function solutions(Company $company = null)
     {
         $company = $this->assertCompanyOwnership($company);
         $this->assertSupplierCompany($company);
@@ -57,9 +57,17 @@ class SupplierEngagementController
         $this->assertSupplierCompany($company);
         $subcategories = $this->engagements->listSubcategories($company, $supplierDepartment);
 
-        return ApiResponse::success(
-            SupplierSubcategoryResource::collection($subcategories)->resolve()
-        );
+        $resource = SupplierSubcategoryResource::collection($subcategories)
+            ->additional(['department' => [
+                'id' => $supplierDepartment->id,
+                'name' => $supplierDepartment->department->name,
+            ],
+        ])
+        ->response()
+        ->getData(true);
+
+        return ApiResponse::success($resource);
+
     }
 
     private function assertSupplierCompany(Company $company): void

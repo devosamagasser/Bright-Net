@@ -21,9 +21,8 @@ class UpdateFamilyRequest extends FormRequest
         $keys = [
             'subcategory_id' => ['sometimes', 'integer', 'exists:subcategories,id'],
             'data_template_id' => ['sometimes', 'integer', 'exists:data_templates,id'],
-            'supplier_id' => ['sometimes', 'integer', 'exists:suppliers,id'],
+            'name' => ['required', 'string', 'min:1', 'max:255'],
             'translations' => ['sometimes', 'array'],
-            'translations.*.name' => ['sometimes', 'string', 'min:1', 'max:255'],
             'translations.*.description' => ['nullable', 'string'],
             'values' => ['sometimes', 'array'],
         ];

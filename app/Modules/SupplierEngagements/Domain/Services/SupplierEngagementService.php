@@ -4,13 +4,14 @@ namespace App\Modules\SupplierEngagements\Domain\Services;
 
 use App\Models\Supplier;
 use App\Models\SupplierBrand;
-use App\Models\SupplierDepartment;
 use App\Models\SupplierSolution;
-use App\Modules\Companies\Domain\Models\Company;
-use App\Modules\Families\Domain\Models\Family;
-use App\Modules\Subcategories\Domain\Models\Subcategory;
-use Illuminate\Database\Eloquent\Model;
+use App\Models\SupplierDepartment;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Model;
+use App\Modules\Families\Domain\Models\Family;
+use App\Modules\Companies\Domain\Models\Company;
+use App\Modules\Subcategories\Domain\Models\Subcategory;
+use App\Modules\Families\Application\UseCases\ListFamiliesUseCase;
 
 class SupplierEngagementService
 {
@@ -21,29 +22,25 @@ class SupplierEngagementService
      */
     public function listSolutions(Company $company): array
     {
-        $supplier = $this->supplierForCompany($company);
+        $supplier = $company->supplier;
 
         if ($supplier === null) {
             return [];
         }
 
-        $locale = app()->getLocale();
-        $fallbackLocale = $this->fallbackLocale($locale);
 
         return $supplier->solutions()
             ->with('solution.translations')
             ->orderBy('id')
             ->get()
-            ->map(function (SupplierSolution $supplierSolution) use ($locale, $fallbackLocale): array {
+            ->map(function (SupplierSolution $supplierSolution): array {
                 $solution = $supplierSolution->solution;
-                $solutionId = (int) $supplierSolution->solution_id;
 
                 return [
                     'supplier_solution_id' => (int) $supplierSolution->getKey(),
-                    'solution_id' => $solutionId,
                     'solution' => [
-                        'id' => $solutionId,
-                        'name' => $this->translatedName($solution, $locale, $fallbackLocale),
+                        'id' => $solution->id,
+                        'name' => $solution->name,
                     ],
                 ];
             })
@@ -57,7 +54,7 @@ class SupplierEngagementService
      */
     public function listBrands(Company $company, SupplierSolution $supplierSolution): array
     {
-        $supplier = $this->requireSupplier($company);
+        $supplier = $company->supplier;
         $this->ensureSupplierSolutionBelongsToSupplier($supplierSolution, (int) $supplier->getKey());
 
         return $supplierSolution->brands()
@@ -86,23 +83,19 @@ class SupplierEngagementService
      */
     public function listDepartments(Company $company, SupplierBrand $supplierBrand): array
     {
-        $supplier = $this->requireSupplier($company);
+        $supplier = $company->supplier;
         $this->ensureSupplierBrandBelongsToSupplier($supplierBrand, (int) $supplier->getKey());
-
-        $locale = app()->getLocale();
-        $fallbackLocale = $this->fallbackLocale($locale);
 
         return $supplierBrand->departments()
             ->with('department.media', 'department.translations')
             ->orderBy('supplier_departments.id')
             ->get()
-            ->map(function (SupplierDepartment $supplierDepartment) use ($locale, $fallbackLocale): array {
+            ->map(function (SupplierDepartment $supplierDepartment): array {
                 $department = $supplierDepartment->department;
 
                 return [
                     'supplier_department_id' => (int) $supplierDepartment->getKey(),
-                    'id' => (int) $supplierDepartment->department_id,
-                    'name' => $this->translatedName($department, $locale, $fallbackLocale),
+                    'name' => $department?->name,
                     'cover' => $department?->getFirstMediaUrl('cover') ?: null,
                 ];
             })
@@ -114,55 +107,23 @@ class SupplierEngagementService
      *
      * @return array<int, array<string, mixed>>
      */
-    public function listSubcategories(Company $company, SupplierDepartment $supplierDepartment): array
+    public function listSubcategories(Company $company, SupplierDepartment $supplierDepartment): Collection
     {
-        $supplier = $this->requireSupplier($company);
+        $supplier = $company->supplier;
         $supplierId = (int) $supplier->getKey();
         $departmentId = $this->ensureSupplierDepartmentBelongsToSupplier($supplierDepartment, $supplierId);
 
-        $locale = app()->getLocale();
-        $fallbackLocale = $this->fallbackLocale($locale);
-
         $subcategories = Subcategory::query()
             ->where('department_id', $departmentId)
-            ->with('translations')
+            ->with(['families' => function ($query) use ($supplierId) {
+                $query->where('supplier_id', $supplierId)->orderBy('id', 'desc');
+            }, 'families.fieldValues.field'])
             ->orderBy('id')
             ->get();
 
-        $subcategoryIds = $subcategories->pluck('id')->all();
-
-        $familiesBySubcategory = $this->familiesBySubcategory($supplierId, $subcategoryIds);
-        $supplierDepartmentSummary = $this->supplierDepartmentSummary($supplierDepartment, $locale, $fallbackLocale);
-
-        return $subcategories->map(function (Subcategory $subcategory) use ($familiesBySubcategory, $supplierDepartmentSummary, $locale, $fallbackLocale): array {
-            $subcategoryId = (int) $subcategory->getKey();
-
-            return [
-                'supplier_department' => $supplierDepartmentSummary,
-                'id' => $subcategoryId,
-                'name' => $this->translatedName($subcategory, $locale, $fallbackLocale),
-                'families' => $familiesBySubcategory[$subcategoryId] ?? [],
-            ];
-        })->all();
+        return $subcategories;
     }
 
-    private function supplierForCompany(Company $company): ?Supplier
-    {
-        return Supplier::query()
-            ->where('company_id', $company->getKey())
-            ->first();
-    }
-
-    private function requireSupplier(Company $company): Supplier
-    {
-        $supplier = $this->supplierForCompany($company);
-
-        if ($supplier === null) {
-            abort(404);
-        }
-
-        return $supplier;
-    }
 
     private function ensureSupplierSolutionBelongsToSupplier(SupplierSolution $supplierSolution, int $supplierId): void
     {
@@ -193,70 +154,4 @@ class SupplierEngagementService
         return (int) $supplierDepartment->department_id;
     }
 
-    private function supplierDepartmentSummary(SupplierDepartment $supplierDepartment, string $locale, string $fallbackLocale): array
-    {
-        $supplierDepartment->loadMissing('department.translations', 'department.media');
-
-        return [
-            'id' => (int) $supplierDepartment->getKey(),
-            'name' => $this->translatedName($supplierDepartment->department, $locale, $fallbackLocale),
-        ];
-    }
-
-    /**
-     * @param  array<int, int>  $subcategoryIds
-     * @return array<int, array<int, array{id:int, name:string|null}>>
-     */
-    private function familiesBySubcategory(int $supplierId, array $subcategoryIds): array
-    {
-        if ($subcategoryIds === []) {
-            return [];
-        }
-
-        return Family::query()
-            ->where('supplier_id', $supplierId)
-            ->whereIn('subcategory_id', $subcategoryIds)
-            ->orderBy('name')
-            ->get(['id', 'name', 'subcategory_id'])
-            ->groupBy('subcategory_id')
-            ->map(static function (Collection $group): array {
-                return $group->map(static function (Family $family): array {
-                    return [
-                        'id' => (int) $family->getKey(),
-                        'name' => $family->name,
-                    ];
-                })->values()->all();
-            })
-            ->toArray();
-    }
-
-    private function translatedName(?Model $model, string $locale, string $fallbackLocale): ?string
-    {
-        if ($model === null) {
-            return null;
-        }
-
-        if (! method_exists($model, 'translate')) {
-            return $model->getAttribute('name');
-        }
-
-        $translation = $model->translate($locale);
-
-        if ($translation === null && $fallbackLocale !== $locale) {
-            $translation = $model->translate($fallbackLocale);
-        }
-
-        return $translation?->name ?? $model->getAttribute('name');
-    }
-
-    private function fallbackLocale(string $locale): string
-    {
-        $fallback = app('translator')->getFallback();
-
-        if (is_string($fallback) && $fallback !== '') {
-            return $fallback;
-        }
-
-        return config('app.fallback_locale', $locale);
-    }
 }

@@ -27,11 +27,9 @@ class FamilyController
     ) {
     }
 
-    public function index(int $subcategory, Request $request)
+    public function index(int $subcategory, $supplierId = null)
     {
-        $supplierId = $request->query('supplier_id');
-        $supplierId = is_numeric($supplierId) ? (int) $supplierId : null;
-
+        $supplierId = (auth()->user()->company->supplier->id) ? auth()->user()->company->supplier->id :  $supplierId ;
         $families = $this->listFamilies->handle($subcategory, $supplierId);
 
         return ApiResponse::success(
@@ -41,7 +39,11 @@ class FamilyController
 
     public function store(StoreFamilyRequest $request)
     {
-        $input = FamilyInput::fromArray($request->validated());
+        $input = FamilyInput::fromArray(
+            $request->validated() + [
+                'supplier_id' => auth()->user()->company->supplier->id,
+            ]
+        );
         $family = $this->createFamily->handle($input);
 
         return ApiResponse::created(
@@ -60,7 +62,11 @@ class FamilyController
 
     public function update(UpdateFamilyRequest $request, Family $family)
     {
-        $input = FamilyInput::fromArray($request->validated());
+        $input = FamilyInput::fromArray(
+            $request->validated() + [
+                'supplier_id' => auth()->user()->company->supplier->id,
+            ]
+        );
         $familyData = $this->updateFamily->handle($family, $input);
 
         return ApiResponse::updated(

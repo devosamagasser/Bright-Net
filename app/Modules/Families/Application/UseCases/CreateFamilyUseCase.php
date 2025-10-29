@@ -20,28 +20,13 @@ class CreateFamilyUseCase
     public function handle(FamilyInput $input): FamilyData
     {
         $attributes = $input->attributes;
+        $template = $this->templates->find($attributes['data_template_id'], DataTemplateType::FAMILY);
 
-        $template = $this->requireTemplate((int) ($attributes['data_template_id'] ?? 0));
-        $subcategoryId = (int) ($attributes['subcategory_id'] ?? 0);
-
-        $this->assertTemplateMatchesSubcategory($template, $subcategoryId);
+        $this->assertTemplateMatchesSubcategory($template, $attributes['subcategory_id']);
 
         $family = $this->families->create($attributes, $input->translations, $input->values);
 
         return FamilyData::fromModel($family);
-    }
-
-    private function requireTemplate(int $templateId): DataTemplate
-    {
-        $template = $this->templates->find($templateId, DataTemplateType::FAMILY);
-
-        if ($template === null) {
-            throw ValidationException::withMessages([
-                'data_template_id' => trans('validation.exists', ['attribute' => 'data template']),
-            ]);
-        }
-
-        return $template;
     }
 
     private function assertTemplateMatchesSubcategory(DataTemplate $template, int $subcategoryId): void

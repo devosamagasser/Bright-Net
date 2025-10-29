@@ -41,9 +41,9 @@ Route::prefix('suppliers')
             ->whereNumber('subcategory')
             ->whereIn('type', DataTemplateType::values());
 
-        Route::get('subcategories/{subcategory}', [FamilyController::class, 'index'])
-            ->whereNumber('subcategory');
-            
+        // Route::get('subcategories/{subcategory}', [FamilyController::class, 'index'])
+        //     ->whereNumber('subcategory');
+
         Route::prefix('families')
             ->group(function (): void {
                 Route::post('/', [FamilyController::class, 'store']);

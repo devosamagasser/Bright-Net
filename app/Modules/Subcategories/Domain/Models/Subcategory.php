@@ -55,4 +55,9 @@ class Subcategory extends Model
     {
         return $this->belongsTo(Department::class);
     }
+
+    public function families()
+    {
+        return $this->hasMany(\App\Modules\Families\Domain\Models\Family::class);
+    }
 }
