@@ -182,7 +182,6 @@ class SupplierEngagementService
             ->orderBy('sc.id')
             ->get();
 
-
         return $subcategories->map(static function (object $subcategory): array {
             return [
                 'id' => (int) $subcategory->subcategory_id,
