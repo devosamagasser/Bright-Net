@@ -2,14 +2,15 @@
 
 namespace App\Modules\SupplierEngagements\Domain\Services;
 
+use App\Models\Supplier;
 use App\Models\SupplierBrand;
 use App\Models\SupplierDepartment;
 use App\Models\SupplierSolution;
 use App\Modules\Companies\Domain\Models\Company;
-use App\Modules\Departments\Domain\Models\Department;
-use Illuminate\Database\Query\Builder;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
+use App\Modules\Families\Domain\Models\Family;
+use App\Modules\Subcategories\Domain\Models\Subcategory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Collection;
 
 class SupplierEngagementService
 {
@@ -20,46 +21,33 @@ class SupplierEngagementService
      */
     public function listSolutions(Company $company): array
     {
-        $supplierId = $this->supplierIdForCompany($company);
+        $supplier = $this->supplierForCompany($company);
 
-        if ($supplierId === null) {
+        if ($supplier === null) {
             return [];
         }
 
         $locale = app()->getLocale();
-        $fallbackLocale = config('app.fallback_locale', $locale);
+        $fallbackLocale = $this->fallbackLocale($locale);
 
-        $solutions = DB::table('supplier_solutions as ss')
-            ->join('solutions as s', 's.id', '=', 'ss.solution_id')
-            ->leftJoin('solution_translations as st', function ($join) use ($locale): void {
-                $join->on('st.solution_id', '=', 's.id')
-                    ->where('st.locale', '=', $locale);
+        return $supplier->solutions()
+            ->with('solution.translations')
+            ->orderBy('id')
+            ->get()
+            ->map(function (SupplierSolution $supplierSolution) use ($locale, $fallbackLocale): array {
+                $solution = $supplierSolution->solution;
+                $solutionId = (int) $supplierSolution->solution_id;
+
+                return [
+                    'supplier_solution_id' => (int) $supplierSolution->getKey(),
+                    'solution_id' => $solutionId,
+                    'solution' => [
+                        'id' => $solutionId,
+                        'name' => $this->translatedName($solution, $locale, $fallbackLocale),
+                    ],
+                ];
             })
-            ->leftJoin('solution_translations as fst', function ($join) use ($fallbackLocale): void {
-                $join->on('fst.solution_id', '=', 's.id')
-                    ->where('fst.locale', '=', $fallbackLocale);
-            })
-            ->where('ss.supplier_id', $supplierId)
-            ->select([
-                'ss.id as supplier_solution_id',
-                'ss.solution_id',
-                DB::raw('COALESCE(st.name, fst.name) as solution_name'),
-            ])
-            ->orderBy('ss.id')
-            ->get();
-
-        return $solutions->map(static function (object $solution): array {
-            $solutionId = (int) $solution->solution_id;
-
-            return [
-                'supplier_solution_id' => (int) $solution->supplier_solution_id,
-                'solution_id' => $solutionId,
-                'solution' => [
-                    'id' => $solutionId,
-                    'name' => $solution->solution_name,
-                ],
-            ];
-        })->all();
+            ->all();
     }
 
     /**
@@ -69,35 +57,26 @@ class SupplierEngagementService
      */
     public function listBrands(Company $company, SupplierSolution $supplierSolution): array
     {
-        $supplierId = $this->requireSupplierId($company);
-        $this->ensureSupplierSolutionBelongsToSupplier($supplierSolution, $supplierId);
+        $supplier = $this->requireSupplier($company);
+        $this->ensureSupplierSolutionBelongsToSupplier($supplierSolution, (int) $supplier->getKey());
 
-        $brands = DB::table('supplier_brands as sb')
-            ->join('brands as b', 'b.id', '=', 'sb.brand_id')
-            ->leftJoinSub($this->brandLogoSubquery(), 'brand_logos', function ($join): void {
-                $join->on('brand_logos.brand_id', '=', 'b.id');
+        return $supplierSolution->brands()
+            ->with('brand.media')
+            ->select('supplier_brands.*')
+            ->join('brands', 'brands.id', '=', 'supplier_brands.brand_id')
+            ->orderBy('brands.name')
+            ->get()
+            ->map(function (SupplierBrand $supplierBrand): array {
+                $brand = $supplierBrand->brand;
+
+                return [
+                    'supplier_brand_id' => (int) $supplierBrand->getKey(),
+                    'id' => $brand?->getKey() !== null ? (int) $brand->getKey() : null,
+                    'name' => $brand?->name,
+                    'logo' => $brand?->getFirstMediaUrl('logo') ?: null,
+                ];
             })
-            ->leftJoin('media as m', 'm.id', '=', 'brand_logos.media_id')
-            ->where('sb.supplier_solution_id', $supplierSolution->getKey())
-            ->select([
-                'sb.id as supplier_brand_id',
-                'b.id as brand_id',
-                'b.name as brand_name',
-                'm.id as media_id',
-                'm.disk as media_disk',
-                'm.file_name as media_file_name',
-            ])
-            ->orderBy('b.name')
-            ->get();
-
-        return $brands->map(function (object $brand): array {
-            return [
-                'supplier_brand_id' => (int) $brand->supplier_brand_id,
-                'id' => (int) $brand->brand_id,
-                'name' => $brand->brand_name,
-                'logo' => $this->mediaUrl($brand->media_disk, $brand->media_id, $brand->media_file_name),
-            ];
-        })->all();
+            ->all();
     }
 
     /**
@@ -107,49 +86,27 @@ class SupplierEngagementService
      */
     public function listDepartments(Company $company, SupplierBrand $supplierBrand): array
     {
-        $supplierId = $this->requireSupplierId($company);
-        $this->ensureSupplierBrandBelongsToSupplier($supplierBrand, $supplierId);
+        $supplier = $this->requireSupplier($company);
+        $this->ensureSupplierBrandBelongsToSupplier($supplierBrand, (int) $supplier->getKey());
 
         $locale = app()->getLocale();
-        $fallbackLocale = config('app.fallback_locale', $locale);
+        $fallbackLocale = $this->fallbackLocale($locale);
 
-        $departments = DB::table('supplier_departments as sd')
-            ->join('supplier_brands as sb', 'sb.id', '=', 'sd.supplier_brand_id')
-            ->join('supplier_solutions as ss', 'ss.id', '=', 'sb.supplier_solution_id')
-            ->join('departments as d', 'd.id', '=', 'sd.department_id')
-            ->leftJoinSub($this->departmentCoverSubquery(), 'department_covers', function ($join): void {
-                $join->on('department_covers.department_id', '=', 'd.id');
-            })
-            ->leftJoin('media as dm', 'dm.id', '=', 'department_covers.media_id')
-            ->leftJoin('department_translations as dt', function ($join) use ($locale): void {
-                $join->on('dt.department_id', '=', 'd.id')
-                    ->where('dt.locale', '=', $locale);
-            })
-            ->leftJoin('department_translations as fdt', function ($join) use ($fallbackLocale): void {
-                $join->on('fdt.department_id', '=', 'd.id')
-                    ->where('fdt.locale', '=', $fallbackLocale);
-            })
-            ->where('sd.supplier_brand_id', $supplierBrand->getKey())
-            ->where('ss.supplier_id', $supplierId)
-            ->select([
-                'sd.id as supplier_department_id',
-                'd.id as department_id',
-                DB::raw('COALESCE(dt.name, fdt.name) as department_name'),
-                'dm.id as cover_media_id',
-                'dm.disk as cover_media_disk',
-                'dm.file_name as cover_media_file_name',
-            ])
-            ->orderBy('sd.id')
-            ->get();
+        return $supplierBrand->departments()
+            ->with('department.media', 'department.translations')
+            ->orderBy('supplier_departments.id')
+            ->get()
+            ->map(function (SupplierDepartment $supplierDepartment) use ($locale, $fallbackLocale): array {
+                $department = $supplierDepartment->department;
 
-        return $departments->map(function (object $department): array {
-            return [
-                'supplier_department_id' => (int) $department->supplier_department_id,
-                'id' => (int) $department->department_id,
-                'name' => $department->department_name,
-                'cover' => $this->mediaUrl($department->cover_media_disk, $department->cover_media_id, $department->cover_media_file_name),
-            ];
-        })->all();
+                return [
+                    'supplier_department_id' => (int) $supplierDepartment->getKey(),
+                    'id' => (int) $supplierDepartment->department_id,
+                    'name' => $this->translatedName($department, $locale, $fallbackLocale),
+                    'cover' => $department?->getFirstMediaUrl('cover') ?: null,
+                ];
+            })
+            ->all();
     }
 
     /**
@@ -159,128 +116,147 @@ class SupplierEngagementService
      */
     public function listSubcategories(Company $company, SupplierDepartment $supplierDepartment): array
     {
-        $supplierId = $this->requireSupplierId($company);
+        $supplier = $this->requireSupplier($company);
+        $supplierId = (int) $supplier->getKey();
         $departmentId = $this->ensureSupplierDepartmentBelongsToSupplier($supplierDepartment, $supplierId);
 
         $locale = app()->getLocale();
-        $fallbackLocale = config('app.fallback_locale', $locale);
+        $fallbackLocale = $this->fallbackLocale($locale);
 
-        $subcategories = DB::table('subcategories as sc')
-            ->leftJoin('subcategory_translations as sct', function ($join) use ($locale): void {
-                $join->on('sct.subcategory_id', '=', 'sc.id')
-                    ->where('sct.locale', '=', $locale);
-            })
-            ->leftJoin('subcategory_translations as fsct', function ($join) use ($fallbackLocale): void {
-                $join->on('fsct.subcategory_id', '=', 'sc.id')
-                    ->where('fsct.locale', '=', $fallbackLocale);
-            })
-            ->where('sc.department_id', $departmentId)
-            ->select([
-                'sc.id as subcategory_id',
-                DB::raw('COALESCE(sct.name, fsct.name) as subcategory_name'),
-            ])
-            ->orderBy('sc.id')
+        $subcategories = Subcategory::query()
+            ->where('department_id', $departmentId)
+            ->with('translations')
+            ->orderBy('id')
             ->get();
 
-        return $subcategories->map(static function (object $subcategory): array {
+        $subcategoryIds = $subcategories->pluck('id')->all();
+
+        $familiesBySubcategory = $this->familiesBySubcategory($supplierId, $subcategoryIds);
+        $supplierDepartmentSummary = $this->supplierDepartmentSummary($supplierDepartment, $locale, $fallbackLocale);
+
+        return $subcategories->map(function (Subcategory $subcategory) use ($familiesBySubcategory, $supplierDepartmentSummary, $locale, $fallbackLocale): array {
+            $subcategoryId = (int) $subcategory->getKey();
+
             return [
-                'id' => (int) $subcategory->subcategory_id,
-                'name' => $subcategory->subcategory_name,
+                'supplier_department' => $supplierDepartmentSummary,
+                'id' => $subcategoryId,
+                'name' => $this->translatedName($subcategory, $locale, $fallbackLocale),
+                'families' => $familiesBySubcategory[$subcategoryId] ?? [],
             ];
         })->all();
     }
 
-    private function supplierIdForCompany(Company $company): ?int
+    private function supplierForCompany(Company $company): ?Supplier
     {
-        $supplier = DB::table('suppliers')
-            ->select('id')
+        return Supplier::query()
             ->where('company_id', $company->getKey())
             ->first();
-
-        return $supplier?->id !== null ? (int) $supplier->id : null;
     }
 
-    private function requireSupplierId(Company $company): int
+    private function requireSupplier(Company $company): Supplier
     {
-        $supplierId = $this->supplierIdForCompany($company);
+        $supplier = $this->supplierForCompany($company);
 
-        if ($supplierId === null) {
+        if ($supplier === null) {
             abort(404);
         }
 
-        return $supplierId;
+        return $supplier;
     }
 
     private function ensureSupplierSolutionBelongsToSupplier(SupplierSolution $supplierSolution, int $supplierId): void
     {
-        if ((int) $supplierSolution->supplier_id === $supplierId) {
-            return;
-        }
-
-        $exists = DB::table('supplier_solutions')
-            ->where('id', $supplierSolution->getKey())
-            ->where('supplier_id', $supplierId)
-            ->exists();
-
-        if (! $exists) {
+        if ((int) $supplierSolution->supplier_id !== $supplierId) {
             abort(404);
         }
     }
 
     private function ensureSupplierBrandBelongsToSupplier(SupplierBrand $supplierBrand, int $supplierId): void
     {
-        $exists = DB::table('supplier_brands as sb')
-            ->join('supplier_solutions as ss', 'ss.id', '=', 'sb.supplier_solution_id')
-            ->where('sb.id', $supplierBrand->getKey())
-            ->where('ss.supplier_id', $supplierId)
-            ->exists();
+        $supplierBrand->loadMissing('supplierSolution');
+        $supplierSolution = $supplierBrand->supplierSolution;
 
-        if (! $exists) {
+        if ($supplierSolution === null || (int) $supplierSolution->supplier_id !== $supplierId) {
             abort(404);
         }
     }
 
     private function ensureSupplierDepartmentBelongsToSupplier(SupplierDepartment $supplierDepartment, int $supplierId): int
     {
-        $record = DB::table('supplier_departments as sd')
-            ->join('supplier_brands as sb', 'sb.id', '=', 'sd.supplier_brand_id')
-            ->join('supplier_solutions as ss', 'ss.id', '=', 'sb.supplier_solution_id')
-            ->where('sd.id', $supplierDepartment->getKey())
-            ->where('ss.supplier_id', $supplierId)
-            ->select('sd.department_id')
-            ->first();
+        $supplierDepartment->loadMissing('supplierBrand.supplierSolution');
+        $supplierSolution = optional($supplierDepartment->supplierBrand)->supplierSolution;
 
-        if ($record === null) {
+        if ($supplierSolution === null || (int) $supplierSolution->supplier_id !== $supplierId) {
             abort(404);
         }
 
-        return (int) $record->department_id;
+        return (int) $supplierDepartment->department_id;
     }
 
-    private function brandLogoSubquery(): Builder
+    private function supplierDepartmentSummary(SupplierDepartment $supplierDepartment, string $locale, string $fallbackLocale): array
     {
-        return DB::table('media')
-            ->selectRaw('MAX(id) as media_id, model_id as brand_id')
-            ->where('model_type', '=', \App\Modules\Brands\Domain\Models\Brand::class)
-            ->where('collection_name', '=', 'logo')
-            ->groupBy('model_id');
+        $supplierDepartment->loadMissing('department.translations', 'department.media');
+
+        return [
+            'id' => (int) $supplierDepartment->getKey(),
+            'name' => $this->translatedName($supplierDepartment->department, $locale, $fallbackLocale),
+        ];
     }
 
-    private function departmentCoverSubquery(): Builder
+    /**
+     * @param  array<int, int>  $subcategoryIds
+     * @return array<int, array<int, array{id:int, name:string|null}>>
+     */
+    private function familiesBySubcategory(int $supplierId, array $subcategoryIds): array
     {
-        return DB::table('media')
-            ->selectRaw('MAX(id) as media_id, model_id as department_id')
-            ->where('model_type', '=', Department::class)
-            ->where('collection_name', '=', 'cover')
-            ->groupBy('model_id');
+        if ($subcategoryIds === []) {
+            return [];
+        }
+
+        return Family::query()
+            ->where('supplier_id', $supplierId)
+            ->whereIn('subcategory_id', $subcategoryIds)
+            ->orderBy('name')
+            ->get(['id', 'name', 'subcategory_id'])
+            ->groupBy('subcategory_id')
+            ->map(static function (Collection $group): array {
+                return $group->map(static function (Family $family): array {
+                    return [
+                        'id' => (int) $family->getKey(),
+                        'name' => $family->name,
+                    ];
+                })->values()->all();
+            })
+            ->toArray();
     }
 
-    private function mediaUrl(?string $disk, ?int $mediaId, ?string $fileName): ?string
+    private function translatedName(?Model $model, string $locale, string $fallbackLocale): ?string
     {
-        if ($disk === null || $mediaId === null || $fileName === null) {
+        if ($model === null) {
             return null;
         }
 
-        return Storage::disk($disk)->url(sprintf('%d/%s', $mediaId, $fileName));
+        if (! method_exists($model, 'translate')) {
+            return $model->getAttribute('name');
+        }
+
+        $translation = $model->translate($locale);
+
+        if ($translation === null && $fallbackLocale !== $locale) {
+            $translation = $model->translate($fallbackLocale);
+        }
+
+        return $translation?->name ?? $model->getAttribute('name');
+    }
+
+    private function fallbackLocale(string $locale): string
+    {
+        $fallback = app('translator')->getFallback();
+
+        if (is_string($fallback) && $fallback !== '') {
+            return $fallback;
+        }
+
+        return config('app.fallback_locale', $locale);
     }
 }
