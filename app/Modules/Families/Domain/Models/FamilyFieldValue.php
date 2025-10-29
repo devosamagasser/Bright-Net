@@ -28,7 +28,7 @@ class FamilyFieldValue extends Model
     protected $casts = [
         'family_id' => 'integer',
         'data_field_id' => 'integer',
-        'value' => 'array',
+        'value' => 'json',
     ];
 
     /**
