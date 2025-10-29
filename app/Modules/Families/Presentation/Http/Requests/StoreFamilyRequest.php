@@ -4,7 +4,6 @@ namespace App\Modules\Families\Presentation\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Modules\Shared\Support\Helper\RequestValidationBuilder;
-use Illuminate\Support\Facades\Validator;
 
 class StoreFamilyRequest extends FormRequest
 {
@@ -18,7 +17,7 @@ class StoreFamilyRequest extends FormRequest
         $keys = [
             'subcategory_id' => ['required', 'integer', 'exists:subcategories,id'],
             'data_template_id' => ['required', 'integer', 'exists:data_templates,id'],
-            'name' => ['required', 'string', 'min:1', 'max:255'],
+            'supplier_id' => ['required', 'integer', 'exists:suppliers,id'],
             'translations' => ['required', 'array', 'min:1'],
             'translations.*.description' => ['nullable', 'string'],
             'values' => ['required', 'array']
