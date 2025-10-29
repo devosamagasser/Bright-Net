@@ -22,6 +22,8 @@ class DataField extends Model
         'options',
         'is_filterable',
         'position',
+        'name',
+        'slug',
     ];
 
     /**
@@ -61,8 +63,20 @@ class DataField extends Model
 
     public static function booted(): void
     {
-        static::saving(function (DataField $dataField) {
-            $dataField->name = Str::slug($dataField->type->value . '-' . $dataField->position);
+        static::saving(function (DataField $dataField): void {
+            if ($dataField->getAttribute('name') === null) {
+                $dataField->name = Str::slug($dataField->type->value . '-' . $dataField->position);
+            }
         });
+    }
+
+    public function getSlugAttribute(): ?string
+    {
+        return $this->getAttribute('name');
+    }
+
+    public function setSlugAttribute(?string $value): void
+    {
+        $this->attributes['name'] = $value;
     }
 }
