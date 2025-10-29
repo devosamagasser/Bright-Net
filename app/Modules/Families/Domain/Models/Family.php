@@ -21,9 +21,10 @@ class Family extends Model implements HasMedia
      * @var array<int, string>
      */
     protected $fillable = [
+        'name',
         'subcategory_id',
         'supplier_id',
-        'data_template_id',
+        'data_template_id'
     ];
 
     /**
@@ -39,7 +40,6 @@ class Family extends Model implements HasMedia
      * @var array<int, string>
      */
     public $translatedAttributes = [
-        'name',
         'description',
     ];
 

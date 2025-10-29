@@ -16,7 +16,6 @@ class FamilyTranslation extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-        'name',
         'description',
         'locale',
     ];
@@ -25,7 +24,6 @@ class FamilyTranslation extends Model
      * @var array<string, string>
      */
     protected $casts = [
-        'name' => 'string',
         'description' => 'string',
         'locale' => 'string',
     ];

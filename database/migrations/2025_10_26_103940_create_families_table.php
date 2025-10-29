@@ -13,7 +13,8 @@ return new class extends Migration
     {
         Schema::create('families', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('supplier_departments_id')->constrained()->onDelete('cascade');
+            $table->string('name');
+            $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->foreignId('subcategory_id')->constrained()->onDelete('cascade');
             $table->foreignId('data_template_id')->constrained()->onDelete('cascade');
             $table->timestamps();
@@ -22,7 +23,6 @@ return new class extends Migration
         Schema::create('family_translations', function (Blueprint $table) {
             $table->id();
             $table->foreignId('family_id')->constrained()->onDelete('cascade');
-            $table->string('name');
             $table->string('description')->nullable();
             $table->char('locale', 5)->index();
             $table->unique(['family_id', 'locale']);

@@ -55,9 +55,10 @@ class SupplierEngagementController
     {
         $company = $this->assertCompanyOwnership($company);
         $this->assertSupplierCompany($company);
+        $subcategories = $this->engagements->listSubcategories($company, $supplierDepartment);
 
         return ApiResponse::success(
-            SupplierSubcategoryResource::collection($this->engagements->listSubcategories($company, $supplierDepartment))->resolve()
+            SupplierSubcategoryResource::collection($subcategories)->resolve()
         );
     }
 
