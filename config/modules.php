@@ -24,6 +24,7 @@ return [
         \App\Modules\Authentication\Infrastructure\Providers\AuthenticationServiceProvider::class,
         \App\Modules\DataSheets\Infrastructure\Providers\DataSheetsServiceProvider::class,
         \App\Modules\Families\Infrastructure\Providers\FamiliesServiceProvider::class,
+        \App\Modules\Products\Infrastructure\Providers\ProductsServiceProvider::class,
     ],
 ];
 

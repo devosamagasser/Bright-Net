@@ -4,6 +4,8 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use Illuminate\Http\Response;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Modules\DataSheets\Domain\Models\{DataField, DataTemplate};
 use App\Modules\DataSheets\Domain\ValueObjects\DataFieldType;
@@ -14,17 +16,26 @@ use App\Modules\SolutionsCatalog\Domain\Models\Solution;
 use App\Modules\Companies\Domain\Models\Company;
 use App\Modules\Companies\Domain\ValueObjects\CompanyType;
 use App\Models\Supplier;
-use Illuminate\Support\Str;
+use App\Models\CompanyUser;
 
 class FamilyManagementTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        config(['auth.defaults.guard' => 'company']);
+        Auth::shouldUse('company');
+    }
 
     public function test_supplier_can_create_family_with_dynamic_values(): void
     {
         $subcategory = $this->createSubcategory();
         $template = $this->createTemplateWithFields($subcategory);
         $supplier = $this->createSupplier();
+        $this->authenticateSupplier($supplier);
 
         $payload = [
             'subcategory_id' => $subcategory->getKey(),
@@ -66,6 +77,7 @@ class FamilyManagementTest extends TestCase
         $subcategory = $this->createSubcategory();
         $template = $this->createTemplateWithFields($subcategory);
         $supplier = $this->createSupplier();
+        $this->authenticateSupplier($supplier);
 
         $payload = [
             'subcategory_id' => $subcategory->getKey(),
@@ -92,6 +104,7 @@ class FamilyManagementTest extends TestCase
         $subcategory = $this->createSubcategory();
         $template = $this->createTemplateWithFields($subcategory);
         $supplier = $this->createSupplier();
+        $this->authenticateSupplier($supplier);
 
         $family = $this->postJson('/api/families', [
             'subcategory_id' => $subcategory->getKey(),
@@ -130,6 +143,7 @@ class FamilyManagementTest extends TestCase
         $template = $this->createTemplateWithFields($subcategory, 'lighting_template');
         $newTemplate = $this->createTemplateWithFields($subcategory, 'alternative_template');
         $supplier = $this->createSupplier();
+        $this->authenticateSupplier($supplier);
 
         $family = $this->postJson('/api/families', [
             'subcategory_id' => $subcategory->getKey(),
@@ -161,6 +175,7 @@ class FamilyManagementTest extends TestCase
         $supplierOne = $this->createSupplier('first@example.com');
         $supplierTwo = $this->createSupplier('second@example.com');
 
+        $this->authenticateSupplier($supplierOne);
         $this->postJson('/api/families', [
             'subcategory_id' => $subcategory->getKey(),
             'supplier_id' => $supplierOne->getKey(),
@@ -174,6 +189,7 @@ class FamilyManagementTest extends TestCase
             ],
         ]);
 
+        $this->authenticateSupplier($supplierTwo);
         $this->postJson('/api/families', [
             'subcategory_id' => $subcategory->getKey(),
             'supplier_id' => $supplierTwo->getKey(),
@@ -192,6 +208,20 @@ class FamilyManagementTest extends TestCase
         $response->assertOk();
         $this->assertCount(1, $response->json('data.data'));
         $this->assertSame('First Family', $response->json('data.data.0.name'));
+    }
+
+    private function authenticateSupplier(Supplier $supplier): CompanyUser
+    {
+        $user = CompanyUser::create([
+            'name' => 'Supplier User',
+            'email' => Str::uuid() . '@example.com',
+            'password' => 'password',
+            'company_id' => $supplier->company_id,
+        ]);
+
+        $this->actingAs($user, 'company');
+
+        return $user;
     }
 
     private function createSubcategory(): Subcategory
