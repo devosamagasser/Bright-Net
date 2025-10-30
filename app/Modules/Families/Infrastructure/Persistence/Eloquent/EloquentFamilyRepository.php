@@ -104,7 +104,7 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             return;
         }
 
-        $fields = $template->fields->keyBy('name');
+        $fields = $template->fields->keyBy('slug');
         $retainedFieldIds = [];
 
         foreach ($values as $key => $value) {

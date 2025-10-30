@@ -4,17 +4,17 @@ namespace App\Modules\Products\Domain\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Modules\Products\Domain\ValueObjects\AccessoryType;
+use App\Modules\DataSheets\Domain\Models\DataField;
 
-class ProductAccessory extends Model
+class ProductFieldValue extends Model
 {
     /**
      * @var array<int, string>
      */
     protected $fillable = [
         'product_id',
-        'accessory_id',
-        'accessory_type',
+        'data_field_id',
+        'value',
     ];
 
     /**
@@ -22,8 +22,15 @@ class ProductAccessory extends Model
      */
     protected $casts = [
         'product_id' => 'integer',
-        'accessory_id' => 'integer',
-        'accessory_type' => AccessoryType::class,
+        'data_field_id' => 'integer',
+        'value' => 'json',
+    ];
+
+    /**
+     * @var array<int, string>
+     */
+    protected $with = [
+        'field',
     ];
 
     public function product(): BelongsTo
@@ -31,8 +38,8 @@ class ProductAccessory extends Model
         return $this->belongsTo(Product::class);
     }
 
-    public function accessory(): BelongsTo
+    public function field(): BelongsTo
     {
-        return $this->belongsTo(Product::class, 'accessory_id');
+        return $this->belongsTo(DataField::class, 'data_field_id');
     }
 }

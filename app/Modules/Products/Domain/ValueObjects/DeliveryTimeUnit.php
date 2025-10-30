@@ -19,4 +19,12 @@ enum DeliveryTimeUnit: string
             'label' => $type->label(),
         ], self::cases());
     }
+
+    /**
+     * @return array<int, string>
+     */
+    public static function values(): array
+    {
+        return array_map(static fn (self $unit) => $unit->value, self::cases());
+    }
 }

@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Modules\Families\Application\DTOs;
+namespace App\Modules\Products\Application\DTOs;
 
-use App\Modules\Families\Domain\Models\FamilyFieldValue;
+use App\Modules\Products\Domain\Models\ProductFieldValue;
 use App\Modules\DataSheets\Domain\Models\DataField;
 use App\Modules\DataSheets\Domain\ValueObjects\DataFieldType;
 
-class FamilyValueData
+class ProductValueData
 {
     /**
      * @param  array<string, mixed>  $field
@@ -17,14 +17,14 @@ class FamilyValueData
     ) {
     }
 
-    public static function fromModel(FamilyFieldValue $familyFieldValue): self
+    public static function fromModel(ProductFieldValue $productFieldValue): self
     {
         /** @var DataField|null $field */
-        $field = $familyFieldValue->field;
+        $field = $productFieldValue->field;
 
         return new self(
             field: $field ? self::fieldSummary($field) : [],
-            value: $field ? self::normalizeValue($familyFieldValue->value, $field->type) : $familyFieldValue->value,
+            value: $field ? self::normalizeValue($productFieldValue->value, $field->type) : $productFieldValue->value,
         );
     }
 

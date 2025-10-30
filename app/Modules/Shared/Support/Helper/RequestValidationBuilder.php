@@ -20,6 +20,7 @@ class RequestValidationBuilder
 
         foreach ($template->fields as $field) {
             $type = $field->type;
+            $fieldKey = $field->slug;
 
             $ruleSet = [
                 $field->is_required ? 'required' : 'nullable',
@@ -32,11 +33,11 @@ class RequestValidationBuilder
                 if ($type === DataFieldType::SELECT) {
                     $ruleSet[] = Rule::in($allowed);
                 } else {
-                    $rules[$field->name . '.*'] = [Rule::in($allowed)];
+                    $rules['values.' . $fieldKey . '.*'] = [Rule::in($allowed)];
                 }
             }
 
-            $rules['values.'.$field->name] = $ruleSet;
+            $rules['values.' . $fieldKey] = $ruleSet;
         }
 
         return $rules;
