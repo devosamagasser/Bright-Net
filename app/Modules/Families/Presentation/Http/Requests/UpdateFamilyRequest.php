@@ -22,6 +22,7 @@ class UpdateFamilyRequest extends FormRequest
             'subcategory_id' => ['sometimes', 'integer', 'exists:subcategories,id'],
             'data_template_id' => ['sometimes', 'integer', 'exists:data_templates,id'],
             'name' => ['required', 'string', 'min:1', 'max:255'],
+            'image' => ['nullable', 'image'],
             'translations' => ['sometimes', 'array'],
             'translations.*.description' => ['nullable', 'string'],
             'values' => ['sometimes', 'array'],

@@ -24,7 +24,12 @@ class CreateFamilyUseCase
 
         $this->assertTemplateMatchesSubcategory($template, $attributes['subcategory_id']);
 
-        $family = $this->families->create($attributes, $input->translations, $input->values);
+        $family = $this->families->create(
+            $attributes,
+            $input->translations,
+            $input->values,
+            $input->image
+        );
 
         return FamilyData::fromModel($family);
     }

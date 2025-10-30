@@ -2,23 +2,24 @@
 
 namespace App\Modules\Families\Infrastructure\Persistence\Eloquent;
 
+use Illuminate\Support\Arr;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Arr;
 use App\Modules\Families\Domain\Models\Family;
-use App\Modules\Families\Domain\Repositories\FamilyRepositoryInterface;
-use App\Modules\Shared\Support\Traits\HandlesTranslations;
-use App\Modules\DataSheets\Domain\Models\DataTemplate;
 use App\Modules\DataSheets\Domain\Models\DataField;
+use App\Modules\DataSheets\Domain\Models\DataTemplate;
+use App\Modules\Shared\Support\Traits\HandlesTranslations;
 use App\Modules\DataSheets\Domain\ValueObjects\DataFieldType;
+use App\Modules\Families\Domain\Repositories\FamilyRepositoryInterface;
 
 class EloquentFamilyRepository implements FamilyRepositoryInterface
 {
     use HandlesTranslations;
 
-    public function create(array $attributes, array $translations, array $values): Family
+    public function create(array $attributes, array $translations, array $values, ?UploadedFile $image = null): Family
     {
-        return DB::transaction(function () use ($attributes, $translations, $values): Family {
+        return DB::transaction(function () use ($attributes, $translations, $values, $image): Family {
             $family = new Family();
             $family->fill($attributes);
             $this->fillTranslations($family, $translations);
@@ -26,13 +27,15 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
 
             $this->syncFieldValues($family, $values, true);
 
+            $this->syncImage($family, $image);
+
             return $this->loadAggregates($family);
         });
     }
 
-    public function update(Family $family, array $attributes, array $translations, array $values): Family
+    public function update(Family $family, array $attributes, array $translations, array $values, ?UploadedFile $image = null): Family
     {
-        return DB::transaction(function () use ($family, $attributes, $translations, $values): Family {
+        return DB::transaction(function () use ($family, $attributes, $translations, $values, $image): Family {
             $currentTemplateId = (int) $family->data_template_id;
             $templateChanged = array_key_exists('data_template_id', $attributes)
                 && (int) $attributes['data_template_id'] !== $currentTemplateId;
@@ -50,6 +53,8 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             if ($templateChanged || $values !== []) {
                 $this->syncFieldValues($family, $values, $templateChanged);
             }
+
+            $this->syncImage($family, $image);
 
             return $this->loadAggregates($family);
         });
@@ -145,5 +150,15 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             DataFieldType::NUMBER => is_numeric($value) ? $value + 0 : $value,
             default => $value,
         };
+    }
+
+    private function syncImage(Family $family, ?UploadedFile $image = null): void
+    {
+        if ($image === null) {
+            return;
+        }
+
+        $family->addMedia($image)
+            ->toMediaCollection('images');
     }
 }

@@ -16,7 +16,6 @@ class FamilyResource extends JsonResource
         return [
             'id' => $this->attributes['id'] ?? null,
             'subcategory_id' => $this->attributes['subcategory_id'] ?? null,
-            'supplier_id' => $this->attributes['supplier_id'] ?? null,
             'data_template_id' => $this->attributes['data_template_id'] ?? null,
             'name' => $this->attributes['name'] ?? null,
             'translations' => $this->translations,
@@ -27,8 +26,6 @@ class FamilyResource extends JsonResource
                 ],
                 $this->values
             ),
-            'created_at' => $this->attributes['created_at'] ?? null,
-            'updated_at' => $this->attributes['updated_at'] ?? null,
         ];
     }
 }

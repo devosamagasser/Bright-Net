@@ -36,7 +36,6 @@ class FamilyValueData
         return [
             'id' => $field->getKey(),
             'name' => $field->name,
-            'slug' => $field->slug,
             'type' => $field->type->value,
             'is_required' => $field->is_required,
             'is_filterable' => $field->is_filterable,

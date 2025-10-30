@@ -28,7 +28,12 @@ class UpdateFamilyUseCase
         $template = $this->requireTemplate($targetTemplateId);
         $this->assertTemplateMatchesSubcategory($template, $targetSubcategoryId);
 
-        $updatedFamily = $this->families->update($family, $attributes, $input->translations, $input->values);
+        $updatedFamily = $this->families->update(
+            $family,
+            $attributes,
+            $input->translations, $input->values,
+            $input->image
+        );
 
         return FamilyData::fromModel($updatedFamily);
     }

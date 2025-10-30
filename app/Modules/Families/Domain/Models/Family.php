@@ -52,7 +52,7 @@ class Family extends Model implements HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('images');
+        $this->addMediaCollection('image');
     }
 
     public function subcategory(): BelongsTo

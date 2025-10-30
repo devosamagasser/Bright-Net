@@ -24,6 +24,7 @@ class SupplierSubcategoryResource extends JsonResource
                     'data_template_id' => $family->data_template_id,
                     'name' => $family->name,
                     'description' => $family->description,
+                    'image' => $family->getFirstMediaUrl('images'),
                     'values' => $family->fieldValues->map(function ($value): array {
                         return [
                             'type' => $value->field->type->value,
