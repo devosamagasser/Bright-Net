@@ -38,7 +38,6 @@ class ProductInput
     {
         $translations = Arr::pull($payload, 'translations', []);
         $values = Arr::pull($payload, 'values', []);
-
         $shouldSyncPrices = Arr::exists($payload, 'prices');
         $prices = Arr::pull($payload, 'prices', []);
 

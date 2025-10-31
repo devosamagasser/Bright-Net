@@ -131,7 +131,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
             return;
         }
 
-        $fields = $template->fields->keyBy('slug');
+        $fields = $template->fields->keyBy('name');
         $retainedFieldIds = [];
 
         foreach ($values as $key => $value) {

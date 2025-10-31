@@ -30,13 +30,11 @@ class ProductData
     public static function fromModel(Product $product): self
     {
         $product->loadMissing([
-            'translations',
             'fieldValues.field.translations',
             'prices',
             'accessories.accessory.translations',
             'colors.translations',
         ]);
-
         return new self(
             attributes: [
                 'id' => (int) $product->getKey(),
@@ -46,6 +44,7 @@ class ProductData
                 'stock' => $product->stock,
                 'disclaimer' => $product->disclaimer,
                 'name' => $product->name,
+                'description' => $product->description,
                 'created_at' => $product->created_at?->toISOString(),
                 'updated_at' => $product->updated_at?->toISOString(),
             ],
@@ -72,12 +71,7 @@ class ProductData
                     return [
                         'id' => (int) $color->getKey(),
                         'hex_code' => $color->hex_code,
-                        'translations' => $color->translations
-                            ->mapWithKeys(static fn ($translation) => [
-                                $translation->locale => [
-                                    'name' => $translation->name,
-                                ],
-                            ])->toArray(),
+                        'name' => $color->name,
                     ];
                 })
                 ->values()

@@ -35,20 +35,14 @@ class ProductValueData
     {
         return [
             'id' => $field->getKey(),
-            'slug' => $field->slug,
-            'name' => $field->name,
+            'position' => $field->position,
+            'label' => $field->label,
             'type' => $field->type->value,
+            'name' => $field->name,
+            'placeholder' => $field->placeholder,
             'is_required' => $field->is_required,
             'is_filterable' => $field->is_filterable,
             'options' => $field->options ?? [],
-            'position' => $field->position,
-            'translations' => $field->translations
-                ->mapWithKeys(static fn ($translation) => [
-                    $translation->locale => [
-                        'label' => $translation->label,
-                        'placeholder' => $translation->placeholder,
-                    ],
-                ])->toArray(),
         ];
     }
 

@@ -20,7 +20,7 @@ class RequestValidationBuilder
 
         foreach ($template->fields as $field) {
             $type = $field->type;
-            $fieldKey = $field->slug;
+            $fieldKey = $field->name;
 
             $ruleSet = [
                 $field->is_required ? 'required' : 'nullable',

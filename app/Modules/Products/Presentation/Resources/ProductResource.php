@@ -21,7 +21,10 @@ class ProductResource extends JsonResource
             'stock' => $this->attributes['stock'] ?? null,
             'disclaimer' => $this->attributes['disclaimer'] ?? null,
             'name' => $this->attributes['name'] ?? null,
-            'translations' => $this->translations ?? [],
+            'description' => $this->attributes['description'] ?? null,
+            'translations' => $this->when(
+                $request->is('*/products/*') && $request->method() === 'GET',
+             fn() => $this->translations ?? []),
             'values' => array_map(
                 static fn (ProductValueData $value) => [
                     'field' => $value->field,
