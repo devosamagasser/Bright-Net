@@ -25,9 +25,12 @@ class CreateProductUseCase
         $family = $this->requireFamily((int) ($attributes['family_id'] ?? 0));
         $this->assertFamilyBelongsToSupplier($family, $input->supplierId);
 
-        $template = $this->requireTemplate((int) ($attributes['data_template_id'] ?? 0));
+        $template = $this->requireTemplate($family );
         $this->assertTemplateMatchesFamily($template, $family);
 
+        $attributes = $attributes + [
+            'data_template_id' => $template->id,
+        ];
         $product = $this->products->create(
             $attributes,
             $input->translations,
@@ -37,8 +40,6 @@ class CreateProductUseCase
                 'sync_prices' => true,
                 'accessories' => $input->accessories,
                 'sync_accessories' => true,
-                'color_ids' => $input->colorIds,
-                'sync_colors' => $input->shouldSyncColors || $input->colorIds !== [],
                 'media' => $input->media,
             ]
         );
@@ -59,10 +60,23 @@ class CreateProductUseCase
         return $family;
     }
 
-    private function requireTemplate(int $templateId): DataTemplate
-    {
-        $template = $this->templates->find($templateId, DataTemplateType::PRODUCT);
+    // private function requireTemplate(int $templateId): DataTemplate
+    // {
+    //     $template = $this->templates->find($templateId, DataTemplateType::PRODUCT);
 
+    //     if ($template === null) {
+    //         throw ValidationException::withMessages([
+    //             'data_template_id' => trans('validation.exists', ['attribute' => 'data template']),
+    //         ]);
+    //     }
+
+    //     return $template;
+    // }
+    private function requireTemplate(Family $family): DataTemplate
+    {
+        $template = DataTemplate::where('subcategory_id', $family->subcategory_id)
+                            ->where('type', DataTemplateType::PRODUCT)
+                            ->first();
         if ($template === null) {
             throw ValidationException::withMessages([
                 'data_template_id' => trans('validation.exists', ['attribute' => 'data template']),

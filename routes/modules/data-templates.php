@@ -1,13 +1,8 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 use App\Modules\DataSheets\Presentation\Http\Controllers\{
     DataTemplateController,
-    FamilyDataTemplateController,
-    ProductDataTemplateController,
-    SubcategoryDataTemplateController,
-    SupplierDataTemplateController,
 };
 
 Route::prefix('data-templates')

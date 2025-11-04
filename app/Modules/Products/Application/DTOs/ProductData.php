@@ -22,7 +22,8 @@ class ProductData
         public readonly array $values,
         public readonly array $prices,
         public readonly array $accessories,
-        public readonly array $colors,
+        // public readonly array $colors,
+        public readonly array $family,
         public readonly array $media,
     ) {
     }
@@ -33,7 +34,8 @@ class ProductData
             'fieldValues.field.translations',
             'prices',
             'accessories.accessory.translations',
-            'colors.translations',
+            // 'colors.translations',
+            'family.subcategory.department',
         ]);
         return new self(
             attributes: [
@@ -45,6 +47,11 @@ class ProductData
                 'disclaimer' => $product->disclaimer,
                 'name' => $product->name,
                 'description' => $product->description,
+                'color' => $product->color,
+                'style' => $product->style,
+                'manufacturer' => $product->manufacturer,
+                'application' => $product->application,
+                'origin' => $product->origin,
                 'created_at' => $product->created_at?->toISOString(),
                 'updated_at' => $product->updated_at?->toISOString(),
             ],
@@ -66,16 +73,22 @@ class ProductData
                 ->values()
                 ->all(),
             accessories: ProductAccessoryData::grouped($product->accessories),
-            colors: $product->colors
-                ->map(static function ($color) {
-                    return [
-                        'id' => (int) $color->getKey(),
-                        'hex_code' => $color->hex_code,
-                        'name' => $color->name,
-                    ];
-                })
-                ->values()
-                ->all(),
+            // colors: $product->colors
+            //     ->map(static function ($color) {
+            //         return [
+            //             'id' => (int) $color->getKey(),
+            //             'hex_code' => $color->hex_code,
+            //             'name' => $color->name,
+            //         ];
+            //     })
+            //     ->values()
+            //     ->all(),
+            family: [
+                'id' => (int) $product->family->getKey(),
+                'name' => $product->family->name,
+                'subcategory_name' => $product->family->subcategory->name,
+                'department_name' => $product->family->subcategory->department->name,
+            ],
             media: [
                 'gallery' => self::serializeMedia($product, 'gallery'),
                 'documents' => self::serializeMedia($product, 'documents'),
@@ -96,7 +109,7 @@ class ProductData
     /**
      * @return array<int, array<string, mixed>>
      */
-    private static function serializeMedia(Product $product, string $collection): array
+    public static function serializeMedia(Product $product, string $collection): array
     {
         return $product->getMedia($collection)
             ->map(static fn ($media) => [

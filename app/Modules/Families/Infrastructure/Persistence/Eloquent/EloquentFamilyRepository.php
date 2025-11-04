@@ -25,7 +25,8 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             $this->fillTranslations($family, $translations);
             $family->save();
 
-            $this->syncFieldValues($family, $values, true);
+            if($values !== [])
+                $this->syncFieldValues($family, $values, true);
 
             $this->syncImage($family, $image);
 
@@ -36,22 +37,14 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
     public function update(Family $family, array $attributes, array $translations, array $values, ?UploadedFile $image = null): Family
     {
         return DB::transaction(function () use ($family, $attributes, $translations, $values, $image): Family {
-            $currentTemplateId = (int) $family->data_template_id;
-            $templateChanged = array_key_exists('data_template_id', $attributes)
-                && (int) $attributes['data_template_id'] !== $currentTemplateId;
 
-            if ($attributes !== []) {
-                $family->fill($attributes);
-            }
-
-            if ($translations !== []) {
-                $this->fillTranslations($family, $translations);
-            }
+            $family->fill($attributes);
+            $this->fillTranslations($family, $translations);
 
             $family->save();
 
-            if ($templateChanged || $values !== []) {
-                $this->syncFieldValues($family, $values, $templateChanged);
+            if ($values !== []) {
+                $this->syncFieldValues($family, $values);
             }
 
             $this->syncImage($family, $image);
@@ -94,7 +87,7 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
     /**
      * @param  array<string, mixed>  $values
      */
-    private function syncFieldValues(Family $family, array $values, bool $overwriteMissing): void
+    private function syncFieldValues(Family $family, array $values): void
     {
         $template = DataTemplate::query()
             ->with('fields')
@@ -104,8 +97,8 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             return;
         }
 
-        $fields = $template->fields->keyBy('slug');
-        $retainedFieldIds = [];
+        $fields = $template->fields->keyBy('name');
+        // $retainedFieldIds = [];
 
         foreach ($values as $key => $value) {
             if (! $fields->has($key)) {
@@ -116,28 +109,28 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             $field = $fields->get($key);
             $normalizedValue = $this->prepareValue($field, $value);
 
-            $familyFieldValue = $family->fieldValues()
+            // $familyFieldValue =
+            $family->fieldValues()
                 ->updateOrCreate(
-                    [
-                        'data_field_id' => $field->getKey(),
-                    ],
-                    [
-                        'value' => $normalizedValue,
-                    ],
-                );
-
-            $retainedFieldIds[] = (int) $familyFieldValue->data_field_id;
+                [
+                    'data_field_id' => $field->getKey(),
+                ],
+                [
+                    'value' => $normalizedValue,
+                ],
+            );
+            // $retainedFieldIds[] = (int) $familyFieldValue->data_field_id;
         }
 
-        if ($overwriteMissing) {
-            $query = $family->fieldValues();
+        // if ($overwriteMissing) {
+        //     $query = $family->fieldValues();
 
-            if ($retainedFieldIds !== []) {
-                $query->whereNotIn('data_field_id', $retainedFieldIds);
-            }
+        //     if ($retainedFieldIds !== []) {
+        //         $query->whereNotIn('data_field_id', $retainedFieldIds);
+        //     }
 
-            $query->delete();
-        }
+        //     $query->delete();
+        // }
     }
 
     private function prepareValue(DataField $field, mixed $value): mixed

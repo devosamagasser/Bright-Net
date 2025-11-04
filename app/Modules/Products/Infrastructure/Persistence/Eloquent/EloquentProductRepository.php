@@ -30,7 +30,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
             $this->syncFieldValues($product, $values, true);
             $this->syncPrices($product, $relations, true);
             $this->syncAccessories($product, $relations, true);
-            $this->syncColors($product, $relations, true);
+            // $this->syncColors($product, $relations, true);
             $this->syncMedia($product, $relations);
 
             return $this->loadAggregates($product);
@@ -60,7 +60,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
 
             $this->syncPrices($product, $relations, (bool) Arr::get($relations, 'sync_prices', false));
             $this->syncAccessories($product, $relations, (bool) Arr::get($relations, 'sync_accessories', false));
-            $this->syncColors($product, $relations, (bool) Arr::get($relations, 'sync_colors', false));
+            // $this->syncColors($product, $relations, (bool) Arr::get($relations, 'sync_colors', false));
             $this->syncMedia($product, $relations);
 
             return $this->loadAggregates($product);
@@ -82,7 +82,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
                 'fieldValues.field.translations',
                 'prices',
                 'accessories.accessory.translations',
-                'colors.translations',
+                'family.translations'
             ])
             ->find($id);
     }
@@ -95,7 +95,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
                 'fieldValues.field.translations',
                 'prices',
                 'accessories.accessory.translations',
-                'colors.translations',
+                'family.translations'
             ])
             ->where('family_id', $familyId)
             ->when($supplierId !== null, static function ($query) use ($supplierId): void {
@@ -114,7 +114,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
             'fieldValues.field.translations',
             'prices',
             'accessories.accessory.translations',
-            'colors.translations',
+            'family.translations'
         ]);
     }
 
@@ -223,6 +223,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
         foreach ($accessories as $index => $accessory) {
             $code = Arr::get($accessory, 'code');
             $type = Arr::get($accessory, 'type');
+            $quantity = Arr::get($accessory, 'quantity');
 
             if (! is_string($code) || ! is_string($type)) {
                 continue;
@@ -246,6 +247,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
                 ],
                 [
                     'accessory_type' => AccessoryType::from($type),
+                    'quantity' => $quantity,
                 ],
             );
 
@@ -292,9 +294,8 @@ class EloquentProductRepository implements ProductRepositoryInterface
             return;
         }
 
-        foreach (['gallery', 'documents', 'consultant_approvals'] as $collection) {
+        foreach (['gallery', 'documents', 'dimensions'] as $collection) {
             $files = Arr::get($media, $collection, []);
-
             if (! is_array($files) || $files === []) {
                 continue;
             }

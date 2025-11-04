@@ -3,8 +3,9 @@
 namespace App\Modules\Families\Presentation\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use App\Modules\Shared\Support\Helper\RequestValidationBuilder;
 use App\Modules\Families\Domain\Models\Family;
+use App\Modules\Shared\Support\Helper\RequestValidationBuilder;
+use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 
 class UpdateFamilyRequest extends FormRequest
 {
@@ -18,39 +19,45 @@ class UpdateFamilyRequest extends FormRequest
      */
     public function rules(): array
     {
-        $keys = [
+        return [
             'subcategory_id' => ['sometimes', 'integer', 'exists:subcategories,id'],
-            'data_template_id' => ['sometimes', 'integer', 'exists:data_templates,id'],
             'name' => ['required', 'string', 'min:1', 'max:255'],
             'image' => ['nullable', 'image'],
             'translations' => ['sometimes', 'array'],
             'translations.*.description' => ['nullable', 'string'],
-            'values' => ['sometimes', 'array'],
         ];
-
-        $templateId = $this->determineTemplateId();
-        $shouldValidateValues = $this->has('values') || $this->filled('values') || $this->has('data_template_id');
-
-        if ($templateId !== null && $shouldValidateValues) {
-            $keys = array_merge(
-                $keys,
-                RequestValidationBuilder::build($templateId)
-            );
-        }
-
-        return $keys;
     }
 
-    private function determineTemplateId(): ?int
+    public function withValidator($validator)
     {
-        if ($this->filled('data_template_id')) {
-            return (int) $this->input('data_template_id');
-        }
+        $validator->after(function ($validator) {
 
-        $family = $this->route('family');
+            $errors = $validator->errors();
 
-        return $family instanceof Family
-            ? (int) $family->data_template_id
-            : null;
+            if ($errors->any()) {
+                return;
+            }
+
+
+            $subcategoryId = (int) $this->input('subcategory_id');
+            $dynamicRules = RequestValidationBuilder::build(
+                $subcategoryId,
+                DataTemplateType::FAMILY
+            );
+
+            if (empty($dynamicRules)) {
+                return;
+            }
+
+            $dynamicValidator = \Validator::make($this->all(), $dynamicRules);
+
+            if ($dynamicValidator->fails()) {
+                foreach ($dynamicValidator->errors()->messages() as $key => $messages) {
+                    foreach ($messages as $message) {
+                        $validator->errors()->add($key, $message);
+                    }
+                }
+            }
+        });
     }
 }

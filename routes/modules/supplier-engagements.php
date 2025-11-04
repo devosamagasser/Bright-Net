@@ -53,11 +53,13 @@ Route::prefix('suppliers')
                 Route::delete('/{family}', [FamilyController::class, 'destroy']);
             });
 
-            
+
         Route::prefix('products')
             ->group(function (): void {
                 Route::post('/', [ProductController::class, 'store']);
                 Route::get('/{product}', [ProductController::class, 'show'])
+                    ->whereNumber('product');
+                Route::get('/{product}/data-sheet', [ProductController::class, 'showDataSheet'])
                     ->whereNumber('product');
                 Route::put('/{product}', [ProductController::class, 'update'])
                     ->whereNumber('product');

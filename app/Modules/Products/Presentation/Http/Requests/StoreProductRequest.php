@@ -2,9 +2,11 @@
 
 namespace App\Modules\Products\Presentation\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Foundation\Http\FormRequest;
+use App\Modules\Families\Domain\Models\Family;
 use App\Modules\Shared\Support\Helper\RequestValidationBuilder;
+use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 use App\Modules\Products\Domain\ValueObjects\{AccessoryType, PriceCurrency, DeliveryTimeUnit};
 
 class StoreProductRequest extends FormRequest
@@ -21,9 +23,8 @@ class StoreProductRequest extends FormRequest
     {
         $familyId = (int) $this->input('family_id');
 
-        $rules = [
+        return [
             'family_id' => ['required', 'integer', 'exists:families,id'],
-            'data_template_id' => ['required', 'integer', 'exists:data_templates,id'],
             'code' => [
                 'required',
                 'string',
@@ -32,11 +33,17 @@ class StoreProductRequest extends FormRequest
             ],
             'stock' => ['required', 'integer', 'min:0'],
             'disclaimer' => ['nullable', 'string'],
+            'color' => ['nullable', 'string'],
+            'style'=> ['nullable', 'string'],
+            'manufacturer' => ['nullable', 'string'],
+            'application' => ['nullable', 'string'],
+            'origin' => ['nullable', 'string'],
+
             'translations' => ['required', 'array', 'min:1'],
             'translations.*.name' => ['required', 'string', 'min:1', 'max:255'],
             'translations.*.description' => ['nullable', 'string'],
-            'values' => ['required', 'array'],
-            'prices' => ['sometimes', 'array'],
+
+            'prices' => ['nullable', 'array'],
             'prices.*.price' => ['required', 'numeric', 'min:0'],
             'prices.*.from' => ['required', 'integer', 'min:0'],
             'prices.*.to' => ['required', 'integer', 'min:0'],
@@ -44,24 +51,57 @@ class StoreProductRequest extends FormRequest
             'prices.*.delivery_time_unit' => ['required', 'string', Rule::in(DeliveryTimeUnit::values())],
             'prices.*.delivery_time_value' => ['required', 'string'],
             'prices.*.vat_status' => ['required', 'boolean'],
-            'accessories' => ['sometimes', 'array'],
+
+            'accessories' => ['nullable', 'array'],
             'accessories.*.code' => ['required', 'string'],
             'accessories.*.type' => ['required', 'string', Rule::in(AccessoryType::values())],
-            'colors' => ['sometimes', 'array'],
+            'accessories.*.quantity' => ['required', 'integer', 'min:1'],
+
+            'colors' => ['nullable', 'array'],
             'colors.*' => ['integer', 'exists:colors,id'],
-            'gallery' => ['sometimes', 'array'],
+
+            'gallery' => ['nullable', 'array'],
             'gallery.*' => ['file'],
-            'documents' => ['sometimes', 'array'],
+
+            'documents' => ['nullable', 'array'],
             'documents.*' => ['file'],
-            'consultant_approvals' => ['sometimes', 'array'],
-            'consultant_approvals.*' => ['file'],
+
+            'dimensions' => ['nullable', 'array'],
+            'dimensions.*' => ['file'],
         ];
 
-        $templateId = (int) $this->input('data_template_id');
+    }
 
-        return array_merge(
-            $rules,
-            RequestValidationBuilder::build($templateId)
-        );
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+
+            $errors = $validator->errors();
+
+            if ($errors->any()) {
+                return;
+            }
+
+
+            $subcategoryId = Family::find((int) $this->input('family_id'))->subcategory_id;
+            $dynamicRules = RequestValidationBuilder::build(
+                $subcategoryId,
+                DataTemplateType::FAMILY
+            );
+
+            if (empty($dynamicRules)) {
+                return;
+            }
+
+            $dynamicValidator = \Validator::make($this->all(), $dynamicRules);
+
+            if ($dynamicValidator->fails()) {
+                foreach ($dynamicValidator->errors()->messages() as $key => $messages) {
+                    foreach ($messages as $message) {
+                        $validator->errors()->add($key, $message);
+                    }
+                }
+            }
+        });
     }
 }

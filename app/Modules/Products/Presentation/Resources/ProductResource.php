@@ -15,13 +15,18 @@ class ProductResource extends JsonResource
     {
         return [
             'id' => $this->attributes['id'] ?? null,
-            'family_id' => $this->attributes['family_id'] ?? null,
+            'family' => $this->family,
             'data_template_id' => $this->attributes['data_template_id'] ?? null,
             'code' => $this->attributes['code'] ?? null,
             'stock' => $this->attributes['stock'] ?? null,
             'disclaimer' => $this->attributes['disclaimer'] ?? null,
             'name' => $this->attributes['name'] ?? null,
             'description' => $this->attributes['description'] ?? null,
+            'color' => $this->when($this->attributes['color'], fn() => $this->attributes['color']),
+            'style' => $this->when($this->attributes['style'], fn() => $this->attributes['style']),
+            'manufacturer' => $this->when($this->attributes['manufacturer'], fn() => $this->attributes['manufacturer']),
+            'application' => $this->when($this->attributes['application'], fn() => $this->attributes['application']),
+            'origin' => $this->when($this->attributes['origin'], fn() => $this->attributes['origin']),
             'translations' => $this->when(
                 $request->is('*/products/*') && $request->method() === 'GET',
              fn() => $this->translations ?? []),
@@ -37,7 +42,6 @@ class ProductResource extends JsonResource
                 $this->prices
             ),
             'accessories' => $this->accessories ?? [],
-            'colors' => $this->colors ?? [],
             'media' => $this->media ?? [],
         ];
     }

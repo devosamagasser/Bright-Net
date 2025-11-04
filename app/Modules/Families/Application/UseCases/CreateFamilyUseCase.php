@@ -20,14 +20,15 @@ class CreateFamilyUseCase
     public function handle(FamilyInput $input): FamilyData
     {
         $attributes = $input->attributes;
-        $template = $this->templates->find($attributes['data_template_id'], DataTemplateType::FAMILY);
-
-        $this->assertTemplateMatchesSubcategory($template, $attributes['subcategory_id']);
+        if (isset($attributes['data_template_id'])) {
+            $template = $this->templates->find($attributes['data_template_id'], DataTemplateType::FAMILY);
+            $this->assertTemplateMatchesSubcategory($template, $attributes['subcategory_id']);
+        }
 
         $family = $this->families->create(
             $attributes,
             $input->translations,
-            $input->values,
+            $input->values ?? [],
             $input->image
         );
 

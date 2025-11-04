@@ -27,8 +27,8 @@ class UpdateProductUseCase
         $family = $this->requireFamily($targetFamilyId);
         $this->assertFamilyBelongsToSupplier($family, $input->supplierId);
 
-        $targetTemplateId = (int) ($attributes['data_template_id'] ?? $product->data_template_id);
-        $template = $this->requireTemplate($targetTemplateId);
+        // $targetTemplateId = ;
+        $template = $this->requireTemplate($product->data_template_id);
         $this->assertTemplateMatchesFamily($template, $family);
 
         $updatedProduct = $this->products->update(
@@ -41,8 +41,6 @@ class UpdateProductUseCase
                 'sync_prices' => $input->shouldSyncPrices,
                 'accessories' => $input->accessories,
                 'sync_accessories' => $input->shouldSyncAccessories,
-                'color_ids' => $input->colorIds,
-                'sync_colors' => $input->shouldSyncColors,
                 'media' => $input->media,
             ]
         );

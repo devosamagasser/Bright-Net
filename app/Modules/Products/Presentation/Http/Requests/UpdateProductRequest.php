@@ -2,10 +2,12 @@
 
 namespace App\Modules\Products\Presentation\Http\Requests;
 
-use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Modules\Shared\Support\Helper\RequestValidationBuilder;
+use Illuminate\Foundation\Http\FormRequest;
+use App\Modules\Families\Domain\Models\Family;
 use App\Modules\Products\Domain\Models\Product;
+use App\Modules\Shared\Support\Helper\RequestValidationBuilder;
+use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 use App\Modules\Products\Domain\ValueObjects\{AccessoryType, PriceCurrency, DeliveryTimeUnit};
 
 class UpdateProductRequest extends FormRequest
@@ -24,24 +26,29 @@ class UpdateProductRequest extends FormRequest
         $productId = $product instanceof Product ? (int) $product->getKey() : null;
         $familyId = $this->determineFamilyId($product);
 
-        $rules = [
-            'family_id' => ['sometimes', 'integer', 'exists:families,id'],
-            'data_template_id' => ['sometimes', 'integer', 'exists:data_templates,id'],
+        return [
+            'family_id' => ['required', 'integer', 'exists:families,id'],
             'code' => [
-                'sometimes',
+                'required',
                 'string',
                 'max:255',
                 Rule::unique('products', 'code')
                     ->ignore($productId)
                     ->where(fn ($query) => $familyId ? $query->where('family_id', $familyId) : $query),
             ],
-            'stock' => ['sometimes', 'integer', 'min:0'],
+            'stock' => ['required', 'integer', 'min:0'],
             'disclaimer' => ['nullable', 'string'],
-            'translations' => ['sometimes', 'array'],
-            'translations.*.name' => ['required_with:translations', 'string', 'min:1', 'max:255'],
+            'color' => ['nullable', 'string'],
+            'style'=> ['nullable', 'string'],
+            'manufacturer' => ['nullable', 'string'],
+            'application' => ['nullable', 'string'],
+            'origin' => ['nullable', 'string'],
+
+            'translations' => ['required', 'array'],
+            'translations.*.name' => ['required', 'string', 'min:1', 'max:255'],
             'translations.*.description' => ['nullable', 'string'],
-            'values' => ['sometimes', 'array'],
-            'prices' => ['sometimes', 'array'],
+
+            'prices' => ['nullable', 'array'],
             'prices.*.price' => ['required', 'numeric', 'min:0'],
             'prices.*.from' => ['required', 'integer', 'min:0'],
             'prices.*.to' => ['required', 'integer', 'min:0'],
@@ -49,39 +56,21 @@ class UpdateProductRequest extends FormRequest
             'prices.*.delivery_time_unit' => ['required', 'string', Rule::in(DeliveryTimeUnit::values())],
             'prices.*.delivery_time_value' => ['required', 'string'],
             'prices.*.vat_status' => ['required', 'boolean'],
-            'accessories' => ['sometimes', 'array'],
+
+            'accessories' => ['nullable', 'array'],
             'accessories.*.code' => ['required', 'string'],
             'accessories.*.type' => ['required', 'string', Rule::in(AccessoryType::values())],
-            'colors' => ['sometimes', 'array'],
-            'colors.*' => ['integer', 'exists:colors,id'],
-            'gallery' => ['sometimes', 'array'],
+            'accessories.*.quantity' => ['required', 'integer', 'min:1'],
+
+            'gallery' => ['nullable', 'array'],
             'gallery.*' => ['file'],
-            'documents' => ['sometimes', 'array'],
+
+            'documents' => ['nullable', 'array'],
             'documents.*' => ['file'],
-            'consultant_approvals' => ['sometimes', 'array'],
-            'consultant_approvals.*' => ['file'],
+
+            'dimensions' => ['nullable', 'array'],
+            'dimensions.*' => ['file'],
         ];
-
-        $templateId = $this->determineTemplateId($product);
-        $shouldValidateValues = $this->has('values') || $this->filled('values') || $this->has('data_template_id');
-
-        if ($templateId !== null && $shouldValidateValues) {
-            $rules = array_merge(
-                $rules,
-                RequestValidationBuilder::build($templateId)
-            );
-        }
-
-        return $rules;
-    }
-
-    private function determineTemplateId(?Product $product): ?int
-    {
-        if ($this->filled('data_template_id')) {
-            return (int) $this->input('data_template_id');
-        }
-
-        return $product?->data_template_id ? (int) $product->data_template_id : null;
     }
 
     private function determineFamilyId(?Product $product): ?int
@@ -92,4 +81,38 @@ class UpdateProductRequest extends FormRequest
 
         return $product?->family_id ? (int) $product->family_id : null;
     }
+
+    public function withValidator($validator)
+    {
+        $validator->after(function ($validator) {
+
+            $errors = $validator->errors();
+
+            if ($errors->any()) {
+                return;
+            }
+
+
+            $subcategoryId = Family::find((int) $this->input('family_id'))->subcategory_id;
+            $dynamicRules = RequestValidationBuilder::build(
+                $subcategoryId,
+                DataTemplateType::FAMILY
+            );
+
+            if (empty($dynamicRules)) {
+                return;
+            }
+
+            $dynamicValidator = \Validator::make($this->all(), $dynamicRules);
+
+            if ($dynamicValidator->fails()) {
+                foreach ($dynamicValidator->errors()->messages() as $key => $messages) {
+                    foreach ($messages as $message) {
+                        $validator->errors()->add($key, $message);
+                    }
+                }
+            }
+        });
+    }
+
 }

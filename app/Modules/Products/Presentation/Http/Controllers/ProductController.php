@@ -4,13 +4,14 @@ namespace App\Modules\Products\Presentation\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Modules\Shared\Support\Helper\ApiResponse;
-use App\Modules\Products\Presentation\Resources\ProductResource;
+use App\Modules\Products\Presentation\Resources\{ProductResource, ProductDataSheetResource};
 use App\Modules\Products\Presentation\Http\Requests\{StoreProductRequest, UpdateProductRequest};
 use App\Modules\Products\Application\UseCases\{
     CreateProductUseCase,
     DeleteProductUseCase,
     ListProductsUseCase,
     ShowProductUseCase,
+    ShowDataSheetUseCase,
     UpdateProductUseCase,
 };
 use App\Modules\Products\Application\DTOs\ProductInput;
@@ -31,7 +32,6 @@ class ProductController
     {
         $supplierId = $this->authenticatedSupplierId() ?? $request->query('supplier_id');
         $products = $this->listProducts->handle($family, $supplierId !== null ? (int) $supplierId : null);
-
         return ApiResponse::success(
             ProductResource::collection($products)->resolve()
         );
@@ -57,6 +57,15 @@ class ProductController
 
         return ApiResponse::success(
             ProductResource::make($productData)->resolve()
+        );
+    }
+
+    public function showDataSheet(Product $product)
+    {
+        $productData = $this->showProduct->handle((int) $product->getKey());
+
+        return ApiResponse::success(
+            ProductDataSheetResource::make($productData)->resolve()
         );
     }
 

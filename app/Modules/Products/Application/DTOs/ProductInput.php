@@ -24,8 +24,7 @@ class ProductInput
         public readonly bool $shouldSyncPrices,
         public readonly array $accessories,
         public readonly bool $shouldSyncAccessories,
-        public readonly array $colorIds,
-        public readonly bool $shouldSyncColors,
+        // public readonly bool $shouldSyncColors,
         public readonly array $media,
         public readonly ?int $supplierId,
     ) {
@@ -38,20 +37,20 @@ class ProductInput
     {
         $translations = Arr::pull($payload, 'translations', []);
         $values = Arr::pull($payload, 'values', []);
+
         $shouldSyncPrices = Arr::exists($payload, 'prices');
         $prices = Arr::pull($payload, 'prices', []);
 
         $shouldSyncAccessories = Arr::exists($payload, 'accessories');
         $accessories = Arr::pull($payload, 'accessories', []);
 
-        $shouldSyncColors = Arr::exists($payload, 'colors');
-        $colorIds = Arr::pull($payload, 'colors', []);
 
         $media = [
             'gallery' => self::extractFiles(Arr::pull($payload, 'gallery', [])),
             'documents' => self::extractFiles(Arr::pull($payload, 'documents', [])),
-            'consultant_approvals' => self::extractFiles(Arr::pull($payload, 'consultant_approvals', [])),
+            'dimensions' => self::extractFiles(Arr::pull($payload, 'dimensions', [])),
         ];
+
 
         $supplierId = Arr::pull($payload, 'supplier_id');
 
@@ -63,8 +62,6 @@ class ProductInput
             shouldSyncPrices: $shouldSyncPrices,
             accessories: array_values(is_array($accessories) ? $accessories : []),
             shouldSyncAccessories: $shouldSyncAccessories,
-            colorIds: array_map('intval', array_values(is_array($colorIds) ? $colorIds : [])),
-            shouldSyncColors: $shouldSyncColors,
             media: $media,
             supplierId: is_numeric($supplierId) ? (int) $supplierId : null,
         );

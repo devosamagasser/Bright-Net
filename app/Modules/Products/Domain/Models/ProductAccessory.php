@@ -15,6 +15,7 @@ class ProductAccessory extends Model
         'product_id',
         'accessory_id',
         'accessory_type',
+        'quantity',
     ];
 
     /**

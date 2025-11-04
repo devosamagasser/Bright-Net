@@ -29,6 +29,11 @@ class Product extends Model implements HasMedia
         'code',
         'stock',
         'disclaimer',
+        'color',
+        'style',
+        'manufacturer',
+        'application',
+        'origin',
     ];
 
     /**
@@ -59,7 +64,7 @@ class Product extends Model implements HasMedia
     {
         $this->addMediaCollection('gallery');
         $this->addMediaCollection('documents');
-        $this->addMediaCollection('consultant_approvals');
+        $this->addMediaCollection('dimensions');
     }
 
     public function family(): BelongsTo
@@ -87,8 +92,4 @@ class Product extends Model implements HasMedia
         return $this->hasMany(ProductAccessory::class);
     }
 
-    public function colors(): BelongsToMany
-    {
-        return $this->belongsToMany(Color::class, 'product_colors');
-    }
 }

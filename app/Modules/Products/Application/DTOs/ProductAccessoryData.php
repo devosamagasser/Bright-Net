@@ -27,13 +27,20 @@ class ProductAccessoryData
                 'id' => (int) $product->getKey(),
                 'code' => $product->code,
                 'name' => $product->name,
-                'translations' => $product->translations
-                    ->mapWithKeys(static fn ($translation) => [
-                        $translation->locale => [
-                            'name' => $translation->name,
-                            'description' => $translation->description,
-                        ],
-                    ])->toArray(),
+                'description' => $product->description,
+                'gallery' => ProductData::serializeMedia($product, 'gallery'),
+                'values' => $product->fieldValues
+                    ->sortBy(static fn ($value) => $value->field?->position ?? 0)
+                    ->map(static fn ($value) => ProductValueData::fromModel($value))
+                    ->values()
+                    ->all(),
+                // 'translations' => $product->translations
+                //     ->mapWithKeys(static fn ($translation) => [
+                //         $translation->locale => [
+                //             'name' => $translation->name,
+                //             'description' => $translation->description,
+                //         ],
+                //     ])->toArray(),
             ] : [],
         );
     }
