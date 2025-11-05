@@ -67,8 +67,8 @@ class UpdateProductUseCase
     {
         $template = $this->templates->findBySubcategoryAndType(
             $family->subcategory_id,
-            DataTemplateType::FAMILY
-        )->first();
+            DataTemplateType::PRODUCT
+        );
 
         if ($template === null) {
             throw ValidationException::withMessages([

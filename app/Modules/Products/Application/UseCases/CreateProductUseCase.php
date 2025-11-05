@@ -25,12 +25,13 @@ class CreateProductUseCase
         $family = $this->requireFamily((int) ($attributes['family_id'] ?? 0));
         $this->assertFamilyBelongsToSupplier($family, $input->supplierId);
 
-        $template = $this->requireTemplate($family );
+        $template = $this->requireTemplate($family);
         $this->assertTemplateMatchesFamily($template, $family);
 
         $attributes = $attributes + [
             'data_template_id' => $template->id,
         ];
+
         $product = $this->products->create(
             $attributes,
             $input->translations,
@@ -49,7 +50,7 @@ class CreateProductUseCase
 
     private function requireFamily(int $familyId): Family
     {
-        $family = Family::query()->find($familyId);
+        $family = Family::find($familyId);
 
         if ($family === null) {
             throw ValidationException::withMessages([
@@ -64,9 +65,8 @@ class CreateProductUseCase
     {
         $template = $this->templates->findBySubcategoryAndType(
             $family->subcategory_id,
-            DataTemplateType::FAMILY
-        )->first();
-
+            DataTemplateType::PRODUCT
+        );
         if ($template === null) {
             throw ValidationException::withMessages([
                 'data_template_id' => trans('validation.exists', ['attribute' => 'data template']),
@@ -93,6 +93,7 @@ class CreateProductUseCase
     private function assertTemplateMatchesFamily(DataTemplate $template, Family $family): void
     {
         if ((int) $template->subcategory_id !== (int) $family->subcategory_id) {
+
             throw ValidationException::withMessages([
                 'data_template_id' => trans('validation.in', ['attribute' => 'data template']),
             ]);

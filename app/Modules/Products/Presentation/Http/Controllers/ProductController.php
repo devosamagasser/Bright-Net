@@ -40,10 +40,11 @@ class ProductController
     public function store(StoreProductRequest $request)
     {
         $input = ProductInput::fromArray(
-            $request->validated() + [
+            $request->all() + [
                 'supplier_id' => $this->authenticatedSupplierId(),
             ]
         );
+
         $product = $this->createProduct->handle($input);
 
         return ApiResponse::created(
@@ -72,7 +73,7 @@ class ProductController
     public function update(UpdateProductRequest $request, Product $product)
     {
         $input = ProductInput::fromArray(
-            $request->validated() + [
+            $request->all() + [
                 'supplier_id' => $this->authenticatedSupplierId(),
             ]
         );

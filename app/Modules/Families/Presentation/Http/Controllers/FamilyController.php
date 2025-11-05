@@ -65,7 +65,7 @@ class FamilyController
     public function update(UpdateFamilyRequest $request, Family $family)
     {
         $input = FamilyInput::fromArray(
-            $request->validated() + [
+            $request->all() + [
                 'supplier_id' => auth()->user()->company->supplier->id,
             ]
         );

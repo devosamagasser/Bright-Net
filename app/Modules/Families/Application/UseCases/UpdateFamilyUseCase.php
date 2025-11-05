@@ -24,7 +24,7 @@ class UpdateFamilyUseCase
             'data_template_id' => $this->templates->findBySubcategoryAndType(
                 $input->attributes['subcategory_id'],
                 DataTemplateType::FAMILY
-            )->first()->id
+            )->id
         ];
         $updatedFamily = $this->families->update(
             $family,
