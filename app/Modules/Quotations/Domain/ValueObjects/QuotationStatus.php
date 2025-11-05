@@ -2,23 +2,37 @@
 
 namespace App\Modules\Quotations\Domain\ValueObjects;
 
-enum QuotationStatus
+enum QuotationStatus: string
 {
-    const DRAFT = 'draft';
-    const ACCEPTED = 'saved';
-    const REJECTED = 'active';
+    case DRAFT = 'draft';
+    case SENT = 'sent';
+    case ACCEPTED = 'accepted';
+    case REJECTED = 'rejected';
 
     public function label(): string
     {
-        return __("enums/static_keys.company_types.{$this->value}");
+        $key = "enums/quotations.statuses.{$this->value}";
+        $translation = __($key);
+
+        return $translation === $key ? ucfirst($this->value) : $translation;
     }
 
+    /**
+     * @return array<int, array<string, string>>
+     */
     public static function options(): array
     {
-        return array_map(fn ($type) => [
-            'value' => $type->value,
-            'label' => $type->label(),
+        return array_map(static fn (self $status) => [
+            'value' => $status->value,
+            'label' => $status->label(),
         ], self::cases());
     }
 
+    /**
+     * @return array<int, string>
+     */
+    public static function values(): array
+    {
+        return array_map(static fn (self $status) => $status->value, self::cases());
+    }
 }
