@@ -61,10 +61,16 @@ class SupplierEngagementController
         // ->response()
         // ->getData(true);
 
-        return ApiResponse::success($resource + ['department' => [
-                'id' => $supplierDepartment->id,
-                'name' => $supplierDepartment->department->name,
-            ]]);
+        return ApiResponse::success(
+            array_merge(
+                $resource->response()->getData(true),
+                ['department' => [
+                    'id' => $supplierDepartment->id,
+                    'name' => $supplierDepartment->department->name,
+                ]]
+            )
+        );
+
 
     }
 
