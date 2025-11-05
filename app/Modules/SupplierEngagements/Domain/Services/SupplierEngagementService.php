@@ -58,7 +58,7 @@ class SupplierEngagementService
         $this->ensureSupplierSolutionBelongsToSupplier($supplierSolution, (int) $supplier->getKey());
 
         return $supplierSolution->brands()
-            ->with('brand.media')
+            ->with(['brand.media', 'brand.region'])
             ->select('supplier_brands.*')
             ->join('brands', 'brands.id', '=', 'supplier_brands.brand_id')
             ->orderBy('brands.name')
