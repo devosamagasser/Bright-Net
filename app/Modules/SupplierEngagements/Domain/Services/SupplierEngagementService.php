@@ -96,6 +96,7 @@ class SupplierEngagementService
 
                 return [
                     'supplier_department_id' => (int) $supplierDepartment->getKey(),
+                    'id' => $department?->getKey(),
                     'name' => $department?->name,
                     'cover' => $department?->getFirstMediaUrl('cover') ?: null,
                 ];
