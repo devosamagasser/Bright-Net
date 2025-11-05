@@ -70,6 +70,7 @@ class SupplierEngagementService
                     'supplier_brand_id' => (int) $supplierBrand->getKey(),
                     'id' => $brand?->getKey() !== null ? (int) $brand->getKey() : null,
                     'name' => $brand?->name,
+                    'region' => $brand?->region->name ?? null,
                     'logo' => $brand?->getFirstMediaUrl('logo') ?: null,
                 ];
             })

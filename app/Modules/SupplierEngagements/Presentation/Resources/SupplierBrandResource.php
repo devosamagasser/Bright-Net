@@ -22,8 +22,8 @@ class SupplierBrandResource extends JsonResource
     {
         return [
             'supplier_brand_id' => (int) ($this->resource['supplier_brand_id'] ?? 0),
-            'id' => (int) ($this->resource['id'] ?? 0),
             'name' => $this->resource['name'] ?? null,
+            'region' => $this->resource['region'] ?? null,
             'logo' => $this->resource['logo'] ?? null,
         ];
     }
