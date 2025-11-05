@@ -11,27 +11,36 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('quotation_product_accessories', function (Blueprint $table) {
+        Schema::create('quotation_product_accessories', function (Blueprint $table): void {
             $table->id();
-            $table->string('item_ref');
+            $table->string('item_ref')->nullable();
+            $table->unsignedInteger('position')->default(0);
             $table->foreignId('quotation_id')->constrained()->onDelete('cascade');
+            $table->foreignId('quotation_product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('solution_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('supplier_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('brand_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('department_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('subcategory_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('family_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('product_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('quotation_product_id')->constrained()->cascadeOnDelete();
-            $table->string('code');
-            $table->string('name');
-            $table->text('description')->nullable();
+            $table->string('product_code');
+            $table->string('product_name');
+            $table->text('product_description')->nullable();
+            $table->json('product_snapshot');
+            $table->json('roots_snapshot')->nullable();
+            $table->json('price_snapshot')->nullable();
             $table->text('notes')->nullable();
-            $table->string('delivery_time')->nullable();
-            $table->integer('quantity')->default(1);
+            $table->string('delivery_time_unit')->nullable();
+            $table->string('delivery_time_value')->nullable();
+            $table->boolean('vat_included')->default(false);
+            $table->unsignedInteger('quantity')->default(1);
+            $table->decimal('list_price', 10, 2)->nullable();
             $table->decimal('price', 10, 2)->nullable();
-            $table->decimal('discount', 5, 2)->default(0);
+            $table->decimal('discount', 8, 2)->default(0);
+            $table->decimal('total', 12, 2)->default(0);
             $table->char('currency', 3)->default('EGP');
-            $table->string('accessory_type')->nullable(); // included, needed, optional
+            $table->string('accessory_type');
             $table->timestamps();
         });
     }
