@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('quotation_products', function (Blueprint $table) {
             $table->id();
             $table->string('item_ref');
+            $table->integer('position');
             $table->foreignId('quotation_id')->constrained()->onDelete('cascade');
             $table->foreignId('solution_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('supplier_id')->nullable()->constrained()->nullOnDelete();
