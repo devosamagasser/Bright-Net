@@ -57,19 +57,21 @@ class SupplierEngagementController
         $this->assertSupplierCompany($company);
         $subcategories = $this->engagements->listSubcategories($company, $supplierDepartment);
 
-        $resource = SupplierSubcategoryResource::collection($subcategories);
-        // ->response()
-        // ->getData(true);
+        $resourceArray = SupplierSubcategoryResource::collection($subcategories)
+                    ->response()
+                    ->getData(true);
 
-        return ApiResponse::success(
-            array_merge(
-                $resource->response()->getData(true),
-                ['department' => [
-                    'id' => $supplierDepartment->id,
-                    'name' => $supplierDepartment->department->name,
-                ]]
-            )
+        // Flatten structure
+        $flattened = array_merge(
+            ['department' => [
+                'id' => $supplierDepartment->id,
+                'name' => $supplierDepartment->department->name,
+            ]],
+            $resourceArray['data'] // ← دي بتفرد القائمة
         );
+
+        return ApiResponse::success($flattened);
+
 
 
     }
