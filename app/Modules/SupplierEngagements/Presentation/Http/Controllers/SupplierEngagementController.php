@@ -61,16 +61,20 @@ class SupplierEngagementController
                     ->response()
                     ->getData(true);
 
-        // Flatten structure
-        $flattened = array_merge(
-            ['department' => [
-                'id' => $supplierDepartment->id,
-                'name' => $supplierDepartment->department->name,
-            ]],
-            $resourceArray['data'] // ← دي بتفرد القائمة
-        );
+        // نحول department إلى عنصر داخل المصفوفة
+        $departmentData = [
+            'id' => $supplierDepartment->id,
+            'name' => $supplierDepartment->department->name,
+        ];
 
-        return ApiResponse::success($flattened);
+        // ندمجهم باستخدام array_values لإعادة ترقيم المفاتيح
+        $merged = array_values(array_merge(
+            [['department' => $departmentData]], // نحطها كمصفوفة فرعية أولاً
+            $resourceArray['data']
+        ));
+
+        return ApiResponse::success($merged);
+
 
 
 
