@@ -26,7 +26,7 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             $family->save();
 
             if($values !== [])
-                $this->syncFieldValues($family, $values, true);
+                $this->syncFieldValues($family, $values);
 
             $this->syncImage($family, $image);
 

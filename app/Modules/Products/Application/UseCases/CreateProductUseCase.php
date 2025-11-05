@@ -59,24 +59,14 @@ class CreateProductUseCase
 
         return $family;
     }
-
-    // private function requireTemplate(int $templateId): DataTemplate
-    // {
-    //     $template = $this->templates->find($templateId, DataTemplateType::PRODUCT);
-
-    //     if ($template === null) {
-    //         throw ValidationException::withMessages([
-    //             'data_template_id' => trans('validation.exists', ['attribute' => 'data template']),
-    //         ]);
-    //     }
-
-    //     return $template;
-    // }
+    
     private function requireTemplate(Family $family): DataTemplate
     {
-        $template = DataTemplate::where('subcategory_id', $family->subcategory_id)
-                            ->where('type', DataTemplateType::PRODUCT)
-                            ->first();
+        $template = $this->templates->findBySubcategoryAndType(
+            $family->subcategory_id,
+            DataTemplateType::FAMILY
+        )->first();
+
         if ($template === null) {
             throw ValidationException::withMessages([
                 'data_template_id' => trans('validation.exists', ['attribute' => 'data template']),
@@ -85,6 +75,7 @@ class CreateProductUseCase
 
         return $template;
     }
+
 
     private function assertFamilyBelongsToSupplier(Family $family, ?int $supplierId): void
     {

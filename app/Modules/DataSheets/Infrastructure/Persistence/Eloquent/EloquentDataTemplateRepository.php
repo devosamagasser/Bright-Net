@@ -58,16 +58,13 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
 
     public function getBySubcategory(int $subcategoryId, ?DataTemplateType $type = null): Collection
     {
-        $query = DataTemplate::query()
+        return DataTemplate::query()
             ->with(['fields'])
             ->where('subcategory_id', $subcategoryId)
-            ->latest('id');
-
-        if ($type) {
-            $query->where('type', $type->value);
-        }
-
-        return $query->get();
+            ->latest('id')
+            ->when($type, fn ($query) =>
+                $query->where('type', $type->value)
+            )->get();
     }
 
     public function findBySubcategoryAndType(int $subcategoryId, DataTemplateType $type): ?DataTemplate

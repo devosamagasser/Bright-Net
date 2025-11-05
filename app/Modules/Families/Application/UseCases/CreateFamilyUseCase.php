@@ -19,11 +19,12 @@ class CreateFamilyUseCase
 
     public function handle(FamilyInput $input): FamilyData
     {
-        $attributes = $input->attributes;
-        if (isset($attributes['data_template_id'])) {
-            $template = $this->templates->find($attributes['data_template_id'], DataTemplateType::FAMILY);
-            $this->assertTemplateMatchesSubcategory($template, $attributes['subcategory_id']);
-        }
+        $attributes = $input->attributes + [
+            'data_template_id' => $this->templates->findBySubcategoryAndType(
+                $input->attributes['subcategory_id'],
+                DataTemplateType::FAMILY
+            )->first()->id
+        ];
 
         $family = $this->families->create(
             $attributes,
@@ -33,14 +34,5 @@ class CreateFamilyUseCase
         );
 
         return FamilyData::fromModel($family);
-    }
-
-    private function assertTemplateMatchesSubcategory(DataTemplate $template, int $subcategoryId): void
-    {
-        if ((int) $template->subcategory_id !== $subcategoryId) {
-            throw ValidationException::withMessages([
-                'data_template_id' => trans('validation.in', ['attribute' => 'data template']),
-            ]);
-        }
     }
 }

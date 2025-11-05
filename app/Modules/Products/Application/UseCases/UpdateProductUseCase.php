@@ -23,13 +23,15 @@ class UpdateProductUseCase
     {
         $attributes = $input->attributes;
 
-        $targetFamilyId = (int) ($attributes['family_id'] ?? $product->family_id);
-        $family = $this->requireFamily($targetFamilyId);
+        $family = $this->requireFamily((int) ($attributes['family_id'] ?? 0));
         $this->assertFamilyBelongsToSupplier($family, $input->supplierId);
 
-        // $targetTemplateId = ;
-        $template = $this->requireTemplate($product->data_template_id);
+        $template = $this->requireTemplate($family );
         $this->assertTemplateMatchesFamily($template, $family);
+
+        $attributes = $attributes + [
+            'data_template_id' => $template->id,
+        ];
 
         $updatedProduct = $this->products->update(
             $product,
@@ -61,9 +63,12 @@ class UpdateProductUseCase
         return $family;
     }
 
-    private function requireTemplate(int $templateId): DataTemplate
+    private function requireTemplate(Family $family): DataTemplate
     {
-        $template = $this->templates->find($templateId, DataTemplateType::PRODUCT);
+        $template = $this->templates->findBySubcategoryAndType(
+            $family->subcategory_id,
+            DataTemplateType::FAMILY
+        )->first();
 
         if ($template === null) {
             throw ValidationException::withMessages([

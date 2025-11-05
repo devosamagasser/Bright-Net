@@ -39,11 +39,13 @@ class FamilyController
 
     public function store(StoreFamilyRequest $request)
     {
+
         $input = FamilyInput::fromArray(
-            $request->validated() + [
+            $request->all() + [
                 'supplier_id' => auth()->user()->company->supplier->id,
-            ]
-        );
+                ]
+            );
+
         $family = $this->createFamily->handle($input);
 
         return ApiResponse::created(
