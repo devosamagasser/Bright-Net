@@ -57,16 +57,14 @@ class SupplierEngagementController
         $this->assertSupplierCompany($company);
         $subcategories = $this->engagements->listSubcategories($company, $supplierDepartment);
 
-        $resource = SupplierSubcategoryResource::collection($subcategories)
-            ->additional(['department' => [
+        $resource = SupplierSubcategoryResource::collection($subcategories);
+        // ->response()
+        // ->getData(true);
+
+        return ApiResponse::success($resource + ['department' => [
                 'id' => $supplierDepartment->id,
                 'name' => $supplierDepartment->department->name,
-            ],
-        ])
-        ->response()
-        ->getData(true);
-
-        return ApiResponse::success($resource);
+            ]]);
 
     }
 
