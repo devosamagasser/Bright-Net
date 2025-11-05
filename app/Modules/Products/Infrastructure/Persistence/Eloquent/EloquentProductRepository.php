@@ -78,24 +78,24 @@ class EloquentProductRepository implements ProductRepositoryInterface
     {
         return Product::query()
             ->with([
-                'translations',
                 'fieldValues.field.translations',
                 'prices',
                 'accessories.accessory.translations',
-                'family.translations'
+                'family.subcategory.department',
+                'family.supplier',
             ])
-            ->find($id);
+        ->find($id);
     }
 
     public function getByFamily(int $familyId, ?int $supplierId = null): Collection
     {
         return Product::query()
             ->with([
-                'translations',
                 'fieldValues.field.translations',
                 'prices',
                 'accessories.accessory.translations',
-                'family.translations'
+                'family.subcategory.department',
+                'family.supplier',
             ])
             ->where('family_id', $familyId)
             ->when($supplierId !== null, static function ($query) use ($supplierId): void {
@@ -110,11 +110,11 @@ class EloquentProductRepository implements ProductRepositoryInterface
     private function loadAggregates(Product $product): Product
     {
         return $product->load([
-            'translations',
             'fieldValues.field.translations',
             'prices',
             'accessories.accessory.translations',
-            'family.translations'
+            'family.subcategory.department',
+            'family.supplier',
         ]);
     }
 

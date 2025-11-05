@@ -3,6 +3,8 @@
 namespace App\Modules\Products\Application\DTOs;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
+use App\Modules\Brands\Domain\Models\Brand;
 use App\Modules\Products\Domain\Models\Product;
 
 class ProductData
@@ -23,7 +25,7 @@ class ProductData
         public readonly array $prices,
         public readonly array $accessories,
         // public readonly array $colors,
-        public readonly array $family,
+        public readonly array $roots,
         public readonly array $media,
     ) {
     }
@@ -34,9 +36,10 @@ class ProductData
             'fieldValues.field.translations',
             'prices',
             'accessories.accessory.translations',
-            // 'colors.translations',
             'family.subcategory.department',
+            'family.supplier',
         ]);
+
         return new self(
             attributes: [
                 'id' => (int) $product->getKey(),
@@ -83,12 +86,7 @@ class ProductData
             //     })
             //     ->values()
             //     ->all(),
-            family: [
-                'id' => (int) $product->family->getKey(),
-                'name' => $product->family->name,
-                'subcategory_name' => $product->family->subcategory->name,
-                'department_name' => $product->family->subcategory->department->name,
-            ],
+            roots: self::serializeRoots($product),
             media: [
                 'gallery' => self::serializeMedia($product, 'gallery'),
                 'documents' => self::serializeMedia($product, 'documents'),
@@ -122,4 +120,59 @@ class ProductData
             ->values()
             ->all();
     }
+
+    public static function serializeRoots($product): array
+    {
+        $supplierId = $product->family->supplier_id;
+        $departmentId = $product->family->subcategory->department_id;
+        $locale = app()->getLocale();
+
+        $data = DB::table('brands')
+            ->join('supplier_brands', 'brands.id', '=', 'supplier_brands.brand_id')
+            ->join('supplier_solutions', 'supplier_brands.supplier_solution_id', '=', 'supplier_solutions.id')
+            ->join('supplier_departments', 'supplier_brands.id', '=', 'supplier_departments.supplier_brand_id')
+            ->join('solutions', 'solutions.id', '=', 'supplier_solutions.solution_id')
+            ->join('departments', 'departments.id', '=', 'supplier_departments.department_id')
+            ->leftJoin('solution_translations', function ($join) use ($locale) {
+                $join->on('solutions.id', '=', 'solution_translations.solution_id')
+                    ->where('solution_translations.locale', '=', $locale);
+            })
+            ->leftJoin('department_translations', function ($join) use ($locale) {
+                $join->on('departments.id', '=', 'department_translations.department_id')
+                    ->where('department_translations.locale', '=', $locale);
+            })
+            ->where('supplier_solutions.supplier_id', $supplierId)
+            ->where('supplier_departments.department_id', $departmentId)
+            ->select([
+                'brands.id as brand_id',
+                'brands.name as brand_name',
+                'departments.id as department_id',
+                'solutions.id as solution_id',
+                // ✅ استخدمنا فقط الترجمة
+                'department_translations.name as department_name',
+                'solution_translations.name as solution_name',
+            ])
+            ->first();
+
+        return [
+            'brand' => [
+                'name' => $data->brand_name ?? null,
+            ],
+            'department' => [
+                'name' => $data->department_name ?? null,
+            ],
+            'solution' => [
+                'name' => $data->solution_name ?? null,
+            ],
+            'subcategory' => [
+                'name' => $product->family->subcategory->name,
+            ],
+            'family' => [
+                'name' => $product->family->name,
+            ],
+        ];
+    }
+
+
+
 }
