@@ -12,9 +12,9 @@ class GetDraftQuotationUseCase
     ) {
     }
 
-    public function handle(int $supplierId, int $ownerId): Quotation
+    public function handle(int $supplierId): Quotation
     {
-        $quotation = $this->quotations->getOrCreateDraft($supplierId, $ownerId);
+        $quotation = $this->quotations->getOrCreateDraft($supplierId);
 
         return $this->quotations->refreshTotals($quotation);
     }

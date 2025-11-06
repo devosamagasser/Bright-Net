@@ -30,11 +30,6 @@ class QuotationResource extends JsonResource
             'notes' => $this->notes,
             'valid_until' => $this->valid_until?->toDateString(),
             'meta' => $this->meta ?? [],
-            'owner' => $this->whenLoaded('owner', fn () => [
-                'id' => $this->owner?->getKey(),
-                'name' => $this->owner?->name,
-                'email' => $this->owner?->email,
-            ]),
             'supplier' => $this->whenLoaded('supplier', fn () => [
                 'id' => $this->supplier?->getKey(),
                 'name' => $this->supplier?->company?->name,

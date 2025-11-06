@@ -17,11 +17,11 @@ class ReplaceQuotationProductUseCase
     ) {
     }
 
-    public function handle(QuotationProduct $current, QuotationProductInput $input, int $supplierId, int $ownerId): Quotation
+    public function handle(QuotationProduct $current, QuotationProductInput $input, int $supplierId): Quotation
     {
         $quotation = $current->quotation;
 
-        $this->assertEditable($quotation, $supplierId, $ownerId);
+        $this->assertEditable($quotation, $supplierId);
 
         $replacement = $this->products->find($input->productId);
 
@@ -73,17 +73,12 @@ class ReplaceQuotationProductUseCase
         return $this->quotations->refreshTotals($quotation);
     }
 
-    private function assertEditable(Quotation $quotation, int $supplierId, int $ownerId): void
+    private function assertEditable(Quotation $quotation, int $supplierId): void
     {
         if ((int) $quotation->supplier_id !== $supplierId || $quotation->status !== QuotationStatus::DRAFT) {
             throw ValidationException::withMessages([
                 'quotation' => trans('apiMessages.forbidden'),
             ]);
-        }
-
-        if ((int) $quotation->owner_id !== $ownerId) {
-            $quotation->owner_id = $ownerId;
-            $quotation->save();
         }
     }
 }

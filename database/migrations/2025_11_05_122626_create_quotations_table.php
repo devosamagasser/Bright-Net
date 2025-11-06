@@ -16,7 +16,6 @@ return new class extends Migration
             $table->string('status')->default('draft');
             $table->string('reference')->nullable()->index();
             $table->string('title')->nullable();
-            $table->foreignId('owner_id')->constrained('users')->cascadeOnDelete();
             $table->foreignId('supplier_id')->constrained('suppliers')->cascadeOnDelete();
             $table->foreignId('company_id')->nullable()->constrained()->nullOnDelete();
             $table->date('valid_until')->nullable();

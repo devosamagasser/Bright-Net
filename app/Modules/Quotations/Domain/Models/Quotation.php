@@ -3,7 +3,6 @@
 namespace App\Modules\Quotations\Domain\Models;
 
 use App\Models\Supplier;
-use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,7 +19,6 @@ class Quotation extends Model
         'status',
         'reference',
         'title',
-        'owner_id',
         'supplier_id',
         'company_id',
         'valid_until',
@@ -37,7 +35,6 @@ class Quotation extends Model
      */
     protected $casts = [
         'status' => QuotationStatus::class,
-        'owner_id' => 'integer',
         'supplier_id' => 'integer',
         'company_id' => 'integer',
         'valid_until' => 'date',
@@ -47,11 +44,6 @@ class Quotation extends Model
         'currency' => PriceCurrency::class,
         'meta' => 'array',
     ];
-
-    public function owner(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'owner_id');
-    }
 
     public function company(): BelongsTo
     {

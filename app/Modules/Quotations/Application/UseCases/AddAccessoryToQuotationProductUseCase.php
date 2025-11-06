@@ -20,11 +20,11 @@ class AddAccessoryToQuotationProductUseCase
     ) {
     }
 
-    public function handle(QuotationProduct $item, QuotationAccessoryInput $input, int $supplierId, int $ownerId): Quotation
+    public function handle(QuotationProduct $item, QuotationAccessoryInput $input, int $supplierId): Quotation
     {
         $quotation = $item->quotation;
 
-        $this->assertEditable($quotation, $supplierId, $ownerId);
+        $this->assertEditable($quotation, $supplierId);
 
         $accessory = $this->products->find($input->accessoryId);
 
@@ -49,17 +49,12 @@ class AddAccessoryToQuotationProductUseCase
         return $this->quotations->refreshTotals($quotation);
     }
 
-    private function assertEditable(Quotation $quotation, int $supplierId, int $ownerId): void
+    private function assertEditable(Quotation $quotation, int $supplierId): void
     {
         if ((int) $quotation->supplier_id !== $supplierId || $quotation->status !== QuotationStatus::DRAFT) {
             throw ValidationException::withMessages([
                 'quotation' => trans('apiMessages.forbidden'),
             ]);
-        }
-
-        if ((int) $quotation->owner_id !== $ownerId) {
-            $quotation->owner_id = $ownerId;
-            $quotation->save();
         }
     }
 }

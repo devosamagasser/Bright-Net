@@ -15,9 +15,9 @@ class UpdateQuotationUseCase
     ) {
     }
 
-    public function handle(int $supplierId, int $ownerId, QuotationInput $input): Quotation
+    public function handle(int $supplierId, QuotationInput $input): Quotation
     {
-        $quotation = $this->quotations->getOrCreateDraft($supplierId, $ownerId);
+        $quotation = $this->quotations->getOrCreateDraft($supplierId);
 
         if ($quotation->status !== QuotationStatus::DRAFT) {
             throw ValidationException::withMessages([

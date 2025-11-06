@@ -30,8 +30,7 @@ class QuotationItemController
         $quotation = $this->updateItem->handle(
             $item,
             $request->toInput(),
-            $this->supplierId(),
-            $this->ownerId()
+            $this->supplierId()
         );
 
         return ApiResponse::updated(
@@ -43,8 +42,7 @@ class QuotationItemController
     {
         $quotation = $this->removeItem->handle(
             $item,
-            $this->supplierId(),
-            $this->ownerId()
+            $this->supplierId()
         );
 
         return ApiResponse::updated(
@@ -57,26 +55,12 @@ class QuotationItemController
         $quotation = $this->replaceItem->handle(
             $item,
             $request->toInput(),
-            $this->supplierId(),
-            $this->ownerId()
+            $this->supplierId()
         );
 
         return ApiResponse::updated(
             QuotationResource::make($quotation)->resolve()
         );
-    }
-
-    private function ownerId(): int
-    {
-        $userId = auth()->id();
-
-        if ($userId === null) {
-            throw ValidationException::withMessages([
-                'user' => trans('apiMessages.unauthorized'),
-            ]);
-        }
-
-        return (int) $userId;
     }
 
     private function supplierId(): int

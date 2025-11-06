@@ -11,7 +11,7 @@ use App\Modules\Quotations\Domain\Models\{
 
 interface QuotationRepositoryInterface
 {
-    public function getOrCreateDraft(int $supplierId, int $ownerId): Quotation;
+    public function getOrCreateDraft(int $supplierId): Quotation;
 
     /**
      * @param  array<string, mixed>  $attributes

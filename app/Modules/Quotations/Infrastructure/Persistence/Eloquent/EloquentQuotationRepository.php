@@ -5,6 +5,7 @@ namespace App\Modules\Quotations\Infrastructure\Persistence\Eloquent;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Collection;
+use App\Models\Supplier;
 use App\Modules\Products\Domain\Models\Product;
 use App\Modules\Products\Domain\Models\ProductAccessory;
 use App\Modules\Products\Domain\Models\ProductPrice;
@@ -25,7 +26,7 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
     ) {
     }
 
-    public function getOrCreateDraft(int $supplierId, int $ownerId): Quotation
+    public function getOrCreateDraft(int $supplierId): Quotation
     {
         $quotation = Quotation::query()
             ->where('supplier_id', $supplierId)
@@ -33,17 +34,18 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
             ->first();
 
         if ($quotation === null) {
+            $companyId = Supplier::query()
+                ->whereKey($supplierId)
+                ->value('company_id');
+
             $quotation = new Quotation([
                 'supplier_id' => $supplierId,
-                'owner_id' => $ownerId,
+                'company_id' => $companyId,
                 'status' => QuotationStatus::DRAFT,
                 'currency' => PriceCurrency::EGP,
                 'reference' => $this->generateReference(),
             ]);
 
-            $quotation->save();
-        } elseif ((int) $quotation->owner_id !== $ownerId) {
-            $quotation->owner_id = $ownerId;
             $quotation->save();
         }
 
@@ -268,7 +270,6 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
     private function relations(): array
     {
         return [
-            'owner',
             'supplier.company',
             'company',
             'products.accessories',

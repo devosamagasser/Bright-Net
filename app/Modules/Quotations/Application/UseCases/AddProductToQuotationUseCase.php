@@ -16,9 +16,9 @@ class AddProductToQuotationUseCase
     ) {
     }
 
-    public function handle(int $supplierId, int $ownerId, QuotationProductInput $input): Quotation
+    public function handle(int $supplierId, QuotationProductInput $input): Quotation
     {
-        $quotation = $this->quotations->getOrCreateDraft($supplierId, $ownerId);
+        $quotation = $this->quotations->getOrCreateDraft($supplierId);
 
         $product = $this->products->find($input->productId);
 

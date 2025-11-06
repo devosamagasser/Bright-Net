@@ -28,7 +28,6 @@ class QuotationDraftController
     {
         $quotation = $this->showDraft->handle(
             $this->supplierId(),
-            $this->ownerId(),
         );
 
         return ApiResponse::success(
@@ -40,7 +39,6 @@ class QuotationDraftController
     {
         $quotation = $this->updateDraft->handle(
             $this->supplierId(),
-            $this->ownerId(),
             $request->toInput()
         );
 
@@ -53,26 +51,12 @@ class QuotationDraftController
     {
         $quotation = $this->addProduct->handle(
             $this->supplierId(),
-            $this->ownerId(),
             $request->toInput()
         );
 
         return ApiResponse::created(
             QuotationResource::make($quotation)->resolve()
         );
-    }
-
-    private function ownerId(): int
-    {
-        $userId = auth()->id();
-
-        if ($userId === null) {
-            throw ValidationException::withMessages([
-                'user' => trans('apiMessages.unauthorized'),
-            ]);
-        }
-
-        return (int) $userId;
     }
 
     private function supplierId(): int
