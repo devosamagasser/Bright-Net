@@ -25,6 +25,7 @@ return [
         \App\Modules\DataSheets\Infrastructure\Providers\DataSheetsServiceProvider::class,
         \App\Modules\Families\Infrastructure\Providers\FamiliesServiceProvider::class,
         \App\Modules\Products\Infrastructure\Providers\ProductsServiceProvider::class,
+        \App\Modules\Quotations\Infrastructure\Providers\QuotationsServiceProvider::class,
     ],
 ];
 
