@@ -20,7 +20,9 @@ class ProductAccessoryData
     public static function fromModel(ProductAccessory $accessory): self
     {
         $product = $accessory->accessory;
-
+        $product->loadMissing([
+            'fieldValues.field.translations',
+        ]);
         return new self(
             type: $accessory->accessory_type?->value ?? AccessoryType::OPTIONAL->value,
             product: $product ? [

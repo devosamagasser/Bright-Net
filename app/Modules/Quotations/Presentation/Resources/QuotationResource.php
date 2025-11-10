@@ -20,24 +20,24 @@ class QuotationResource extends JsonResource
         return [
             'id' => (int) $this->getKey(),
             'reference' => $this->reference,
-            'title' => $this->title,
-            'status' => $this->status?->value,
-            'status_label' => $this->status?->label(),
+            // 'title' => $this->title,
+            // 'status' => $this->status?->value,
+            // 'status_label' => $this->status?->label(),
             'currency' => $currency,
             'subtotal' => (float) $this->subtotal,
             'discount_total' => (float) $this->discount_total,
             'total' => (float) $this->total,
-            'notes' => $this->notes,
-            'valid_until' => $this->valid_until?->toDateString(),
-            'meta' => $this->meta ?? [],
-            'supplier' => $this->whenLoaded('supplier', fn () => [
-                'id' => $this->supplier?->getKey(),
-                'name' => $this->supplier?->company?->name,
-            ]),
-            'company' => $this->whenLoaded('company', fn () => [
-                'id' => $this->company?->getKey(),
-                'name' => $this->company?->name,
-            ]),
+            // 'notes' => $this->notes,
+            // 'valid_until' => $this->valid_until?->toDateString(),
+            // 'meta' => $this->meta ?? [],
+            // 'supplier' => $this->whenLoaded('supplier', fn () => [
+            //     'id' => $this->supplier?->getKey(),
+            //     'name' => $this->supplier?->company?->name,
+            // ]),
+            // 'company' => $this->whenLoaded('company', fn () => [
+            //     'id' => $this->company?->getKey(),
+            //     'name' => $this->company?->name,
+            // ]),
             'products' => QuotationProductResource::collection(
                 $this->whenLoaded('products')
             ),

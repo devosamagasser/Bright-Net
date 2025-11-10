@@ -61,9 +61,7 @@ class QuotationItemAccessoryController
             $this->supplierId()
         );
 
-        return ApiResponse::updated(
-            QuotationResource::make($quotation)->resolve()
-        );
+        return ApiResponse::deleted();
     }
 
     private function supplierId(): int

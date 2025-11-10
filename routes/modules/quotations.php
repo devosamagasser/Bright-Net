@@ -8,6 +8,7 @@ use App\Modules\Quotations\Presentation\Http\Controllers\{
 };
 
 Route::prefix('quotations')
+    ->middleware('auth:sanctum')
     ->group(function (): void {
         Route::get('draft', [QuotationDraftController::class, 'show']);
         Route::patch('draft', [QuotationDraftController::class, 'update']);

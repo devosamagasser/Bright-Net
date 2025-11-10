@@ -45,9 +45,10 @@ class QuotationItemController
             $this->supplierId()
         );
 
-        return ApiResponse::updated(
-            QuotationResource::make($quotation)->resolve()
-        );
+        return ApiResponse::deleted();
+        // return ApiResponse::updated(
+        //     QuotationResource::make($quotation)->resolve()
+        // );
     }
 
     public function replace(ReplaceQuotationProductRequest $request, QuotationProduct $item)
