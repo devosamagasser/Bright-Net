@@ -23,6 +23,7 @@ class AddQuotationProductRequest extends FormRequest
             'accessories' => ['nullable', 'array'],
             'accessories.*' => ['array'],
             'accessories.*.accessory_id' => ['required', 'integer', 'exists:products,id'],
+            'accessories.*.accessory_type' => ['required', Rule::in([AccessoryType::OPTIONAL->value])],
             'accessories.*.quantity' => ['nullable', 'integer', 'min:1'],
         ];
     }

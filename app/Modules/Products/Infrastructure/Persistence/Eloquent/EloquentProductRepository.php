@@ -8,7 +8,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use App\Modules\Shared\Support\Traits\HandlesTranslations;
-use App\Modules\Products\Domain\Models\Product;
+use App\Modules\Products\Domain\Models\{Product, ProductAccessory};
 use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
 use App\Modules\Products\Domain\ValueObjects\AccessoryType;
 use App\Modules\DataSheets\Domain\Models\DataField;
@@ -105,6 +105,28 @@ class EloquentProductRepository implements ProductRepositoryInterface
             })
             ->orderBy('code')
             ->get();
+    }
+
+    public function attachAccessory(
+        Product $product,
+        Product $accessory,
+        AccessoryType $type,
+        ?int $quantity = null
+    ): ProductAccessory {
+        return DB::transaction(function () use ($product, $accessory, $type, $quantity): ProductAccessory {
+            /** @var ProductAccessory $record */
+            $record = $product->accessories()->updateOrCreate(
+                [
+                    'accessory_id' => $accessory->getKey(),
+                ],
+                [
+                    'accessory_type' => $type,
+                    'quantity' => $quantity !== null ? (string) $quantity : null,
+                ]
+            );
+
+            return $record->load('accessory.translations');
+        });
     }
 
     private function loadAggregates(Product $product): Product

@@ -2,9 +2,13 @@
 
 namespace App\Modules\Quotations\Application\UseCases;
 
+use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
 use App\Modules\Quotations\Application\DTOs\QuotationProductInput;
+use App\Modules\Products\Domain\Models\Product;
+use App\Modules\Products\Domain\Models\ProductAccessory;
 use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
+use App\Modules\Products\Domain\ValueObjects\AccessoryType;
 use App\Modules\Quotations\Domain\Models\{Quotation, QuotationProduct};
 use App\Modules\Quotations\Domain\Repositories\QuotationRepositoryInterface;
 use App\Modules\Quotations\Domain\ValueObjects\QuotationStatus;
@@ -31,7 +35,7 @@ class ReplaceQuotationProductUseCase
             ]);
         }
 
-        $replacement->loadMissing('family.supplier');
+        $replacement->loadMissing(['family.supplier', 'accessories']);
 
         $replacementSupplierId = $replacement->family?->supplier?->getKey();
 
@@ -62,9 +66,33 @@ class ReplaceQuotationProductUseCase
                 ]);
             }
 
+            $typeValue = $accessoryInput->type;
+
+            if ($typeValue === null) {
+                throw ValidationException::withMessages([
+                    'accessories.*.accessory_type' => trans('validation.required', ['attribute' => 'accessory type']),
+                ]);
+            }
+
+            $type = AccessoryType::tryFrom($typeValue);
+
+            if ($type === null) {
+                throw ValidationException::withMessages([
+                    'accessories.*.accessory_type' => trans('validation.in', ['attribute' => 'accessory type']),
+                ]);
+            }
+
+            $this->assertAccessoryIsOptionalForProduct($replacement, $accessory, $type);
+
+            $attributes = $accessoryInput->attributes();
+
+            if (! Arr::exists($attributes, 'accessory_type')) {
+                $attributes['accessory_type'] = $type->value;
+            }
+
             $accessories[] = [
                 'product' => $accessory,
-                'attributes' => $accessoryInput->attributes(),
+                'attributes' => $attributes,
             ];
         }
 
@@ -78,6 +106,26 @@ class ReplaceQuotationProductUseCase
         if ((int) $quotation->supplier_id !== $supplierId || $quotation->status !== QuotationStatus::DRAFT) {
             throw ValidationException::withMessages([
                 'quotation' => trans('apiMessages.forbidden'),
+            ]);
+        }
+    }
+
+    private function assertAccessoryIsOptionalForProduct(Product $product, Product $accessory, AccessoryType $type): void
+    {
+        if ($type !== AccessoryType::OPTIONAL) {
+            throw ValidationException::withMessages([
+                'accessories.*.accessory_type' => trans('apiMessages.forbidden'),
+            ]);
+        }
+
+        $linkedAccessory = $product->accessories
+            ->first(static function (ProductAccessory $definition) use ($accessory): bool {
+                return (int) $definition->accessory_id === (int) $accessory->getKey();
+            });
+
+        if ($linkedAccessory === null || $linkedAccessory->accessory_type !== AccessoryType::OPTIONAL) {
+            throw ValidationException::withMessages([
+                'accessories.*.accessory_id' => trans('validation.in', ['attribute' => 'accessory']),
             ]);
         }
     }

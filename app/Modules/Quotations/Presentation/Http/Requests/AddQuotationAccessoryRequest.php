@@ -18,7 +18,7 @@ class AddQuotationAccessoryRequest extends FormRequest
     {
         return [
             'accessory_id' => ['required', 'integer', 'exists:products,id'],
-            'accessory_type' => ['required', Rule::in([AccessoryType::NEEDED->value, AccessoryType::OPTIONAL->value])],
+            'accessory_type' => ['required', Rule::in([AccessoryType::OPTIONAL->value])],
             'quantity' => ['nullable', 'integer', 'min:1'],
             // 'item_ref' => ['nullable', 'string', 'max:50'],
             // 'position' => ['nullable', 'integer', 'min:0'],

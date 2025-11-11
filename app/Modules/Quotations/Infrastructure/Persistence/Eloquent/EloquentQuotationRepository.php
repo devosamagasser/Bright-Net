@@ -94,6 +94,7 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
             $item = $quotation->products()->create($payload);
 
             $this->attachIncludedAccessories($item, $product);
+            $this->attachNeededAccessories($item, $product);
 
             $this->createProvidedAccessories($item, $accessories);
 
@@ -133,6 +134,7 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
             $item = $quotation->products()->create($payload);
 
             $this->attachIncludedAccessories($item, $replacement);
+            $this->attachNeededAccessories($item, $replacement);
 
             $this->createProvidedAccessories($item, $accessories);
 
@@ -608,6 +610,38 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
                         'accessory_type' => AccessoryType::INCLUDED->value,
                         'price' => null,
                         'discount' => 0,
+                    ]
+                );
+
+                $item->accessories()->create($payload);
+            });
+    }
+
+    private function attachNeededAccessories(QuotationProduct $item, Product $product): void
+    {
+        $product->accessories
+            ->filter(static fn (ProductAccessory $accessory) => $accessory->accessory_type === AccessoryType::NEEDED)
+            ->each(function (ProductAccessory $accessory) use ($item): void {
+                $linked = $accessory->accessory;
+
+                if ($linked === null) {
+                    return;
+                }
+
+                $quantity = $this->normalizeQuantity($accessory->quantity);
+
+                $linked->loadMissing([
+                    'prices',
+                    'family.subcategory.department.solution',
+                    'family.supplier.company',
+                ]);
+
+                $payload = $this->prepareAccessoryPayload(
+                    $item,
+                    $linked,
+                    [
+                        'quantity' => $quantity,
+                        'accessory_type' => AccessoryType::NEEDED->value,
                     ]
                 );
 

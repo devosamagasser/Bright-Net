@@ -3,7 +3,8 @@
 namespace App\Modules\Products\Domain\Repositories;
 
 use Illuminate\Support\Collection;
-use App\Modules\Products\Domain\Models\Product;
+use App\Modules\Products\Domain\Models\{Product, ProductAccessory};
+use App\Modules\Products\Domain\ValueObjects\AccessoryType;
 
 interface ProductRepositoryInterface
 {
@@ -31,4 +32,11 @@ interface ProductRepositoryInterface
      * @return Collection<int, Product>
      */
     public function getByFamily(int $familyId, ?int $supplierId = null): Collection;
+
+    public function attachAccessory(
+        Product $product,
+        Product $accessory,
+        AccessoryType $type,
+        ?int $quantity = null
+    ): ProductAccessory;
 }
