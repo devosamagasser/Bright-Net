@@ -1,7 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Modules\Products\Presentation\Http\Controllers\ProductController;
+use App\Modules\Products\Presentation\Http\Controllers\{
+    ProductController,
+    ProductAccessoryController,
+};
 
 Route::prefix('products')
     ->group(function (): void {
@@ -14,5 +17,7 @@ Route::prefix('products')
         Route::put('/{product}', [ProductController::class, 'update'])
             ->whereNumber('product');
         Route::delete('/{product}', [ProductController::class, 'destroy'])
+            ->whereNumber('product');
+        Route::post('/{product}/accessories', [ProductAccessoryController::class, 'store'])
             ->whereNumber('product');
     });

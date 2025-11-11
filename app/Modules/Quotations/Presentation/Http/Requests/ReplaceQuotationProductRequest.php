@@ -2,6 +2,8 @@
 
 namespace App\Modules\Quotations\Presentation\Http\Requests;
 
+use Illuminate\Validation\Rule;
+use App\Modules\Products\Domain\ValueObjects\AccessoryType;
 use App\Modules\Quotations\Application\DTOs\QuotationProductInput;
 
 class ReplaceQuotationProductRequest extends AddQuotationProductRequest
@@ -20,6 +22,7 @@ class ReplaceQuotationProductRequest extends AddQuotationProductRequest
             'accessories' => ['nullable', 'array'],
             'accessories.*' => ['array'],
             'accessories.*.accessory_id' => ['required', 'integer', 'exists:products,id'],
+            'accessories.*.accessory_type' => ['required', 'string', Rule::in([AccessoryType::OPTIONAL->value])],
             'accessories.*.quantity' => ['nullable', 'integer', 'min:1'],
         ];
     }
