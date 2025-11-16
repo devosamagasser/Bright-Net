@@ -21,9 +21,6 @@ class StoreDataTemplateRequest extends FormRequest
 
         if (is_array($fields)) {
             $normalizedFields = array_map(function ($field) {
-                if (! isset($field['name']) && isset($field['slug'])) {
-                    $field['name'] = $field['slug'];
-                }
 
                 if (isset($field['depends_on_value']) && ! isset($field['depends_on_values'])) {
                     $field['depends_on_values'] = Arr::wrap($field['depends_on_value']);

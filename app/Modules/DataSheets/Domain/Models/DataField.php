@@ -23,7 +23,6 @@ class DataField extends Model
         'is_filterable',
         'position',
         'name',
-        'slug',
     ];
 
     /**
@@ -70,22 +69,22 @@ class DataField extends Model
         return $this->hasOne(DependedField::class, 'data_field_id');
     }
 
-    public static function booted(): void
-    {
-        static::saving(function (DataField $dataField): void {
-            if (empty($dataField->name)) {
-                $dataField->name = Str::slug($dataField->type->value . '-' . $dataField->position);
-            }
-        });
-    }
+    // public static function booted(): void
+    // {
+    //     static::saving(function (DataField $dataField): void {
+    //         if (empty($dataField->name)) {
+    //             $dataField->name = Str::slug($dataField->type->value . '-' . $dataField->position);
+    //         }
+    //     });
+    // }
 
-    public function getSlugAttribute(): ?string
-    {
-        return $this->name;
-    }
+    // public function getSlugAttribute(): ?string
+    // {
+    //     return $this->name;
+    // }
 
-    public function setSlugAttribute(?string $value): void
-    {
-        $this->attributes['name'] = $value;
-    }
+    // public function setSlugAttribute(?string $value): void
+    // {
+    //     $this->attributes['name'] = $value;
+    // }
 }

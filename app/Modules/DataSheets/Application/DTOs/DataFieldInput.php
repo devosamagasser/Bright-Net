@@ -11,7 +11,6 @@ class DataFieldInput
      * @param  array<string, array<string, mixed>>  $translations
      */
     private function __construct(
-        public readonly ?int $id,
         public readonly array $attributes,
         public readonly array $translations,
         public readonly ?FieldDependencyInput $dependency,
@@ -24,13 +23,6 @@ class DataFieldInput
     public static function fromArray(array $payload): self
     {
         $translations = Arr::pull($payload, 'translations', []);
-        $id = Arr::pull($payload, 'id');
-
-        if (! isset($payload['name']) && isset($payload['slug'])) {
-            $payload['name'] = $payload['slug'];
-        }
-
-        Arr::pull($payload, 'slug');
 
         $isDepended = filter_var(Arr::pull($payload, 'is_depended', false), FILTER_VALIDATE_BOOLEAN);
         $dependsOnField = Arr::pull($payload, 'depends_on_field');
@@ -47,7 +39,6 @@ class DataFieldInput
         }
 
         return new self(
-            id: $id !== null ? (int) $id : null,
             attributes: $payload,
             translations: $translations,
             dependency: $dependency,
