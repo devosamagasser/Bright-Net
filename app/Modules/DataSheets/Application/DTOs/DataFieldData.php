@@ -19,6 +19,17 @@ class DataFieldData
 
     public static function fromModel(DataField $field): self
     {
+        $dependencies = $field->dependencies->map(function ($dependency) {
+            return [
+                'id' => $dependency->getKey(),
+                'depends_on_field_id' => $dependency->depends_on_field_id,
+                'depends_on_field_name' => $dependency->dependsOnField?->name,
+                'values' => $dependency->values ?? [],
+            ];
+        })->values();
+
+        $primaryDependency = $field->dependencies->first();
+
         return new self(
             attributes: [
                 'id' => $field->getKey(),
@@ -30,6 +41,10 @@ class DataFieldData
                 'is_filterable' => $field->is_filterable,
                 'options' => $field->options,
                 'position' => $field->position,
+                'is_dependent' => $dependencies->isNotEmpty(),
+                'depends_on_field_name' => $primaryDependency?->dependsOnField?->name,
+                'depends_on_values' => $primaryDependency ? array_values($primaryDependency->values ?? []) : [],
+                'dependencies' => $dependencies->all(),
             ],
             translations: $field->translations->map(function ($translation) {
                 return [

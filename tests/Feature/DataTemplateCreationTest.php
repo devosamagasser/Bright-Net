@@ -286,6 +286,102 @@ class DataTemplateCreationTest extends TestCase
         ]);
     }
 
+    public function test_it_updates_field_dependencies(): void
+    {
+        $subcategory = $this->createSubcategory();
+        $template = new DataTemplate([
+            'subcategory_id' => $subcategory->getKey(),
+            'type' => DataTemplateType::FAMILY,
+        ]);
+        $template->save();
+        $template->translations()->create([
+            'locale' => 'en',
+            'name' => 'Shape Template',
+        ]);
+
+        $shapeField = new DataField([
+            'data_template_id' => $template->getKey(),
+            'slug' => 'shape',
+            'type' => DataFieldType::SELECT,
+            'options' => ['Linear', 'Round'],
+            'is_required' => true,
+            'position' => 1,
+        ]);
+        $shapeField->save();
+        $shapeField->translations()->create([
+            'locale' => 'en',
+            'label' => 'Shape',
+        ]);
+        $shapeFieldName = $shapeField->refresh()->name;
+
+        $lengthField = new DataField([
+            'data_template_id' => $template->getKey(),
+            'slug' => 'length',
+            'type' => DataFieldType::NUMBER,
+            'is_required' => true,
+            'position' => 2,
+        ]);
+        $lengthField->save();
+        $lengthField->translations()->create([
+            'locale' => 'en',
+            'label' => 'Length',
+        ]);
+
+        $payload = [
+            'subcategory_id' => $subcategory->getKey(),
+            'type' => DataTemplateType::FAMILY->value,
+            'translations' => [
+                'en' => [
+                    'name' => 'Shape Template',
+                ],
+            ],
+            'fields' => [
+                [
+                    'id' => $shapeField->getKey(),
+                    'slug' => 'shape',
+                    'type' => DataFieldType::SELECT->value,
+                    'options' => ['Linear', 'Round'],
+                    'is_required' => true,
+                    'translations' => [
+                        'en' => [
+                            'label' => 'Shape',
+                        ],
+                    ],
+                ],
+                [
+                    'id' => $lengthField->getKey(),
+                    'slug' => 'length',
+                    'type' => DataFieldType::NUMBER->value,
+                    'is_required' => true,
+                    'translations' => [
+                        'en' => [
+                            'label' => 'Length',
+                        ],
+                    ],
+                    'dependencies' => [
+                        [
+                            'depends_on_field_id' => $shapeField->getKey(),
+                            'values' => ['Linear'],
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $response = $this->putJson(route('api.data-templates.update', $template->getKey()), $payload);
+
+        $response->assertOk();
+        $response->assertJsonPath('data.fields.1.dependencies.0.values', ['Linear']);
+        $response->assertJsonPath('data.fields.1.is_dependent', true);
+        $response->assertJsonPath('data.fields.1.depends_on_field_name', $shapeFieldName);
+        $response->assertJsonPath('data.fields.1.depends_on_values', ['Linear']);
+
+        $this->assertDatabaseHas('depended_fields', [
+            'data_field_id' => $lengthField->getKey(),
+            'depends_on_field_id' => $shapeField->getKey(),
+        ]);
+    }
+
     public function test_it_deletes_a_data_template(): void
     {
         $subcategory = $this->createSubcategory();
