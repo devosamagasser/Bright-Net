@@ -68,13 +68,102 @@ class DataTemplateCreationTest extends TestCase
         ]);
 
         $this->assertDatabaseHas('data_fields', [
-            'slug' => 'available_colors',
+            'name' => 'available_colors',
             'type' => DataFieldType::SELECT->value,
         ]);
 
         $template = DataTemplate::first();
         $this->assertEquals('Lighting Family', $template->translate('en')->name);
         $this->assertCount(2, $template->fields);
+    }
+
+    public function test_it_creates_dependent_fields(): void
+    {
+        $subcategory = $this->createSubcategory();
+
+        $payload = [
+            'subcategory_id' => $subcategory->getKey(),
+            'type' => DataTemplateType::FAMILY->value,
+            'translations' => [
+                'en' => [
+                    'name' => 'Lighting Family',
+                ],
+            ],
+            'fields' => [
+                [
+                    'slug' => 'shape',
+                    'type' => DataFieldType::SELECT->value,
+                    'options' => ['Linear', 'Rectangular', 'Square', 'Round'],
+                    'translations' => [
+                        'en' => [
+                            'label' => 'Shape',
+                        ],
+                    ],
+                ],
+                [
+                    'slug' => 'product_dimensions',
+                    'type' => DataFieldType::TEXT->value,
+                    'is_depended' => true,
+                    'depends_on_field' => 'shape',
+                    'depends_on_values' => ['Linear', 'Rectangular'],
+                    'translations' => [
+                        'en' => [
+                            'label' => 'Product Dimensions',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $response = $this->postJson(route('api.data-templates.store'), $payload);
+
+        $response->assertStatus(Response::HTTP_CREATED);
+        $response->assertJsonPath('data.fields.1.is_depended', true);
+        $response->assertJsonPath('data.fields.1.depends_on_field', 'shape');
+        $response->assertJsonPath('data.fields.1.depends_on_values', ['Linear', 'Rectangular']);
+
+        $shapeField = DataField::query()->where('name', 'shape')->first();
+        $dimensionsField = DataField::query()->where('name', 'product_dimensions')->first();
+
+        $this->assertDatabaseHas('depended_fields', [
+            'data_field_id' => $dimensionsField?->getKey(),
+            'depends_on_field_id' => $shapeField?->getKey(),
+            'values' => json_encode(['Linear', 'Rectangular']),
+        ]);
+    }
+
+    public function test_dependent_fields_require_a_parent_field_in_payload(): void
+    {
+        $subcategory = $this->createSubcategory();
+
+        $payload = [
+            'subcategory_id' => $subcategory->getKey(),
+            'type' => DataTemplateType::FAMILY->value,
+            'translations' => [
+                'en' => [
+                    'name' => 'Lighting Family',
+                ],
+            ],
+            'fields' => [
+                [
+                    'slug' => 'product_dimensions',
+                    'type' => DataFieldType::TEXT->value,
+                    'is_depended' => true,
+                    'depends_on_field' => 'shape',
+                    'depends_on_values' => ['Linear'],
+                    'translations' => [
+                        'en' => [
+                            'label' => 'Product Dimensions',
+                        ],
+                    ],
+                ],
+            ],
+        ];
+
+        $response = $this->postJson(route('api.data-templates.store'), $payload);
+
+        $response->assertUnprocessable();
+        $response->assertJsonValidationErrors(['fields.0.depends_on_field']);
     }
 
     public function test_it_creates_a_family_data_template_without_explicit_type(): void
@@ -279,7 +368,7 @@ class DataTemplateCreationTest extends TestCase
             'id' => $template->getKey(),
         ]);
         $this->assertDatabaseHas('data_fields', [
-            'slug' => 'warranty_period',
+            'name' => 'warranty_period',
         ]);
         $this->assertDatabaseMissing('data_fields', [
             'id' => $template->fields->last()->getKey(),
