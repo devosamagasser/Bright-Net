@@ -25,6 +25,7 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
             $this->fillTranslations($template, $translations);
             $template->save();
 
+            $fieldRecords = [];
             foreach ($fields as $fieldInput) {
                 $field = new DataField([
                     'data_template_id' => $template->getKey(),
@@ -37,16 +38,20 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
 
                 $this->fillTranslations($field, $fieldInput->translations);
                 $field->save();
+
+                $fieldRecords[] = compact('field', 'fieldInput');
             }
 
-            return $template->load(['fields']);
+            $this->syncFieldDependencies($fieldRecords);
+
+            return $template->load(['fields.dependency.dependsOnField']);
         });
     }
 
     public function find(int $id, ?DataTemplateType $type = null): ?DataTemplate
     {
         $query = DataTemplate::query()
-            ->with(['fields'])
+            ->with(['fields.dependency.dependsOnField'])
             ->whereKey($id);
 
         if ($type) {
@@ -59,7 +64,7 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
     public function getBySubcategory(int $subcategoryId, ?DataTemplateType $type = null): Collection
     {
         return DataTemplate::query()
-            ->with(['fields'])
+            ->with(['fields.dependency.dependsOnField'])
             ->where('subcategory_id', $subcategoryId)
             ->latest('id')
             ->when($type, fn ($query) =>
@@ -70,7 +75,7 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
     public function findBySubcategoryAndType(int $subcategoryId, DataTemplateType $type): ?DataTemplate
     {
         return DataTemplate::query()
-            ->with(['fields'])
+            ->with(['fields.dependency.dependsOnField'])
             ->where('subcategory_id', $subcategoryId)
             ->where('type', $type->value)
             ->first();
@@ -85,6 +90,7 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
 
             $existingFields = $template->fields()->get()->keyBy('id');
             $retainedFieldIds = [];
+            $fieldRecords = [];
 
             foreach ($fields as $fieldInput) {
                 $fieldAttributes = array_merge(
@@ -100,6 +106,7 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
                     $field->save();
 
                     $retainedFieldIds[] = $field->getKey();
+                    $fieldRecords[] = compact('field', 'fieldInput');
                     continue;
                 }
 
@@ -109,6 +116,7 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
                 $field->save();
 
                 $retainedFieldIds[] = $field->getKey();
+                $fieldRecords[] = compact('field', 'fieldInput');
             }
 
             $fieldsQuery = $template->fields();
@@ -118,7 +126,9 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
 
             $fieldsQuery->get()->each->delete();
 
-            return $template->load(['fields']);
+            $this->syncFieldDependencies($fieldRecords);
+
+            return $template->load(['fields.dependency.dependsOnField']);
         });
     }
 
@@ -127,5 +137,53 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
         DB::transaction(static function () use ($template): void {
             $template->delete();
         });
+    }
+
+    /**
+     * @param  array<int, array{field: DataField, fieldInput: DataFieldInput}>  $fieldRecords
+     */
+    private function syncFieldDependencies(array $fieldRecords): void
+    {
+        if ($fieldRecords === []) {
+            return;
+        }
+
+        $fieldsByName = collect($fieldRecords)
+            ->mapWithKeys(function (array $record) {
+                /** @var DataField $field */
+                $field = $record['field'];
+
+                return [$field->name => $field];
+            });
+
+        foreach ($fieldRecords as $record) {
+            /** @var DataField $field */
+            $field = $record['field'];
+            /** @var DataFieldInput $input */
+            $input = $record['fieldInput'];
+
+            $dependency = $input->dependency;
+
+            if ($dependency === null) {
+                $field->dependency()->delete();
+                continue;
+            }
+
+            $dependsOnField = $fieldsByName->get($dependency->field);
+
+            if (! $dependsOnField) {
+                continue;
+            }
+
+            $field->dependency()->updateOrCreate(
+                [
+                    'data_field_id' => $field->getKey(),
+                ],
+                [
+                    'depends_on_field_id' => $dependsOnField->getKey(),
+                    'values' => $dependency->values,
+                ],
+            );
+        }
     }
 }

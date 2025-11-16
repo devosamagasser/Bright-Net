@@ -5,7 +5,7 @@ namespace App\Modules\DataSheets\Domain\Models;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Astrotomic\Translatable\Translatable;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\{BelongsTo, HasOne};
 use App\Modules\DataSheets\Domain\ValueObjects\DataFieldType;
 
 class DataField extends Model
@@ -23,6 +23,7 @@ class DataField extends Model
         'is_filterable',
         'position',
         'name',
+        'slug',
     ];
 
     /**
@@ -50,6 +51,7 @@ class DataField extends Model
      */
     protected $with = [
         'translations',
+        'dependency',
     ];
 
     /**
@@ -60,10 +62,30 @@ class DataField extends Model
         return $this->belongsTo(DataTemplate::class, 'data_template_id');
     }
 
+    /**
+     * Dependency configuration for the field.
+     */
+    public function dependency(): HasOne
+    {
+        return $this->hasOne(DependedField::class, 'data_field_id');
+    }
+
     public static function booted(): void
     {
         static::saving(function (DataField $dataField): void {
-            $dataField->name = Str::slug($dataField->type->value . '-' . $dataField->position);
+            if (empty($dataField->name)) {
+                $dataField->name = Str::slug($dataField->type->value . '-' . $dataField->position);
+            }
         });
+    }
+
+    public function getSlugAttribute(): ?string
+    {
+        return $this->name;
+    }
+
+    public function setSlugAttribute(?string $value): void
+    {
+        $this->attributes['name'] = $value;
     }
 }
