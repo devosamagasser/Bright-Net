@@ -112,11 +112,11 @@ class ReplaceQuotationProductUseCase
 
     private function assertAccessoryIsOptionalForProduct(Product $product, Product $accessory, AccessoryType $type): void
     {
-        if ($type !== AccessoryType::OPTIONAL) {
-            throw ValidationException::withMessages([
-                'accessories.*.accessory_type' => trans('apiMessages.forbidden'),
-            ]);
-        }
+        // if ($type !== AccessoryType::OPTIONAL) {
+        //     throw ValidationException::withMessages([
+        //         'accessories.*.accessory_type' => trans('apiMessages.forbidden'),
+        //     ]);
+        // }
 
         $linkedAccessory = $product->accessories
             ->first(static function (ProductAccessory $definition) use ($accessory): bool {

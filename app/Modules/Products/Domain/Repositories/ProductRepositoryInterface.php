@@ -39,4 +39,6 @@ interface ProductRepositoryInterface
         AccessoryType $type,
         ?int $quantity = null
     ): ProductAccessory;
+
+    public function findAccessoryOfProduct(int $product, int $accessoryId): ?ProductAccessory;
 }

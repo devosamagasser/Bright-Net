@@ -331,4 +331,16 @@ class EloquentProductRepository implements ProductRepositoryInterface
             }
         }
     }
+
+    public function findAccessoryOfProduct(int $product_id, int $accessory_id): ?ProductAccessory
+    {
+        return ProductAccessory::query()
+            ->with([
+                'product',
+                'accessory',
+            ])
+        ->where('product_id', $product_id)
+        ->where('accessory_id', $accessory_id)
+        ->first();
+    }
 }

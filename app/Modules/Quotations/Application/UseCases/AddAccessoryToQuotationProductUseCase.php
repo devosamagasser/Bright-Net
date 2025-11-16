@@ -91,11 +91,11 @@ class AddAccessoryToQuotationProductUseCase
 
     private function assertAccessoryIsOptionalForProduct(Product $product, Product $accessory, AccessoryType $type): void
     {
-        if ($type !== AccessoryType::OPTIONAL) {
-            throw ValidationException::withMessages([
-                'accessory_type' => trans('apiMessages.forbidden'),
-            ]);
-        }
+        // if ($type !== AccessoryType::OPTIONAL) {
+        //     throw ValidationException::withMessages([
+        //         'accessory_type' => trans('apiMessages.forbidden'),
+        //     ]);
+        // }
 
         $linkedAccessory = $product->accessories
             ->first(static function (ProductAccessory $definition) use ($accessory): bool {
