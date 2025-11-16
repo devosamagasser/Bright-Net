@@ -6,7 +6,9 @@ use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Model;
 use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Modules\DataSheets\Domain\ValueObjects\DataFieldType;
+use App\Modules\DataSheets\Domain\Models\DependedField;
 
 class DataField extends Model
 {
@@ -50,6 +52,7 @@ class DataField extends Model
      */
     protected $with = [
         'translations',
+        'dependencies',
     ];
 
     /**
@@ -58,6 +61,11 @@ class DataField extends Model
     public function template(): BelongsTo
     {
         return $this->belongsTo(DataTemplate::class, 'data_template_id');
+    }
+
+    public function dependencies(): HasMany
+    {
+        return $this->hasMany(DependedField::class)->with('dependsOnField');
     }
 
     public static function booted(): void

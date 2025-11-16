@@ -22,6 +22,10 @@ class FamilyValueData
         /** @var DataField|null $field */
         $field = $familyFieldValue->field;
 
+        if ($field) {
+            $field->loadMissing('dependencies.dependsOnField');
+        }
+
         return new self(
             field: $field ? self::fieldSummary($field) : [],
             value: $field ? self::normalizeValue($familyFieldValue->value, $field->type) : $familyFieldValue->value,
@@ -33,8 +37,20 @@ class FamilyValueData
      */
     private static function fieldSummary(DataField $field): array
     {
+        $dependencies = $field->dependencies->map(function ($dependency) {
+            return [
+                'id' => $dependency->getKey(),
+                'depends_on_field_id' => $dependency->depends_on_field_id,
+                'depends_on_field_name' => $dependency->dependsOnField?->name,
+                'values' => $dependency->values ?? [],
+            ];
+        })->values();
+
+        $primaryDependency = $field->dependencies->first();
+
         return [
             'id' => $field->getKey(),
+            'slug' => $field->slug ?? null,
             'position' => $field->position,
             'label' => $field->label,
             'type' => $field->type->value,
@@ -43,6 +59,10 @@ class FamilyValueData
             'is_required' => $field->is_required,
             'is_filterable' => $field->is_filterable,
             'options' => $field->options ?? [],
+            'is_dependent' => $dependencies->isNotEmpty(),
+            'depends_on_field_name' => $primaryDependency?->dependsOnField?->name,
+            'depends_on_values' => $primaryDependency ? array_values($primaryDependency->values ?? []) : [],
+            'dependencies' => $dependencies->all(),
         ];
     }
 
