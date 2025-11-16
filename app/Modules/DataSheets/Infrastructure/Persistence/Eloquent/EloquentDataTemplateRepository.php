@@ -6,7 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Modules\Shared\Support\Traits\HandlesTranslations;
 use App\Modules\DataSheets\Domain\Models\{DataField, DataTemplate};
-use App\Modules\DataSheets\Application\DTOs\{DataFieldInput, DependedFieldInput};
+use App\Modules\DataSheets\Application\DTOs\DataFieldInput;
 use App\Modules\DataSheets\Domain\Repositories\DataTemplateRepositoryInterface;
 use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 
@@ -37,18 +37,16 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
 
                 $this->fillTranslations($field, $fieldInput->translations);
                 $field->save();
-
-                $this->syncFieldDependencies($field, $fieldInput->dependencies);
             }
 
-            return $template->load(['fields.dependencies.dependsOnField']);
+            return $template->load(['fields']);
         });
     }
 
     public function find(int $id, ?DataTemplateType $type = null): ?DataTemplate
     {
         $query = DataTemplate::query()
-            ->with(['fields.dependencies.dependsOnField'])
+            ->with(['fields'])
             ->whereKey($id);
 
         if ($type) {
@@ -61,7 +59,7 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
     public function getBySubcategory(int $subcategoryId, ?DataTemplateType $type = null): Collection
     {
         return DataTemplate::query()
-            ->with(['fields.dependencies.dependsOnField'])
+            ->with(['fields'])
             ->where('subcategory_id', $subcategoryId)
             ->latest('id')
             ->when($type, fn ($query) =>
@@ -72,7 +70,7 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
     public function findBySubcategoryAndType(int $subcategoryId, DataTemplateType $type): ?DataTemplate
     {
         return DataTemplate::query()
-            ->with(['fields.dependencies.dependsOnField'])
+            ->with(['fields'])
             ->where('subcategory_id', $subcategoryId)
             ->where('type', $type->value)
             ->first();
@@ -101,8 +99,6 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
                     $this->fillTranslations($field, $fieldInput->translations);
                     $field->save();
 
-                    $this->syncFieldDependencies($field, $fieldInput->dependencies);
-
                     $retainedFieldIds[] = $field->getKey();
                     continue;
                 }
@@ -111,8 +107,6 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
                 $field->fill($fieldAttributes);
                 $this->fillTranslations($field, $fieldInput->translations);
                 $field->save();
-
-                $this->syncFieldDependencies($field, $fieldInput->dependencies);
 
                 $retainedFieldIds[] = $field->getKey();
             }
@@ -124,7 +118,7 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
 
             $fieldsQuery->get()->each->delete();
 
-            return $template->load(['fields.dependencies.dependsOnField']);
+            return $template->load(['fields']);
         });
     }
 
@@ -133,40 +127,5 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
         DB::transaction(static function () use ($template): void {
             $template->delete();
         });
-}
-
-    /**
-     * @param  array<int, DependedFieldInput>  $dependencies
-     */
-    private function syncFieldDependencies(DataField $field, array $dependencies): void
-    {
-        $existing = $field->dependencies()->get()->keyBy('id');
-        $retained = [];
-
-        foreach ($dependencies as $dependencyInput) {
-            $attributes = [
-                'data_field_id' => $field->getKey(),
-                'depends_on_field_id' => $dependencyInput->dependsOnFieldId,
-                'values' => $dependencyInput->values,
-            ];
-
-            if ($dependencyInput->id && $existing->has($dependencyInput->id)) {
-                $dependency = $existing->get($dependencyInput->id);
-                $dependency->fill($attributes);
-                $dependency->save();
-
-                $retained[] = $dependency->getKey();
-                continue;
-            }
-
-            $dependency = $field->dependencies()->create($attributes);
-            $retained[] = $dependency->getKey();
-        }
-
-        if (! empty($retained)) {
-            $field->dependencies()->whereNotIn('id', $retained)->delete();
-        } else {
-            $field->dependencies()->delete();
-        }
     }
 }

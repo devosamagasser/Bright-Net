@@ -99,72 +99,6 @@ class FamilyManagementTest extends TestCase
         $response->assertJsonValidationErrors(['values.model_number']);
     }
 
-    public function test_required_fields_respect_dependencies(): void
-    {
-        $subcategory = $this->createSubcategory();
-        $template = $this->createTemplateWithConditionalFields($subcategory);
-        $supplier = $this->createSupplier();
-        $this->authenticateSupplier($supplier);
-
-        $basePayload = [
-            'subcategory_id' => $subcategory->getKey(),
-            'supplier_id' => $supplier->getKey(),
-            'data_template_id' => $template->getKey(),
-        ];
-
-        $roundResponse = $this->postJson('/api/families', $basePayload + [
-            'translations' => [
-                'en' => ['name' => 'Round Shape Family'],
-            ],
-            'values' => [
-                'shape' => 'Round',
-            ],
-        ]);
-
-        $roundResponse->assertStatus(Response::HTTP_CREATED);
-
-        $linearResponse = $this->postJson('/api/families', $basePayload + [
-            'translations' => [
-                'en' => ['name' => 'Linear Shape Family'],
-            ],
-            'values' => [
-                'shape' => 'Linear',
-            ],
-        ]);
-
-        $linearResponse->assertStatus(Response::HTTP_UNPROCESSABLE_ENTITY);
-        $linearResponse->assertJsonValidationErrors(['values.length']);
-    }
-
-    public function test_family_values_include_dependency_metadata(): void
-    {
-        $subcategory = $this->createSubcategory();
-        $template = $this->createTemplateWithConditionalFields($subcategory);
-        $supplier = $this->createSupplier();
-        $this->authenticateSupplier($supplier);
-
-        $response = $this->postJson('/api/families', [
-            'subcategory_id' => $subcategory->getKey(),
-            'supplier_id' => $supplier->getKey(),
-            'data_template_id' => $template->getKey(),
-            'translations' => [
-                'en' => [
-                    'name' => 'Conditional Family',
-                ],
-            ],
-            'values' => [
-                'shape' => 'Linear',
-                'length' => '120',
-            ],
-        ]);
-
-        $response->assertStatus(Response::HTTP_CREATED);
-        $response->assertJsonPath('data.values.0.field.is_dependent', false);
-        $response->assertJsonPath('data.values.1.field.is_dependent', true);
-        $response->assertJsonPath('data.values.1.field.depends_on_field_name', 'shape');
-        $response->assertJsonPath('data.values.1.field.depends_on_values', ['Linear']);
-    }
-
     public function test_supplier_can_update_family_values(): void
     {
         $subcategory = $this->createSubcategory();
@@ -359,55 +293,6 @@ class FamilyManagementTest extends TestCase
         ]);
 
         return $template->refresh()->load('fields');
-    }
-
-    private function createTemplateWithConditionalFields(Subcategory $subcategory): DataTemplate
-    {
-        $template = new DataTemplate([
-            'subcategory_id' => $subcategory->getKey(),
-            'type' => DataTemplateType::FAMILY,
-        ]);
-        $template->save();
-        $template->translations()->create([
-            'locale' => 'en',
-            'name' => 'Shape Conditional Template',
-        ]);
-
-        $shapeField = new DataField([
-            'data_template_id' => $template->getKey(),
-            'slug' => 'shape',
-            'type' => DataFieldType::SELECT,
-            'options' => ['Linear', 'Round'],
-            'is_required' => true,
-            'position' => 1,
-        ]);
-        $shapeField->save();
-        $shapeField->translations()->create([
-            'locale' => 'en',
-            'label' => 'Shape',
-        ]);
-        $shapeField->forceFill(['name' => 'shape'])->saveQuietly();
-
-        $lengthField = new DataField([
-            'data_template_id' => $template->getKey(),
-            'slug' => 'length',
-            'type' => DataFieldType::NUMBER,
-            'is_required' => true,
-            'position' => 2,
-        ]);
-        $lengthField->save();
-        $lengthField->translations()->create([
-            'locale' => 'en',
-            'label' => 'Length',
-        ]);
-        $lengthField->forceFill(['name' => 'length'])->saveQuietly();
-
-        $lengthField->dependencies()->create([
-            'depends_on_field_id' => $shapeField->getKey(),
-            'values' => ['Linear'],
-        ]);
-
-        return $template->refresh()->load('fields.dependencies.dependsOnField');
     }
 
     private function createSupplier(string $email = null): Supplier

@@ -21,11 +21,7 @@ class FamilyData
 
     public static function fromModel(Family $family): self
     {
-        $family->loadMissing(
-            'translations',
-            'fieldValues.field.translations',
-            'fieldValues.field.dependencies.dependsOnField'
-        );
+        $family->loadMissing('translations', 'fieldValues.field.translations');
 
         return new self(
             attributes: [

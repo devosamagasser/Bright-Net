@@ -22,8 +22,6 @@ class DataTemplateData
 
     public static function fromModel(DataTemplate $template): self
     {
-        $template->loadMissing('fields.dependencies.dependsOnField');
-
         return new self(
             attributes: [
                 'id' => $template->getKey(),
