@@ -1,8 +1,8 @@
 <?php
 namespace App\Modules\DataSheets\Domain\Models;
 
+
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class DependedField extends Model
 {
@@ -14,12 +14,11 @@ class DependedField extends Model
     protected $casts = [
         'values' => 'array',
     ];
-    public function dataField(): BelongsTo
+    public function dataField()
     {
         return $this->belongsTo(DataField::class, 'data_field_id');
     }
-
-    public function dependsOnField(): BelongsTo
+    public function dependsOnField()
     {
         return $this->belongsTo(DataField::class, 'depends_on_field_id');
     }

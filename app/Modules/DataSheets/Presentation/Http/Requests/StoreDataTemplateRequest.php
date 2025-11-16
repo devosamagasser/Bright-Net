@@ -43,11 +43,6 @@ class StoreDataTemplateRequest extends FormRequest
             'fields.*.translations' => ['required', 'array', 'min:1'],
             'fields.*.translations.*.label' => ['required', 'string', 'min:1', 'max:255'],
             'fields.*.translations.*.placeholder' => ['nullable', 'string', 'max:255'],
-            'fields.*.dependencies' => ['sometimes', 'array'],
-            'fields.*.dependencies.*.id' => ['sometimes', 'integer', 'exists:depended_fields,id'],
-            'fields.*.dependencies.*.depends_on_field_id' => ['required', 'integer', 'exists:data_fields,id'],
-            'fields.*.dependencies.*.values' => ['required', 'array', 'min:1'],
-            'fields.*.dependencies.*.values.*' => ['nullable'],
         ];
     }
 
