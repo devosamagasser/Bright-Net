@@ -118,9 +118,12 @@ class DataTemplateCreationTest extends TestCase
         $response = $this->postJson(route('api.data-templates.store'), $payload);
 
         $response->assertStatus(Response::HTTP_CREATED);
-        $response->assertJsonPath('data.fields.1.is_depended', true);
-        $response->assertJsonPath('data.fields.1.depends_on_field', 'shape');
-        $response->assertJsonPath('data.fields.1.depends_on_values', ['Linear', 'Rectangular']);
+        $response->assertJsonPath('data.fields.0.name', 'shape');
+        $response->assertJsonPath('data.fields.0.has_dependencies', true);
+        $response->assertJsonPath('data.fields.0.dependencies.0.value', 'Linear');
+        $response->assertJsonPath('data.fields.0.dependencies.0.fields.0.name', 'product_dimensions');
+        $response->assertJsonPath('data.fields.0.dependencies.1.value', 'Rectangular');
+        $response->assertJsonPath('data.fields.0.dependencies.1.fields.0.name', 'product_dimensions');
 
         $shapeField = DataField::query()->where('name', 'shape')->first();
         $dimensionsField = DataField::query()->where('name', 'product_dimensions')->first();
