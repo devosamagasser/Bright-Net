@@ -23,7 +23,7 @@ class StoreSupplierRequest extends FormRequest
             'name' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string'],
             'logo' => ['nullable', 'image', 'max:5120'],
-            'contact_email' => ['required', 'email', 'max:255'],
+            'contact_email' => ['required', 'email', 'max:255', 'unique:companies,contact_email'],
             'contact_phone' => ['nullable', 'string', 'max:50'],
             'website' => ['nullable', 'url', 'max:255'],
             'solutions' => ['required', 'array', 'min:1'],
@@ -67,7 +67,7 @@ class StoreSupplierRequest extends FormRequest
         return CompanyInput::forType(
             CompanyType::SUPPLIER,
             attributes: Arr::only($validated, [
-                'name', 
+                'name',
                 'description',
                 'contact_email',
                 'contact_phone',
