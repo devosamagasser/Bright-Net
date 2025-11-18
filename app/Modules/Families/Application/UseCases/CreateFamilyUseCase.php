@@ -23,7 +23,7 @@ class CreateFamilyUseCase
             'data_template_id' => $this->templates->findBySubcategoryAndType(
                 $input->attributes['subcategory_id'],
                 DataTemplateType::FAMILY
-            )->id
+            )?->id
         ];
 
         $family = $this->families->create(

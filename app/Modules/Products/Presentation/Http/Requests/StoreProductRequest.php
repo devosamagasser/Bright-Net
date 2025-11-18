@@ -86,7 +86,7 @@ class StoreProductRequest extends FormRequest
             $subcategoryId = Family::find((int) $this->input('family_id'))->subcategory_id;
             $dynamicRules = RequestValidationBuilder::build(
                 $subcategoryId,
-                DataTemplateType::FAMILY
+                DataTemplateType::PRODUCT
             );
 
             if (empty($dynamicRules)) {

@@ -11,7 +11,8 @@ class DependedField extends Model
         'depends_on_field_id',
         'values',
     ];
-    protected $casts = [
+
+    public $casts = [
         'values' => 'array',
     ];
     public function dataField()
