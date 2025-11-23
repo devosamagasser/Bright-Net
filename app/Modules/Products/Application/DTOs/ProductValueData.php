@@ -42,7 +42,9 @@ class ProductValueData
             'placeholder' => $field->placeholder,
             'is_required' => $field->is_required,
             'is_filterable' => $field->is_filterable,
-            'options' => $field->options ?? [],
+            'options' => collect($field->options ?? [])
+                ->map(fn($option) => ['label' => $option, 'value' => $option])
+                ->all(),
         ];
     }
 

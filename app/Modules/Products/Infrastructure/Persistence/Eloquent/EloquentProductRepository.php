@@ -107,6 +107,16 @@ class EloquentProductRepository implements ProductRepositoryInterface
             ->get();
     }
 
+    public function cutPasteProduct(Product $product, int $family_id): Product
+    {
+        return DB::transaction(function () use ($product, $family_id): Product {
+            $product->family_id = $family_id;
+            $product->save();
+
+            return $this->loadAggregates($product);
+        });
+    }
+
     public function attachAccessory(
         Product $product,
         Product $accessory,

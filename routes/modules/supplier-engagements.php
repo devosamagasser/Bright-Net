@@ -65,6 +65,8 @@ Route::prefix('suppliers')
                     ->whereNumber('product');
                 Route::delete('/{product}', [ProductController::class, 'destroy'])
                     ->whereNumber('product');
+                Route::patch('/cut/{product}/paste/', [ProductController::class, 'pasteProducts'])
+                    ->whereNumber('product');
             });
 });
 

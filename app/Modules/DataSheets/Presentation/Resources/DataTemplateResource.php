@@ -37,7 +37,7 @@ class DataTemplateResource extends JsonResource
                 },
                 $this->fields
             ),
-            'fields' => $this->formatFields($includeTranslations),
+            // 'fields' => $this->formatFields($includeTranslations),
         ];
     }
 

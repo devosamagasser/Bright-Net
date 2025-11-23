@@ -5,14 +5,18 @@ namespace App\Modules\Products\Presentation\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Modules\Shared\Support\Helper\ApiResponse;
 use App\Modules\Products\Presentation\Resources\{ProductResource, ProductDataSheetResource};
-use App\Modules\Products\Presentation\Http\Requests\{StoreProductRequest, UpdateProductRequest};
+use App\Modules\Products\Presentation\Http\Requests\{
+    StoreProductRequest,
+    UpdateProductRequest,
+    CutPasteProductRequest
+};
 use App\Modules\Products\Application\UseCases\{
     CreateProductUseCase,
     DeleteProductUseCase,
     ListProductsUseCase,
     ShowProductUseCase,
-    ShowDataSheetUseCase,
     UpdateProductUseCase,
+    CutPasteProductsUseCase
 };
 use App\Modules\Products\Application\DTOs\ProductInput;
 use App\Modules\Products\Domain\Models\Product;
@@ -25,6 +29,7 @@ class ProductController
         private readonly DeleteProductUseCase $deleteProduct,
         private readonly ShowProductUseCase $showProduct,
         private readonly ListProductsUseCase $listProducts,
+        private readonly CutPasteProductsUseCase $cutPasteProducts,
     ) {
     }
 
@@ -89,6 +94,16 @@ class ProductController
         $this->deleteProduct->handle($product);
 
         return ApiResponse::deleted();
+    }
+
+    public function pasteProducts(CutPasteProductRequest $request, Product $product)
+    {
+        $destinationFamilyId = $request->input('family_id');
+        $productData =$this->cutPasteProducts->handle($product, (int) $destinationFamilyId);
+
+        return ApiResponse::updated(
+            ProductResource::make($productData)->resolve()
+        );
     }
 
     private function authenticatedSupplierId(): ?int

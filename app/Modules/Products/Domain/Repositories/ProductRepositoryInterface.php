@@ -41,4 +41,6 @@ interface ProductRepositoryInterface
     ): ProductAccessory;
 
     public function findAccessoryOfProduct(int $product, int $accessoryId): ?ProductAccessory;
+
+    public function cutPasteProduct(Product $product, int $family_id): Product;
 }
