@@ -43,7 +43,7 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
 
             $family->save();
 
-            if ($values !== []) {
+            if ($attributes['data_template_id'] == null || $values !== []) {
                 $this->syncFieldValues($family, $values);
             }
 

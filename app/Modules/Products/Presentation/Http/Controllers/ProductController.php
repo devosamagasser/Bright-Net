@@ -2,6 +2,7 @@
 
 namespace App\Modules\Products\Presentation\Http\Controllers;
 
+use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
 use Illuminate\Http\Request;
 use App\Modules\Shared\Support\Helper\ApiResponse;
 use App\Modules\Products\Presentation\Resources\{ProductResource, ProductDataSheetResource};
@@ -16,11 +17,14 @@ use App\Modules\Products\Application\UseCases\{
     ListProductsUseCase,
     ShowProductUseCase,
     UpdateProductUseCase,
-    CutPasteProductsUseCase
+    CutPasteProductsUseCase,
+    ProductExportUseCase,
+    ProductImportUseCase
 };
 use App\Modules\Products\Application\DTOs\ProductInput;
 use App\Modules\Products\Domain\Models\Product;
-
+use App\Modules\Families\Domain\Models\Family;
+use Maatwebsite\Excel\Facades\Excel;
 class ProductController
 {
     public function __construct(
@@ -96,7 +100,7 @@ class ProductController
         return ApiResponse::deleted();
     }
 
-    public function pasteProducts(CutPasteProductRequest $request, Product $product)
+    public function paste(CutPasteProductRequest $request, Product $product)
     {
         $destinationFamilyId = $request->input('family_id');
         $productData =$this->cutPasteProducts->handle($product, (int) $destinationFamilyId);
@@ -104,6 +108,25 @@ class ProductController
         return ApiResponse::updated(
             ProductResource::make($productData)->resolve()
         );
+    }
+
+    public function export(Family $family)
+    {
+        return Excel::download(new ProductExportUseCase(), $family->name.'\'s_products_template.xlsx');
+    }
+
+    public function import(Request $request, Family $family, ProductRepositoryInterface $productRepositoryInterface)
+    {
+        $file = $request->file('file');
+        Excel::import(
+            new ProductImportUseCase(
+                $family,
+                $productRepositoryInterface
+            ),
+            $file
+        );
+
+        return ApiResponse::message('Products imported successfully');
     }
 
     private function authenticatedSupplierId(): ?int

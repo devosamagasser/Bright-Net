@@ -49,8 +49,12 @@ Route::prefix('suppliers')
             ->group(function (): void {
                 Route::post('/', [FamilyController::class, 'store']);
                 Route::get('/{family}', [FamilyController::class, 'show']);
+                Route::get('/download/template', [FamilyController::class, 'export']);
                 Route::put('/{family}', [FamilyController::class, 'update']);
                 Route::delete('/{family}', [FamilyController::class, 'destroy']);
+                Route::post('/upload/{subcategory}', [FamilyController::class, 'import'])
+                    ->whereNumber('subcategory');
+
             });
 
 
@@ -61,12 +65,16 @@ Route::prefix('suppliers')
                     ->whereNumber('product');
                 Route::get('/{product}/data-sheet', [ProductController::class, 'showDataSheet'])
                     ->whereNumber('product');
+                Route::get('/download/{family}/template', [ProductController::class, 'export'])
+                    ->whereNumber('family');
                 Route::put('/{product}', [ProductController::class, 'update'])
                     ->whereNumber('product');
                 Route::delete('/{product}', [ProductController::class, 'destroy'])
                     ->whereNumber('product');
-                Route::patch('/cut/{product}/paste/', [ProductController::class, 'pasteProducts'])
+                Route::patch('/cut/{product}/paste/', [ProductController::class, 'paste'])
                     ->whereNumber('product');
+                Route::post('/upload/{family}', [ProductController::class, 'import'])
+                    ->whereNumber('family');
+                });
             });
-});
 

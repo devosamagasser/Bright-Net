@@ -20,7 +20,6 @@ class UpdateFamilyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'subcategory_id' => ['sometimes', 'integer', 'exists:subcategories,id'],
             'name' => ['required', 'string', 'min:1', 'max:255'],
             'image' => ['nullable', 'image'],
             'translations' => ['sometimes', 'array'],
@@ -39,7 +38,7 @@ class UpdateFamilyRequest extends FormRequest
             }
 
 
-            $subcategoryId = (int) $this->input('subcategory_id');
+            $subcategoryId = (int) $this->route('family')->subcategory_id;
             $dynamicRules = RequestValidationBuilder::build(
                 $subcategoryId,
                 DataTemplateType::FAMILY

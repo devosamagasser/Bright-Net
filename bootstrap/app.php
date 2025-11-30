@@ -42,9 +42,9 @@ return Application::configure(basePath: dirname(__DIR__))
             return ApiResponse::forbidden();
         });
 
-        $exceptions->render(function (NotFoundHttpException | ModelNotFoundException $e, $request) {
-            return ApiResponse::notFound();
-        });
+        // $exceptions->render(function (NotFoundHttpException | ModelNotFoundException $e, $request) {
+        //     return ApiResponse::notFound();
+        // });
 
         $exceptions->render(function (\DomainException $e, $request){
             return ApiResponse::message($e->getMessage(), 400);

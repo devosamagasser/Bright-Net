@@ -2,20 +2,27 @@
 
 namespace App\Modules\Families\Presentation\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Modules\Families\Application\UseCases\FamilyImportUseCase;
 use App\Modules\Shared\Support\Helper\ApiResponse;
 use App\Modules\Families\Presentation\Resources\FamilyResource;
-use App\Modules\Families\Presentation\Http\Requests\{StoreFamilyRequest, UpdateFamilyRequest};
+use App\Modules\Families\Presentation\Http\Requests\{
+    StoreFamilyRequest,
+    UpdateFamilyRequest,
+};
 use App\Modules\Families\Application\UseCases\{
     CreateFamilyUseCase,
     DeleteFamilyUseCase,
     ListFamiliesUseCase,
     ShowFamilyUseCase,
     UpdateFamilyUseCase,
+    FamilyExportUseCase
 };
 use App\Modules\Families\Application\DTOs\FamilyInput;
 use App\Modules\Families\Domain\Models\Family;
-
+use App\Modules\Subcategories\Domain\Models\Subcategory;
+use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Http\Request;
+use App\Modules\Families\Domain\Repositories\FamilyRepositoryInterface;
 class FamilyController
 {
     public function __construct(
@@ -82,4 +89,29 @@ class FamilyController
 
         return ApiResponse::deleted();
     }
+
+    public function export()
+    {
+        return Excel::download(new FamilyExportUseCase, 'families_template.xlsx');
+    }
+
+    public function import(Request $request,Subcategory $subcategory, FamilyRepositoryInterface $repo)
+    {
+        $supplier_id = auth()->user()->company->supplier->id;
+        Excel::import(
+            new FamilyImportUseCase(
+                $supplier_id,
+                $subcategory->id,
+                $repo
+            ),
+            $request->file('file')
+        );
+
+        return ApiResponse::message('Families imported successfully');
+    }
+
+    
+
+
 }
+
