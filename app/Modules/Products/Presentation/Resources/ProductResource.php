@@ -4,6 +4,7 @@ namespace App\Modules\Products\Presentation\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Modules\Products\Application\DTOs\{ProductValueData, ProductPriceData};
+use RecursiveDirectoryIterator;
 
 class ProductResource extends JsonResource
 {
@@ -13,6 +14,9 @@ class ProductResource extends JsonResource
      */
     public function toArray($request): array
     {
+
+        $hide = $request->is('*/families/*/products') && $request->isMethod('GET');
+
         return [
             'id' => $this->attributes['id'] ?? null,
             // 'roots' => $this->roots,
@@ -30,13 +34,20 @@ class ProductResource extends JsonResource
             'translations' => $this->when(
                 $request->is('*/products/*') && $request->method() === 'GET',
              fn() => $this->translations ?? []),
-            'values' => array_map(
-                static fn (ProductValueData $value) => [
-                    'field' => $value->field,
-                    'value' => $value->value,
-                ],
+            'values' => array_values(array_filter(array_map(
+                static function (ProductValueData $value) use ($hide) {
+
+                    if ($hide && !$value->field->is_filterable) {
+                        return null;
+                    }
+
+                    return [
+                        'field' => $value->field,
+                        'value' => $value->value,
+                    ];
+                },
                 $this->values
-            ),
+            ))),
             'prices' => array_map(
                 static fn (ProductPriceData $price) => $price->attributes,
                 $this->prices
