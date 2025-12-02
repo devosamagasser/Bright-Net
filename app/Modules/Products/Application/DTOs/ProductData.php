@@ -166,9 +166,11 @@ class ProductData
             ],
             'subcategory' => [
                 'name' => $product->family->subcategory->name,
+                'id' => $product->family->subcategory->id,
             ],
             'family' => [
                 'name' => $product->family->name,
+                'id' => $product->family->id,
             ],
         ];
     }
