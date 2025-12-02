@@ -25,7 +25,7 @@ class ProductData
         public readonly array $prices,
         public readonly array $accessories,
         // public readonly array $colors,
-        public readonly array $roots,
+        // public readonly array $roots,
         public readonly array $media,
     ) {
     }
