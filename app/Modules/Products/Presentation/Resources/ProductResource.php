@@ -37,7 +37,7 @@ class ProductResource extends JsonResource
             'values' => array_values(array_filter(array_map(
                 static function (ProductValueData $value) use ($hide) {
 
-                    if ($hide && !$value->field->is_filterable) {
+                    if ($hide && !$value->field['is_filterable']) {
                         return null;
                     }
 
