@@ -4,8 +4,9 @@ namespace App\Modules\Brands\Presentation\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
-use App\Modules\Brands\Application\DTOs\BrandInput;
+use App\Modules\Brands\Domain\Models\Brand;
 use App\Modules\Shared\Support\Helper\ApiResponse;
+use App\Modules\Brands\Application\DTOs\BrandInput;
 use App\Modules\Brands\Presentation\Resources\BrandResource;
 use App\Modules\Brands\Presentation\Http\Requests\{StoreBrandRequest, UpdateBrandRequest};
 use App\Modules\Brands\Application\UseCases\{CreateBrandUseCase, DeleteBrandUseCase, ListBrandsUseCase, ShowBrandUseCase, UpdateBrandUseCase};
@@ -63,15 +64,17 @@ class BrandController
         );
     }
 
-    public function updateAvatar(Request $request, int $brand)
+    public function updateAvatar(Request $request, Brand $brand)
     {
         $request->validate([
-            'avatar' => ['required', 'image', 'max:2048'], // max 2MB
+            'logo' => ['required', 'image', 'max:2048'], // max 2MB
         ]);
-        // return ApiResponse::success(
-        //     BrandResource::make(),
-        //     __('apiMessages.updated')
-        // );
+
+        $brand->clearMediaCollection('logo');
+        $brand->addMediaFromRequest('logo')->toMediaCollection('logo');
+        return ApiResponse::updated(
+            message:__('apiMessages.updated')
+        );
     }
 
     public function destroy(int $brand)
