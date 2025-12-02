@@ -63,6 +63,17 @@ class BrandController
         );
     }
 
+    public function updateAvatar(Request $request, int $brand)
+    {
+        $request->validate([
+            'avatar' => ['required', 'image', 'max:2048'], // max 2MB
+        ]);
+        // return ApiResponse::success(
+        //     BrandResource::make(),
+        //     __('apiMessages.updated')
+        // );
+    }
+
     public function destroy(int $brand)
     {
         $this->deleteBrand->handle($brand);

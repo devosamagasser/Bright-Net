@@ -86,7 +86,6 @@ class ProductData
             //     })
             //     ->values()
             //     ->all(),
-            roots: self::serializeRoots($product),
             media: [
                 'gallery' => self::serializeMedia($product, 'gallery'),
                 'documents' => self::serializeMedia($product, 'documents'),
@@ -99,9 +98,12 @@ class ProductData
      * @param  Collection<int, Product>  $products
      * @return Collection<int, self>
      */
-    public static function collection(Collection $products): Collection
+    public static function collection(Collection $products, array $roots): Collection
     {
-        return $products->map(static fn (Product $product) => self::fromModel($product));
+        return collect([
+            'products' => $products->map(fn(Product $product) => self::fromModel($product)),
+            'roots' => $roots,
+        ]);
     }
 
     /**
@@ -120,61 +122,5 @@ class ProductData
             ->values()
             ->all();
     }
-
-    public static function serializeRoots($product): array
-    {
-        $supplierId = $product->family->supplier_id;
-        $departmentId = $product->family->subcategory->department_id;
-        $locale = app()->getLocale();
-
-        $data = DB::table('brands')
-            ->join('supplier_brands', 'brands.id', '=', 'supplier_brands.brand_id')
-            ->join('supplier_solutions', 'supplier_brands.supplier_solution_id', '=', 'supplier_solutions.id')
-            ->join('supplier_departments', 'supplier_brands.id', '=', 'supplier_departments.supplier_brand_id')
-            ->join('solutions', 'solutions.id', '=', 'supplier_solutions.solution_id')
-            ->join('departments', 'departments.id', '=', 'supplier_departments.department_id')
-            ->leftJoin('solution_translations', function ($join) use ($locale) {
-                $join->on('solutions.id', '=', 'solution_translations.solution_id')
-                    ->where('solution_translations.locale', '=', $locale);
-            })
-            ->leftJoin('department_translations', function ($join) use ($locale) {
-                $join->on('departments.id', '=', 'department_translations.department_id')
-                    ->where('department_translations.locale', '=', $locale);
-            })
-            ->where('supplier_solutions.supplier_id', $supplierId)
-            ->where('supplier_departments.department_id', $departmentId)
-            ->select([
-                'brands.id as brand_id',
-                'brands.name as brand_name',
-                'departments.id as department_id',
-                'solutions.id as solution_id',
-                // ✅ استخدمنا فقط الترجمة
-                'department_translations.name as department_name',
-                'solution_translations.name as solution_name',
-            ])
-            ->first();
-
-        return [
-            'brand' => [
-                'name' => $data->brand_name ?? null,
-            ],
-            'department' => [
-                'name' => $data->department_name ?? null,
-            ],
-            'solution' => [
-                'name' => $data->solution_name ?? null,
-            ],
-            'subcategory' => [
-                'name' => $product->family->subcategory->name,
-                'id' => $product->family->subcategory->id,
-            ],
-            'family' => [
-                'name' => $product->family->name,
-                'id' => $product->family->id,
-            ],
-        ];
-    }
-
-
 
 }

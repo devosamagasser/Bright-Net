@@ -40,11 +40,14 @@ class ProductController
     public function index(Request $request, int $family)
     {
         $supplierId = $this->authenticatedSupplierId() ?? $request->query('supplier_id');
-        $products = $this->listProducts->handle($family, $supplierId !== null ? (int) $supplierId : null);
-        return ApiResponse::success(
-            ProductResource::collection($products)->resolve()
-        );
+        $data = $this->listProducts->handle($family, $supplierId !== null ? (int) $supplierId : null);
+        $collection = ProductResource::collection($data['products'])
+            ->additional(['roots' => $data['roots']])
+            ->response()
+            ->getData(true);
+        return ApiResponse::success($collection);
     }
+
 
     public function store(StoreProductRequest $request)
     {

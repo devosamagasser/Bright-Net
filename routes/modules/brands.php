@@ -14,6 +14,9 @@ Route::prefix('brands')
         Route::put('{brand}', [BrandController::class, 'update'])
             ->whereNumber('brand')
             ->name('update');
+        Route::patch('{brand}', [BrandController::class, 'updateAvatar'])
+            ->whereNumber('brand')
+            ->name('updateAvatar');
         Route::delete('{brand}', [BrandController::class, 'destroy'])
             ->whereNumber('brand')
             ->name('destroy');
