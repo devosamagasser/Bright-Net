@@ -29,7 +29,7 @@ class FamilyData
                 'subcategory_id' => (int) $family->subcategory_id,
                 'supplier_id' => (int) $family->supplier_id,
                 'data_template_id' => (int) $family->data_template_id,
-                'image' => $family->getFirstMediaUrl('image') ?: null,
+                'image' => $family->getFirstMediaUrl('images') ?: null,
                 'name' => $family->name,
                 'created_at' => $family->created_at?->toISOString(),
                 'updated_at' => $family->updated_at?->toISOString(),
