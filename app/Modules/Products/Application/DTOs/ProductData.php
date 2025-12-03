@@ -3,6 +3,7 @@
 namespace App\Modules\Products\Application\DTOs;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use App\Modules\Families\Domain\Models\Family;
 use App\Modules\Products\Domain\Models\Product;
 
