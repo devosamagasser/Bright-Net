@@ -65,7 +65,7 @@ class Product extends Model implements HasMedia
         $this->addMediaCollection('gallery');
         $this->addMediaCollection('documents');
         $this->addMediaCollection('dimensions');
-        $this->addMediaCollection('consultant_approvals')
+        $this->addMediaCollection('consultant_approvals');
     }
 
     public function family(): BelongsTo
