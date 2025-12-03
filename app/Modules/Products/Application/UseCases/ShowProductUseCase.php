@@ -12,7 +12,7 @@ class ShowProductUseCase
     {
     }
 
-    public function handle(int $productId): ProductData
+    public function handle(int $productId)
     {
         $product = $this->products->find($productId);
 

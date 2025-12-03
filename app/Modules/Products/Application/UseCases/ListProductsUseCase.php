@@ -20,8 +20,8 @@ class ListProductsUseCase
     public function handle(int $familyId, ?int $supplierId = null): Collection
     {
         $products = $this->products->getByFamily($familyId, $supplierId);
-        $roots = $this->serializeRoots(Family::find($familyId));
-        return ProductData::collection($products, $roots);
+        $family = Family::find($familyId);
+        return ProductData::collection($products, $family);
     }
 
 

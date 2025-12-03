@@ -3,8 +3,7 @@
 namespace App\Modules\Products\Application\DTOs;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
-use App\Modules\Brands\Domain\Models\Brand;
+use App\Modules\Families\Domain\Models\Family;
 use App\Modules\Products\Domain\Models\Product;
 
 class ProductData
@@ -25,12 +24,11 @@ class ProductData
         public readonly array $prices,
         public readonly array $accessories,
         // public readonly array $colors,
-        // public readonly array $roots,
         public readonly array $media,
     ) {
     }
 
-    public static function fromModel(Product $product): self
+    public static function fromModel(Product $product)
     {
         $product->loadMissing([
             'fieldValues.field.translations',
@@ -39,8 +37,7 @@ class ProductData
             'family.subcategory.department',
             'family.supplier',
         ]);
-
-        return new self(
+        $product = new self(
             attributes: [
                 'id' => (int) $product->getKey(),
                 'family_id' => (int) $product->family_id,
@@ -93,17 +90,22 @@ class ProductData
                 'consultant_approvals' => self::serializeMedia($product, 'consultant_approvals'),
             ],
         );
+
+        return collect([
+            'products' => $product,
+            'roots' => self::serializeRoots($product->family),
+        ]);
     }
 
     /**
      * @param  Collection<int, Product>  $products
      * @return Collection<int, self>
      */
-    public static function collection(Collection $products, array $roots): Collection
+    public static function collection(Collection $products, Family $family): Collection
     {
         return collect([
             'products' => $products->map(fn(Product $product) => self::fromModel($product)),
-            'roots' => $roots,
+            'roots' => self::serializeRoots($family),
         ]);
     }
 
@@ -124,4 +126,60 @@ class ProductData
             ->all();
     }
 
+    public static function serializeRoots($family): array
+    {
+        if(! $family) {
+            return [];
+        }
+        $supplierId = $family->supplier_id;
+        $departmentId = $family->subcategory->department_id;
+        $locale = app()->getLocale();
+
+        $data = DB::table('brands')
+            ->join('supplier_brands', 'brands.id', '=', 'supplier_brands.brand_id')
+            ->join('supplier_solutions', 'supplier_brands.supplier_solution_id', '=', 'supplier_solutions.id')
+            ->join('supplier_departments', 'supplier_brands.id', '=', 'supplier_departments.supplier_brand_id')
+            ->join('solutions', 'solutions.id', '=', 'supplier_solutions.solution_id')
+            ->join('departments', 'departments.id', '=', 'supplier_departments.department_id')
+            ->leftJoin('solution_translations', function ($join) use ($locale) {
+                $join->on('solutions.id', '=', 'solution_translations.solution_id')
+                    ->where('solution_translations.locale', '=', $locale);
+            })
+            ->leftJoin('department_translations', function ($join) use ($locale) {
+                $join->on('departments.id', '=', 'department_translations.department_id')
+                    ->where('department_translations.locale', '=', $locale);
+            })
+            ->where('supplier_solutions.supplier_id', $supplierId)
+            ->where('supplier_departments.department_id', $departmentId)
+            ->select([
+                'brands.id as brand_id',
+                'brands.name as brand_name',
+                'departments.id as department_id',
+                'solutions.id as solution_id',
+                // ✅ استخدمنا فقط الترجمة
+                'department_translations.name as department_name',
+                'solution_translations.name as solution_name',
+            ])
+            ->first();
+
+        return [
+            'brand' => [
+                'name' => $data->brand_name ?? null,
+            ],
+            'department' => [
+                'name' => $data->department_name ?? null,
+            ],
+            'solution' => [
+                'name' => $data->solution_name ?? null,
+            ],
+            'subcategory' => [
+                'name' => $family->subcategory->name,
+                'id' => $family->subcategory->id,
+            ],
+            'family' => [
+                'name' => $family->name,
+                'id' => $family->id,
+            ],
+        ];
+    }
 }
