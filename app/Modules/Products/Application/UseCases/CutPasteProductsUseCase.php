@@ -15,7 +15,7 @@ class CutPasteProductsUseCase
     ) {
     }
 
-    public function handle(Product $product, int $family_id): ProductData
+    public function handle(Product $product, int $family_id)
     {
 
         $family = $this->requireFamily((int) ($family_id ?? 0));

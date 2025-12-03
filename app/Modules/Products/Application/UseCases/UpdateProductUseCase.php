@@ -19,7 +19,7 @@ class UpdateProductUseCase
     ) {
     }
 
-    public function handle(Product $product, ProductInput $input): ProductData
+    public function handle(Product $product, ProductInput $input)
     {
         $attributes = $input->attributes;
 

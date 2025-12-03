@@ -18,7 +18,7 @@ class CreateProductUseCase
     ) {
     }
 
-    public function handle(ProductInput $input): ProductData
+    public function handle(ProductInput $input)
     {
         $attributes = $input->attributes;
 
@@ -45,7 +45,7 @@ class CreateProductUseCase
             ]
         );
 
-        return ProductData::fromModel($product);
+        return ProductData::fromModel($product );
     }
 
     private function requireFamily(int $familyId): Family
@@ -60,7 +60,7 @@ class CreateProductUseCase
 
         return $family;
     }
-    
+
     private function requireTemplate(Family $family): DataTemplate
     {
         $template = $this->templates->findBySubcategoryAndType(
