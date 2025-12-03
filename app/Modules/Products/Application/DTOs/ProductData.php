@@ -34,10 +34,11 @@ class ProductData
             'fieldValues.field.translations',
             'prices',
             'accessories.accessory.translations',
+            'family',
             'family.subcategory.department',
             'family.supplier',
         ]);
-        $product = new self(
+        $productData = new self(
             attributes: [
                 'id' => (int) $product->getKey(),
                 'family_id' => (int) $product->family_id,
@@ -92,7 +93,7 @@ class ProductData
         );
 
         return collect([
-            'products' => $product,
+            'products' => $productData,
             'roots' => self::serializeRoots($product->family),
         ]);
     }
