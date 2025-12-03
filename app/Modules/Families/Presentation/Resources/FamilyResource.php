@@ -17,6 +17,7 @@ class FamilyResource extends JsonResource
             'id' => $this->attributes['id'] ?? null,
             'subcategory_id' => $this->attributes['subcategory_id'] ?? null,
             'data_template_id' => $this->attributes['data_template_id'] ?? null,
+            'image' => $this->attributes['image'] ?? null,
             'name' => $this->attributes['name'] ?? null,
             'translations' => $this->translations,
             'values' => array_map(
