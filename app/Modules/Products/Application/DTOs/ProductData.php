@@ -89,6 +89,7 @@ class ProductData
             media: [
                 'gallery' => self::serializeMedia($product, 'gallery'),
                 'documents' => self::serializeMedia($product, 'documents'),
+                'dimensions' => self::serializeMedia($product, 'dimensions'),
                 'consultant_approvals' => self::serializeMedia($product, 'consultant_approvals'),
             ],
         );

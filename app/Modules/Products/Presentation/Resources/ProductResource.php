@@ -19,7 +19,7 @@ class ProductResource extends JsonResource
 
         return [
             'id' => $this->attributes['id'] ?? null,
-            // 'roots' => $this->roots,
+            'roots' => $this->when(!$hide, $this->roots),
             'data_template_id' => $this->attributes['data_template_id'] ?? null,
             'code' => $this->attributes['code'] ?? null,
             'stock' => $this->attributes['stock'] ?? null,
