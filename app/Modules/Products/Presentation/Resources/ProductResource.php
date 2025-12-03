@@ -16,22 +16,22 @@ class ProductResource extends JsonResource
     {
 
         $hide = $request->is('*/families/*/products') && $request->isMethod('GET');
-        dd($this['products']->attributes['id']);
+        $product = $this['products'];
 
         return [
-            'id' => $this->attributes['id'] ?? null,
+            'id' => $product->attributes['id'] ?? null,
             'roots' => $this->when(!$hide, $this['roots']),
-            'data_template_id' => $this->attributes['data_template_id'] ?? null,
-            'code' => $this->attributes['code'] ?? null,
-            'stock' => $this->attributes['stock'] ?? null,
-            'disclaimer' => $this->attributes['disclaimer'] ?? null,
-            'name' => $this->attributes['name'] ?? null,
-            'description' => $this->attributes['description'] ?? null,
-            'color' => $this->when($this->attributes['color'], fn() => $this->attributes['color']),
-            'style' => $this->when($this->attributes['style'], fn() => $this->attributes['style']),
-            'manufacturer' => $this->when($this->attributes['manufacturer'], fn() => $this->attributes['manufacturer']),
-            'application' => $this->when($this->attributes['application'], fn() => $this->attributes['application']),
-            'origin' => $this->when($this->attributes['origin'], fn() => $this->attributes['origin']),
+            'data_template_id' => $product->attributes['data_template_id'] ?? null,
+            'code' => $product->attributes['code'] ?? null,
+            'stock' => $product->attributes['stock'] ?? null,
+            'disclaimer' => $product->attributes['disclaimer'] ?? null,
+            'name' => $product->attributes['name'] ?? null,
+            'description' => $product->attributes['description'] ?? null,
+            'color' => $this->when($product->attributes['color'], fn() => $product->attributes['color']),
+            'style' => $this->when($product->attributes['style'], fn() => $product->attributes['style']),
+            'manufacturer' => $this->when($product->attributes['manufacturer'], fn() => $product->attributes['manufacturer']),
+            'application' => $this->when($product->attributes['application'], fn() => $product->attributes['application']),
+            'origin' => $this->when($product->attributes['origin'], fn() => $product->attributes['origin']),
             'translations' => $this->when(
                 $request->is('*/products/*') && $request->method() === 'GET',
              fn() => $this->translations ?? []),
@@ -47,14 +47,14 @@ class ProductResource extends JsonResource
                         'value' => $value->value,
                     ];
                 },
-                $this->values
+                $product->values
             ))),
             'prices' => array_map(
                 static fn (ProductPriceData $price) => $price->attributes,
-                $this->prices
+                $product->prices
             ),
-            'accessories' => $this->accessories ?? [],
-            'media' => $this->media ?? [],
+            'accessories' => $product->accessories ?? [],
+            'media' => $product->media ?? [],
         ];
     }
 }
