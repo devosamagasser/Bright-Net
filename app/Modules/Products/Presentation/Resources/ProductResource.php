@@ -17,9 +17,10 @@ class ProductResource extends JsonResource
 
         $hide = $request->is('*/families/*/products') && $request->isMethod('GET');
 
+        dd($this);
         return [
             'id' => $this->attributes['id'] ?? null,
-            'roots' => $this->when(!$hide, $this->roots),
+            // 'roots' => $this->when(!$hide, $this->roots),
             'data_template_id' => $this->attributes['data_template_id'] ?? null,
             'code' => $this->attributes['code'] ?? null,
             'stock' => $this->attributes['stock'] ?? null,
