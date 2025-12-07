@@ -168,7 +168,6 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
                     $allowed['discount'] ?? $item->discount,
                 );
             }
-
             if ($allowed !== []) {
                 $item->fill($allowed);
                 $item->save();
@@ -177,7 +176,6 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
             $item->refresh();
 
             $this->refreshTotals($item->quotation);
-
             return $item->load('accessories');
         });
     }

@@ -13,6 +13,7 @@ class ProductAccessoryData
      */
     private function __construct(
         public readonly string $type,
+        public readonly int $quantity,
         public readonly array $product,
     ) {
     }
@@ -25,6 +26,7 @@ class ProductAccessoryData
         ]);
         return new self(
             type: $accessory->accessory_type?->value ?? AccessoryType::OPTIONAL->value,
+            quantity: $accessory->quantity ?? 1,
             product: $product ? [
                 'id' => (int) $product->getKey(),
                 'code' => $product->code,

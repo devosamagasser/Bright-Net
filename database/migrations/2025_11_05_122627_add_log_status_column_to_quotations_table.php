@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('quotation_products', function (Blueprint $table): void {
-            $table->softDeletes();
+        Schema::table('quotations', function (Blueprint $table): void {
+            $table->unsignedBigInteger('log_status')->default(0);
         });
     }
 
@@ -21,9 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('quotation_products', function (Blueprint $table): void {
-            $table->dropSoftDeletes();
+        Schema::table('quotations', function (Blueprint $table): void {
+            $table->dropColumn('log_status');
         });
     }
-
 };

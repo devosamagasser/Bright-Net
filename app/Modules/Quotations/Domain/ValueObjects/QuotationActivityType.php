@@ -2,9 +2,9 @@
 
 namespace App\Modules\Quotations\Domain\ValueObjects;
 
-enum QuotationLogType: string
+enum QuotationActivityType: string
 {
     case CREATE = 'create';
-    case EDIT = 'edit';
+    case UPDATE = 'update';
     case DELETE = 'delete';
 }

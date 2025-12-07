@@ -8,6 +8,8 @@ use App\Modules\Quotations\Domain\Models\{
     Quotation,
     QuotationProduct,
 };
+use App\Modules\Quotations\Domain\Services\ActivityService;
+use App\Modules\Quotations\Domain\ValueObjects\QuotationActivityType;
 use App\Modules\Quotations\Domain\Repositories\QuotationRepositoryInterface;
 use App\Modules\Quotations\Domain\ValueObjects\QuotationStatus;
 
@@ -15,6 +17,7 @@ class UpdateQuotationProductUseCase
 {
     public function __construct(
         private readonly QuotationRepositoryInterface $quotations,
+        private readonly ActivityService $activityService,
     ) {
     }
 
@@ -24,7 +27,13 @@ class UpdateQuotationProductUseCase
 
         $this->assertEditable($quotation, $supplierId);
 
-        $this->quotations->updateProduct($item, $input->attributes());
+        $newItem = $this->quotations->updateProduct($item, $input->attributes());
+        $this->activityService->log(
+            model: $item,
+            activityType: QuotationActivityType::UPDATE,
+            oldObject: $item->toArray(),
+            newObject: $newItem->toArray()
+        );
 
         return $this->quotations->refreshTotals($quotation);
     }

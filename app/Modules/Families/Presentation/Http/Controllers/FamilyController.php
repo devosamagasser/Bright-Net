@@ -74,6 +74,7 @@ class FamilyController
         $input = FamilyInput::fromArray(
             $request->all() + [
                 'supplier_id' => auth()->user()->company->supplier->id,
+                'subcategory_id' => $family->subcategory_id,
             ]
         );
         $familyData = $this->updateFamily->handle($family, $input);
@@ -110,7 +111,7 @@ class FamilyController
         return ApiResponse::message('Families imported successfully');
     }
 
-    
+
 
 
 }

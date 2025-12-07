@@ -4,12 +4,15 @@ namespace App\Modules\Quotations\Application\UseCases;
 
 use Illuminate\Support\Arr;
 use Illuminate\Validation\ValidationException;
-use App\Modules\Quotations\Application\DTOs\QuotationProductInput;
 use App\Modules\Products\Domain\Models\Product;
-use App\Modules\Products\Domain\Models\ProductAccessory;
-use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
-use App\Modules\Products\Domain\ValueObjects\AccessoryType;
 use App\Modules\Quotations\Domain\Models\Quotation;
+use App\Modules\Products\Domain\Models\ProductAccessory;
+use App\Modules\Quotations\Domain\Models\QuotationProduct;
+use App\Modules\Products\Domain\ValueObjects\AccessoryType;
+use App\Modules\Quotations\Domain\Services\ActivityService;
+use App\Modules\Quotations\Application\DTOs\QuotationProductInput;
+use App\Modules\Quotations\Domain\ValueObjects\QuotationActivityType;
+use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
 use App\Modules\Quotations\Domain\Repositories\QuotationRepositoryInterface;
 
 class AddProductToQuotationUseCase
@@ -17,6 +20,7 @@ class AddProductToQuotationUseCase
     public function __construct(
         private readonly QuotationRepositoryInterface $quotations,
         private readonly ProductRepositoryInterface $products,
+        private readonly ActivityService $activityService,
     ) {
     }
 
@@ -25,14 +29,7 @@ class AddProductToQuotationUseCase
         $quotation = $this->quotations->getOrCreateDraft($supplierId);
 
         $product = $this->products->find($input->productId);
-
-        if ($product === null) {
-            throw ValidationException::withMessages([
-                'product_id' => trans('validation.exists', ['attribute' => 'product']),
-            ]);
-        }
-
-        $product->loadMissing(['family.supplier', 'accessories']);
+        $product->loadMissing(relations: ['family.supplier', 'accessories']);
 
         $productSupplierId = $product->family?->supplier?->getKey();
 
@@ -46,13 +43,6 @@ class AddProductToQuotationUseCase
 
         foreach ($input->accessories() as $accessoryInput) {
             $accessory = $this->products->find($accessoryInput->accessoryId);
-
-            if ($accessory === null) {
-                throw ValidationException::withMessages([
-                    'accessories.*.accessory_id' => trans('validation.exists', ['attribute' => 'accessory']),
-                ]);
-            }
-
             $accessory->loadMissing('family.supplier');
 
             $accessorySupplierId = $accessory->family?->supplier?->getKey();
@@ -93,19 +83,19 @@ class AddProductToQuotationUseCase
             ];
         }
 
-        $this->quotations->addProduct($quotation, $product, $input->attributes(), $accessories);
+        $quotationProduct = $this->quotations->addProduct($quotation, $product, $input->attributes(), $accessories);
 
+        $this->activityService->log(
+            model: $quotationProduct,
+            activityType: QuotationActivityType::CREATE,
+            newObject: $quotationProduct->toArray()
+        );
+        
         return $this->quotations->refreshTotals($quotation);
     }
 
     private function assertAccessoryIsOptionalForProduct(Product $product, Product $accessory, AccessoryType $type): void
     {
-        // if ($type !== AccessoryType::OPTIONAL) {
-        //     throw ValidationException::withMessages([
-        //         'accessories.*.accessory_type' => trans('apiMessages.forbidden'),
-        //     ]);
-        // }
-
         $linkedAccessory = $product->accessories
             ->first(static function (ProductAccessory $definition) use ($accessory): bool {
                 return (int) $definition->accessory_id === (int) $accessory->getKey();

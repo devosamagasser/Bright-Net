@@ -103,7 +103,7 @@ class ProductData
      * @param  Collection<int, Product>  $products
      * @return Collection<int, self>
      */
-    public static function collection(Collection $products, Family $family): Collection
+    public static function collection(Collection $products, ?Family $family = null ): Collection
     {
         return collect([
             'products' => $products->map(fn(Product $product) => self::fromModel($product)),

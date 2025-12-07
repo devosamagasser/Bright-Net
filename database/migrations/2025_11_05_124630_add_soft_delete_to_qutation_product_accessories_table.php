@@ -15,4 +15,15 @@ return new class extends Migration
             $table->softDeletes();
         });
     }
+
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('quotation_product_accessories', function (Blueprint $table): void {
+            $table->dropSoftDeletes();
+        });
+    }
 };

@@ -15,8 +15,8 @@ return new class extends Migration
             $table->id();
             $table->morphs('loggable');
             $table->string('activity_type'); // edit, create, delete, etc.
-            $table->text('old_value')->nullable();
-            $table->text('new_value')->nullable();
+            $table->text('old_object')->nullable();
+            $table->text('new_object')->nullable();
             $table->timestamps();
         });
     }

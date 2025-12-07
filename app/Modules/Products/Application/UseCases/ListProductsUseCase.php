@@ -21,7 +21,7 @@ class ListProductsUseCase
     {
         $products = $this->products->getByFamily($familyId, $supplierId);
         $family = Family::find($familyId);
-        return ProductData::collection($products, $family);
+        return ProductData::collection($products, $family ?? null);
     }
 
 }
