@@ -27,6 +27,7 @@ class ProductInput
         // public readonly bool $shouldSyncColors,
         public readonly array $media,
         public readonly ?int $supplierId,
+        public readonly ?array $oldGallery = [],
     ) {
     }
 
@@ -43,7 +44,7 @@ class ProductInput
 
         $shouldSyncAccessories = Arr::exists($payload, 'accessories');
         $accessories = Arr::pull($payload, 'accessories', []);
-
+        $oldGallery = Arr::pull($payload, 'oldGallery', []);
 
         $media = [
             'gallery' => self::extractFiles(Arr::pull($payload, 'gallery', [])),
@@ -63,6 +64,7 @@ class ProductInput
             accessories: array_values(is_array($accessories) ? $accessories : []),
             shouldSyncAccessories: $shouldSyncAccessories,
             media: $media,
+            oldGallery: is_array($oldGallery) ? $oldGallery : [],
             supplierId: is_numeric($supplierId) ? (int) $supplierId : null,
         );
     }

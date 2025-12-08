@@ -37,9 +37,9 @@ class EloquentProductRepository implements ProductRepositoryInterface
         });
     }
 
-    public function update(Product $product, array $attributes, array $translations, array $values, array $relations = []): Product
+    public function update(Product $product, array $attributes, array $translations, array $values, array $oldGallery = [], array $relations = []): Product
     {
-        return DB::transaction(function () use ($product, $attributes, $translations, $values, $relations): Product {
+        return DB::transaction(function () use ($product, $attributes, $translations, $values, $oldGallery, $relations): Product {
             $currentTemplateId = (int) $product->data_template_id;
             $templateChanged = array_key_exists('data_template_id', $attributes)
                 && (int) $attributes['data_template_id'] !== $currentTemplateId;
@@ -61,8 +61,9 @@ class EloquentProductRepository implements ProductRepositoryInterface
             $this->syncPrices($product, $relations, (bool) Arr::get($relations, 'sync_prices', false));
             $this->syncAccessories($product, $relations, (bool) Arr::get($relations, 'sync_accessories', false));
             // $this->syncColors($product, $relations, (bool) Arr::get($relations, 'sync_colors', false));
-            $this->syncMedia($product, $relations);
 
+            $this->syncOldGallery($product, $oldGallery);
+            $this->syncMedia($product, $relations);
             return $this->loadAggregates($product);
         });
     }
@@ -332,13 +333,20 @@ class EloquentProductRepository implements ProductRepositoryInterface
                 continue;
             }
 
-            $product->clearMediaCollection($collection);
-
             foreach ($files as $file) {
                 if ($file instanceof UploadedFile) {
                     $product->addMedia($file)->toMediaCollection($collection);
                 }
             }
+        }
+    }
+
+    private function syncOldGallery(Product $product, array $oldGallery): void
+    {
+        $product->clearMediaCollection('gallery');
+        foreach ($oldGallery as $url) {
+                $product->addMediaFromUrl($url)
+                    ->toMediaCollection('gallery');
         }
     }
 

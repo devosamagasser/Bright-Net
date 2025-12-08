@@ -34,17 +34,19 @@ class UpdateProductUseCase
         ];
 
         $updatedProduct = $this->products->update(
-            $product,
-            $attributes,
-            $input->translations,
-            $input->values,
-            [
+            product: $product,
+            attributes: $attributes,
+            translations: $input->translations,
+            values: $input->values,
+            oldGallery: $input->oldGallery,
+            relations: [
                 'prices' => $input->prices,
                 'sync_prices' => $input->shouldSyncPrices,
                 'accessories' => $input->accessories,
                 'sync_accessories' => $input->shouldSyncAccessories,
                 'media' => $input->media,
-            ]
+            ],
+
         );
 
         return ProductData::fromModel($updatedProduct);
