@@ -16,14 +16,5 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::table('quotation_products', function (Blueprint $table): void {
-            $table->dropSoftDeletes();
-        });
-    }
 
 };

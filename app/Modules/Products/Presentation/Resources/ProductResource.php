@@ -34,7 +34,7 @@ class ProductResource extends JsonResource
             'origin' => $this->when($product->attributes['origin'], fn() => $product->attributes['origin']),
             'translations' => $this->when(
                 $request->is('*/products/*') && $request->method() === 'GET',
-             fn() => $this->translations ?? []),
+             fn() => $product['translations'] ?? []),
             'values' => array_values(array_filter(array_map(
                 static function (ProductValueData $value) use ($hide) {
 

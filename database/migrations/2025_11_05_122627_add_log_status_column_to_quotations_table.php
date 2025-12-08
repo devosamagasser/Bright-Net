@@ -15,14 +15,4 @@ return new class extends Migration
             $table->unsignedBigInteger('log_status')->default(0);
         });
     }
-
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::table('quotations', function (Blueprint $table): void {
-            $table->dropColumn('log_status');
-        });
-    }
 };

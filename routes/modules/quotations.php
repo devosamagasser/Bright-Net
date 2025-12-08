@@ -16,8 +16,10 @@ Route::prefix('quotations')
 
         Route::patch('items/{item}', [QuotationItemController::class, 'update'])
             ->whereNumber('item');
+
         Route::post('items/{item}/replace', [QuotationItemController::class, 'replace'])
             ->whereNumber('item');
+
         Route::delete('items/{item}', [QuotationItemController::class, 'destroy'])
             ->whereNumber('item');
 

@@ -2,6 +2,8 @@
 
 namespace App\Modules\Quotations\Presentation\Http\Controllers;
 
+use App\Modules\QuotationLogs\Application\UseCases\UndoActionQuotationUseCase;
+use App\Modules\Quotations\Domain\Models\Quotation;
 use Illuminate\Validation\ValidationException;
 use App\Modules\Quotations\Domain\Models\QuotationProduct;
 use App\Modules\Quotations\Presentation\Http\Requests\{
@@ -16,48 +18,22 @@ use App\Modules\Quotations\Application\UseCases\{
 use App\Modules\Quotations\Presentation\Resources\QuotationResource;
 use App\Modules\Shared\Support\Helper\ApiResponse;
 
-class QuotationItemController
+class QuotationLogsController
 {
     public function __construct(
-        private readonly UpdateQuotationProductUseCase $updateItem,
-        private readonly RemoveQuotationProductUseCase $removeItem,
-        private readonly ReplaceQuotationProductUseCase $replaceItem,
+        private readonly UndoActionQuotationUseCase $undoAction,
     ) {
     }
 
-    public function update(UpdateQuotationProductRequest $request, QuotationProduct $item)
+    public function undo(Quotation $quotation)
     {
-        $quotation = $this->updateItem->handle(
-            $item,
-            $request->toInput(),
-            $this->supplierId()
+        $undoQuotation = $this->undoAction->handle(
+            $this->supplierId(),
+            $quotation
         );
 
         return ApiResponse::updated(
-            QuotationResource::make($quotation)->resolve()
-        );
-    }
-
-    public function destroy(QuotationProduct $item)
-    {
-        $this->removeItem->handle(
-            $item,
-            $this->supplierId()
-        );
-
-        return ApiResponse::deleted();
-    }
-
-    public function replace(ReplaceQuotationProductRequest $request, QuotationProduct $item)
-    {
-        $quotation = $this->replaceItem->handle(
-            $item,
-            $request->toInput(),
-            $this->supplierId()
-        );
-
-        return ApiResponse::updated(
-            QuotationResource::make($quotation)->resolve()
+            QuotationResource::make($undoQuotation)->resolve()
         );
     }
 

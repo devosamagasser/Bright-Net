@@ -14,12 +14,15 @@ use App\Modules\Quotations\Domain\Models\{
 };
 use App\Modules\Quotations\Domain\Repositories\QuotationRepositoryInterface;
 use App\Modules\Quotations\Domain\ValueObjects\QuotationStatus;
+use App\Modules\QuotationLogs\Domain\Services\ActivityService;
+use App\Modules\QuotationLogs\Domain\ValueObjects\QuotationActivityType;
 
 class AddAccessoryToQuotationProductUseCase
 {
     public function __construct(
         private readonly QuotationRepositoryInterface $quotations,
         private readonly ProductRepositoryInterface $products,
+        private readonly ActivityService $activityService,
     ) {
     }
 
@@ -75,8 +78,12 @@ class AddAccessoryToQuotationProductUseCase
 
         $this->assertAccessoryIsOptionalForProduct($product, $accessory, $type);
 
-        $this->quotations->addAccessory($item, $accessory, $input->attributes());
+        $accessory = $this->quotations->addAccessory($item, $accessory, $input->attributes());
 
+        $this->activityService->log(
+            model: $accessory,
+            activityType: QuotationActivityType::CREATE_ACCESSORY,
+        );
         return $this->quotations->refreshTotals($quotation);
     }
 

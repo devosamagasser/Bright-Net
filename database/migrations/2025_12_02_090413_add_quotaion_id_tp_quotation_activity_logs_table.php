@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('quotation_product_accessories', function (Blueprint $table): void {
-            $table->softDeletes();
+        Schema::table('quotation_activity_logs', function (Blueprint $table) {
+            $table->foreignId('quotation_id')->nullable()->constrained()->onDelete('cascade');
         });
     }
 };

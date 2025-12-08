@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Modules\Quotations\Domain\Models;
+namespace App\Modules\QuotationLogs\Domain\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Modules\Quotations\Domain\ValueObjects\QuotationActivityType;
+use App\Modules\QuotationLogs\Domain\ValueObjects\QuotationActivityType;
 
 class QuotationActivityLog extends Model
 {

@@ -10,11 +10,14 @@ use App\Modules\Quotations\Domain\Models\{
 };
 use App\Modules\Quotations\Domain\Repositories\QuotationRepositoryInterface;
 use App\Modules\Quotations\Domain\ValueObjects\QuotationStatus;
+use App\Modules\QuotationLogs\Domain\Services\ActivityService;
+use App\Modules\QuotationLogs\Domain\ValueObjects\QuotationActivityType;
 
 class UpdateQuotationAccessoryUseCase
 {
     public function __construct(
         private readonly QuotationRepositoryInterface $quotations,
+        private readonly ActivityService $activityService,
     ) {
     }
 
@@ -25,7 +28,11 @@ class UpdateQuotationAccessoryUseCase
         $this->assertEditable($quotation, $supplierId);
 
         $this->quotations->updateAccessory($accessory, $input->attributes());
-
+            $this->activityService->log(
+            model: $accessory,
+            activityType: QuotationActivityType::UPDATE_ACCESSORY,
+        );
+        
         return $this->quotations->refreshTotals($quotation);
     }
 

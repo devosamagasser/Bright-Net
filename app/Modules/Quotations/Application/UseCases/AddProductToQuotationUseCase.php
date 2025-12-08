@@ -7,14 +7,12 @@ use Illuminate\Validation\ValidationException;
 use App\Modules\Products\Domain\Models\Product;
 use App\Modules\Quotations\Domain\Models\Quotation;
 use App\Modules\Products\Domain\Models\ProductAccessory;
-use App\Modules\Quotations\Domain\Models\QuotationProduct;
 use App\Modules\Products\Domain\ValueObjects\AccessoryType;
-use App\Modules\Quotations\Domain\Services\ActivityService;
 use App\Modules\Quotations\Application\DTOs\QuotationProductInput;
-use App\Modules\Quotations\Domain\ValueObjects\QuotationActivityType;
 use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
 use App\Modules\Quotations\Domain\Repositories\QuotationRepositoryInterface;
-
+use App\Modules\QuotationLogs\Domain\Services\ActivityService;
+use App\Modules\QuotationLogs\Domain\ValueObjects\QuotationActivityType;
 class AddProductToQuotationUseCase
 {
     public function __construct(
@@ -87,10 +85,9 @@ class AddProductToQuotationUseCase
 
         $this->activityService->log(
             model: $quotationProduct,
-            activityType: QuotationActivityType::CREATE,
-            newObject: $quotationProduct->toArray()
+            activityType: QuotationActivityType::CREATE_PRODUCT,
         );
-        
+
         return $this->quotations->refreshTotals($quotation);
     }
 

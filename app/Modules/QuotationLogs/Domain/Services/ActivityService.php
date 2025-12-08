@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Modules\Quotations\Domain\Services;
+namespace App\Modules\QuotationLogs\Domain\Services;
 
 use Illuminate\Database\Eloquent\Model;
+use App\Modules\QuotationLogs\Domain\Models\QuotationActivityLog;
+use App\Modules\QuotationLogs\Domain\ValueObjects\QuotationActivityType;
 use App\Modules\Quotations\Domain\Models\QuotationProduct;
-use App\Modules\Quotations\Domain\Models\QuotationActivityLog;
 use App\Modules\Quotations\Domain\Models\QuotationProductAccessory;
-use App\Modules\Quotations\Domain\ValueObjects\QuotationActivityType;
 
 class ActivityService
 {
@@ -22,6 +22,7 @@ class ActivityService
             'activity_type' => $activityType,
             'old_object'   => $oldObject,
             'new_object'   => $newObject,
+            'quotation_id' => $model->quotation_id,
         ]);
     }
 }

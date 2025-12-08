@@ -4,11 +4,12 @@ namespace App\Modules\Quotations\Domain\Models;
 
 use App\Models\Supplier;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Modules\Companies\Domain\Models\Company;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Modules\Products\Domain\ValueObjects\PriceCurrency;
 use App\Modules\Quotations\Domain\ValueObjects\QuotationStatus;
+use App\Modules\QuotationLogs\Domain\Models\QuotationActivityLog;
 
 class Quotation extends Model
 {
@@ -28,6 +29,7 @@ class Quotation extends Model
         'total',
         'currency',
         'meta',
+        'log_status',
     ];
 
     /**
@@ -67,6 +69,12 @@ class Quotation extends Model
         return $this->hasMany(QuotationProductAccessory::class)
             ->orderBy('position')
             ->orderBy('id');
+    }
+
+    public function logs(): HasMany
+    {
+        return $this->hasMany(QuotationActivityLog::class)
+            ->orderBy('created_at', 'desc');
     }
 
     public function isDraft(): bool
