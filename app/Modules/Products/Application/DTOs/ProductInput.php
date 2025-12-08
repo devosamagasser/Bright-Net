@@ -44,7 +44,7 @@ class ProductInput
 
         $shouldSyncAccessories = Arr::exists($payload, 'accessories');
         $accessories = Arr::pull($payload, 'accessories', []);
-        $oldGallery = Arr::pull($payload, 'oldGallery', []);
+        $oldGallery = Arr::pull($payload, 'old_gallery', []);
 
         $media = [
             'gallery' => self::extractFiles(Arr::pull($payload, 'gallery', [])),

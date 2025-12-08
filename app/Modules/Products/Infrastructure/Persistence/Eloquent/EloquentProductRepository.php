@@ -7,13 +7,14 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
-use App\Modules\Shared\Support\Traits\HandlesTranslations;
-use App\Modules\Products\Domain\Models\{Product, ProductAccessory};
-use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
-use App\Modules\Products\Domain\ValueObjects\AccessoryType;
 use App\Modules\DataSheets\Domain\Models\DataField;
 use App\Modules\DataSheets\Domain\Models\DataTemplate;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use App\Modules\Shared\Support\Traits\HandlesTranslations;
+use App\Modules\Products\Domain\ValueObjects\AccessoryType;
 use App\Modules\DataSheets\Domain\ValueObjects\DataFieldType;
+use App\Modules\Products\Domain\Models\{Product, ProductAccessory};
+use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
 
 class EloquentProductRepository implements ProductRepositoryInterface
 {
@@ -61,7 +62,6 @@ class EloquentProductRepository implements ProductRepositoryInterface
             $this->syncPrices($product, $relations, (bool) Arr::get($relations, 'sync_prices', false));
             $this->syncAccessories($product, $relations, (bool) Arr::get($relations, 'sync_accessories', false));
             // $this->syncColors($product, $relations, (bool) Arr::get($relations, 'sync_colors', false));
-
             $this->syncOldGallery($product, $oldGallery);
             $this->syncMedia($product, $relations);
             return $this->loadAggregates($product);
@@ -343,11 +343,19 @@ class EloquentProductRepository implements ProductRepositoryInterface
 
     private function syncOldGallery(Product $product, array $oldGallery): void
     {
-        $product->clearMediaCollection('gallery');
-        foreach ($oldGallery as $url) {
-                $product->addMediaFromUrl($url)
-                    ->toMediaCollection('gallery');
-        }
+
+            $fileNames = collect($oldGallery)
+                ->map(fn ($url) => basename($url))
+                ->unique()
+                ->values();
+
+
+            $excludedMedia = $product->media()
+                ->where('collection_name', 'gallery')
+                ->whereIn('file_name', $fileNames)
+                ->get();
+
+        $product->clearMediaCollectionExcept('gallery', excludedMedia: $excludedMedia);
     }
 
     public function findAccessoryOfProduct(int $product_id, int $accessory_id): ?ProductAccessory
