@@ -615,7 +615,7 @@
           placeholder,
         };
 
-        if (type === "select") {
+        if (type === "select" || type === "multiselect") {
           fieldObj.options = options;
         }
 
