@@ -636,16 +636,17 @@
     }
 
     function clearAll() {
-      const categoryInput = groupCard.querySelector(".category-input");
-      const subcategoryInput = groupCard.querySelector(".subcategory-input");
+    const categoryInput = groupCard.querySelector(".category-input");
+    const subcategoryInput = groupCard.querySelector(".subcategory-input");
 
-      if (categoryInput) categoryInput.value = "";
-      if (subcategoryInput) subcategoryInput.value = "Indoor";
+    if (categoryInput) categoryInput.value = "Indoor"; // لأن Category Dropdown (Indoor/Outdoor)
+    if (subcategoryInput) subcategoryInput.value = ""; // Subcategory = Text Input
 
-      familyContainer.innerHTML = "";
-      productContainer.innerHTML = "";
-      outputArea.value = "";
+    familyContainer.innerHTML = "";
+    productContainer.innerHTML = "";
+    outputArea.value = "";
     }
+
 
     // Preview JSON
     previewBtn.addEventListener("click", () => {
