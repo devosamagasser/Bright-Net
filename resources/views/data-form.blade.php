@@ -583,7 +583,7 @@
         const is_depended = row.querySelector(".field-is-depended")?.checked || false;
 
         let options = [];
-        if (type === "select") {
+        if (type === "select" || type === "multiselect") {
           const rawOptions = row.querySelector(".field-options")?.value || "";
           options = rawOptions
             .split(",")
