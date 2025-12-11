@@ -476,7 +476,7 @@
             </div>
             <div class="field">
               <label>Depends on value</label>
-              <input type="text" class="depends-on-value" placeholder="e.g. Apple" />
+              <input type="text" class="depends-on-value" placeholder="e.g. Apple, Samsung, Xiaomi" />
             </div>
           </div>
         </div>
@@ -594,7 +594,11 @@
         let depends_on_value = null;
         if (is_depended) {
           depends_on_field = row.querySelector(".depends-on-field")?.value.trim() || null;
-          depends_on_value = row.querySelector(".depends-on-value")?.value.trim() || null;
+          depends_on_value_raw = row.querySelector(".depends-on-value")?.value.trim() || "";
+          depends_on_values = depends_on_value_raw
+            .split(",")
+            .map(v => v.trim())
+            .filter(v => v.length > 0);
         }
 
         // تجاهل الـ fields الفاضية جدًا
@@ -617,7 +621,7 @@
         if (is_depended) {
           fieldObj.is_depended = true;
           fieldObj.depends_on_field = depends_on_field;
-          fieldObj.depends_on_value = depends_on_value;
+          fieldObj.depends_on_value = depends_on_values;
         }
 
         if (datasheetType === "family") {
