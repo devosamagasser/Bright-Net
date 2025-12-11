@@ -73,8 +73,7 @@ class Quotation extends Model
 
     public function logs(): HasMany
     {
-        return $this->hasMany(QuotationActivityLog::class)
-            ->orderBy('created_at', 'desc');
+        return $this->hasMany(QuotationActivityLog::class);
     }
 
     public function isDraft(): bool

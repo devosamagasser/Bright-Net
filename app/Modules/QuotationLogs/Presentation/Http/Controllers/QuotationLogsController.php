@@ -1,33 +1,37 @@
 <?php
 
-namespace App\Modules\Quotations\Presentation\Http\Controllers;
+namespace App\Modules\QuotationLogs\Presentation\Http\Controllers;
 
-use App\Modules\QuotationLogs\Application\UseCases\UndoActionQuotationUseCase;
-use App\Modules\Quotations\Domain\Models\Quotation;
 use Illuminate\Validation\ValidationException;
-use App\Modules\Quotations\Domain\Models\QuotationProduct;
-use App\Modules\Quotations\Presentation\Http\Requests\{
-    ReplaceQuotationProductRequest,
-    UpdateQuotationProductRequest,
-};
-use App\Modules\Quotations\Application\UseCases\{
-    RemoveQuotationProductUseCase,
-    ReplaceQuotationProductUseCase,
-    UpdateQuotationProductUseCase,
-};
-use App\Modules\Quotations\Presentation\Resources\QuotationResource;
 use App\Modules\Shared\Support\Helper\ApiResponse;
+use App\Modules\Quotations\Domain\Models\Quotation;
+use App\Modules\Quotations\Presentation\Resources\QuotationResource;
+use App\Modules\QuotationLogs\Application\UseCases\RedoActionQuotationUseCase;
+use App\Modules\QuotationLogs\Application\UseCases\UndoActionQuotationUseCase;
 
 class QuotationLogsController
 {
     public function __construct(
         private readonly UndoActionQuotationUseCase $undoAction,
+        private readonly RedoActionQuotationUseCase $redoAction,
     ) {
     }
 
     public function undo(Quotation $quotation)
     {
         $undoQuotation = $this->undoAction->handle(
+            $this->supplierId(),
+            $quotation
+        );
+
+        return ApiResponse::updated(
+            QuotationResource::make($undoQuotation)->resolve()
+        );
+    }
+
+    public function redo(Quotation $quotation)
+    {
+        $undoQuotation = $this->redoAction->handle(
             $this->supplierId(),
             $quotation
         );

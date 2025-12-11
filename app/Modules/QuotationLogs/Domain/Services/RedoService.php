@@ -10,29 +10,30 @@ use App\Modules\QuotationLogs\Domain\Services\UndoActions\RemoveQuotationProduct
 use App\Modules\QuotationLogs\Domain\Services\UndoActions\ReviveQuotationProductService;
 use App\Modules\QuotationLogs\Domain\Services\UndoActions\RevertUpdateQuotationProductService;
 
-class UndoService
+class RedoService
 {
-    public function make(QuotationActivityLog $lastLog, Quotation $quotation): QuotationProduct|null      
+    public function make(QuotationActivityLog $currentLog, QuotationActivityLog|null $lastLog = null, Quotation $quotation): QuotationProduct|null      
     {
-        $executer = match ($lastLog->activity_type) {
-            QuotationActivityType::CREATE_PRODUCT => app()->make(RemoveQuotationProductService::class),
+        $executer = match ($currentLog->activity_type) {
+            QuotationActivityType::CREATE_PRODUCT => app()->make(ReviveQuotationProductService::class),
             QuotationActivityType::UPDATE_PRODUCT => app()->make(RevertUpdateQuotationProductService::class),
-            QuotationActivityType::DELETE_PRODUCT => app()->make(ReviveQuotationProductService::class),
+            QuotationActivityType::DELETE_PRODUCT => app()->make(RemoveQuotationProductService::class),
             default => null,
         };
-        $quotationProduct = $executer?->execute($lastLog);
+        $quotationProduct = $executer?->execute($currentLog);
         if($quotationProduct === null) {
             return null;
         }
+
         $this->updateQuotationStatusLog($quotation, $lastLog);
         
         return $quotationProduct;
     }
 
-    public function updateQuotationStatusLog(Quotation $quotation, QuotationActivityLog $lastLog): void
+    public function updateQuotationStatusLog(Quotation $quotation, QuotationActivityLog|null $lastLog = null): void
     {
         $quotation->update([
-            'log_status' => $lastLog->id,
+            'log_status' => $lastLog?->id ?? 0,
         ]);
     }
 }

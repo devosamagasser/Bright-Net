@@ -13,6 +13,7 @@ class QuotationActivityLog extends Model
         'activity_type',
         'old_object',
         'new_object',
+        'quotation_id'
     ];
 
     protected $casts = [
@@ -23,7 +24,7 @@ class QuotationActivityLog extends Model
 
     public function loggable()
     {
-        return $this->morphTo();
+        return $this->morphTo()->withTrashed();
     }
 
 }

@@ -6,6 +6,7 @@ use App\Modules\Quotations\Presentation\Http\Controllers\{
     QuotationItemAccessoryController,
     QuotationItemController,
 };
+use App\Modules\QuotationLogs\Presentation\Http\Controllers\QuotationLogsController;
 
 Route::prefix('quotations')
     ->middleware('auth:sanctum')
@@ -29,4 +30,11 @@ Route::prefix('quotations')
             ->whereNumber('accessory');
         Route::delete('accessories/{accessory}', [QuotationItemAccessoryController::class, 'destroy'])
             ->whereNumber('accessory');
+
+        Route::get('/{quotation}/undo', [QuotationLogsController::class, 'undo'])
+            ->whereNumber('quotation');
+
+        Route::get('/{quotation}/redo', [QuotationLogsController::class, 'redo'])
+            ->whereNumber('quotation');
+
     });
