@@ -421,6 +421,7 @@
               <option value="text">text</option>
               <option value="number">number</option>
               <option value="select">select</option>
+              <option value="multiselect">multiselect</option>
             </select>
           </div>
           <div class="field">
@@ -537,7 +538,7 @@
         const row = target.closest(".field-row");
         if (!row) return;
         const optionsSection = row.querySelector(".options-section");
-        if (target.value === "select") {
+        if (target.value === "select" || target.value === "multiselect") {
           optionsSection.classList.remove("hidden");
         } else {
           optionsSection.classList.add("hidden");
