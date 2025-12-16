@@ -2,16 +2,17 @@
 
 namespace App\Modules\Families\Domain\Models;
 
-use Astrotomic\Translatable\Translatable;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Models\Supplier;
 use Spatie\MediaLibrary\HasMedia;
+use App\Models\SupplierDepartment;
+use Illuminate\Database\Eloquent\Model;
+use Astrotomic\Translatable\Translatable;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use App\Modules\Subcategories\Domain\Models\Subcategory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use App\Modules\DataSheets\Domain\Models\DataTemplate;
 use App\Modules\Families\Domain\Models\FamilyFieldValue;
-use App\Models\Supplier;
+use App\Modules\Subcategories\Domain\Models\Subcategory;
 
 class Family extends Model implements HasMedia
 {
@@ -24,7 +25,8 @@ class Family extends Model implements HasMedia
         'name',
         'subcategory_id',
         'supplier_id',
-        'data_template_id'
+        'data_template_id',
+        'supplier_department_id',
     ];
 
     /**
@@ -58,6 +60,11 @@ class Family extends Model implements HasMedia
     public function subcategory(): BelongsTo
     {
         return $this->belongsTo(Subcategory::class);
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(SupplierDepartment::class, 'supplier_department_id');
     }
 
     public function supplier(): BelongsTo

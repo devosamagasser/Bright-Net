@@ -34,10 +34,10 @@ class FamilyController
     ) {
     }
 
-    public function index(int $subcategory, $supplierId = null)
+    public function index(int $subcategory,int $supplierDepartmentId, $supplierId = null)
     {
         $supplierId = (auth()->user()->company->supplier->id) ? auth()->user()->company->supplier->id :  $supplierId ;
-        $families = $this->listFamilies->handle($subcategory, $supplierId);
+        $families = $this->listFamilies->handle($subcategory, $supplierDepartmentId, $supplierId);
 
         return ApiResponse::success(
             FamilyResource::collection($families)->resolve()

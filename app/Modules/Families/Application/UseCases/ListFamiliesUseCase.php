@@ -15,9 +15,9 @@ class ListFamiliesUseCase
     /**
      * @return Collection<int, FamilyData>
      */
-    public function handle(int $subcategoryId, ?int $supplierId = null): Collection
+    public function handle(int $subcategoryId, int $supplierDepartmentId, ?int $supplierId = null): Collection
     {
-        $families = $this->families->getBySubcategory($subcategoryId, $supplierId);
+        $families = $this->families->getBySubcategoryAndSupplierDepartment($subcategoryId, $supplierDepartmentId, $supplierId);
 
         return FamilyData::collection($families);
     }

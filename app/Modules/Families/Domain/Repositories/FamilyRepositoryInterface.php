@@ -30,4 +30,5 @@ interface FamilyRepositoryInterface
      * @return Collection<int, Family>
      */
     public function getBySubcategory(int $subcategoryId, ?int $supplierId = null): Collection;
+    public function getBySubcategoryAndSupplierDepartment(int $subcategoryId, int $supplierDepartmentId, ?int $supplierId = null): Collection;
 }

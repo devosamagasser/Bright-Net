@@ -17,6 +17,7 @@ class StoreFamilyRequest extends FormRequest
     {
         return [
             'subcategory_id' => ['required', 'integer', 'exists:subcategories,id'],
+            'supplier_department_id' => ['required', 'integer', 'exists:supplier_departments,id'],
             'name' => ['required', 'string', 'min:1', 'max:255'],
             'image' => ['nullable', 'image'],
             'translations' => ['required', 'array', 'min:1'],

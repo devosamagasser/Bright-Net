@@ -79,6 +79,19 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             ->get();
     }
 
+    public function getBySubcategoryAndSupplierDepartment(int $subcategoryId, int $supplierDepartmentId, ?int $supplierId = null): Collection
+    {
+        return Family::query()
+            ->with(['translations', 'fieldValues.field.translations'])
+            ->when($supplierId !== null, static function ($query) use ($supplierId): void {
+                $query->where('supplier_id', $supplierId);
+            })
+            ->where('subcategory_id', $subcategoryId)
+            ->where('supplier_department_id', $supplierDepartmentId)
+            ->orderBy('name')
+            ->get();
+    }
+
     private function loadAggregates(Family $family): Family
     {
         return $family->load(['translations', 'fieldValues.field.translations']);
@@ -98,7 +111,6 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
         }
 
         $fields = $template->fields->keyBy('name');
-        // $retainedFieldIds = [];
 
         foreach ($values as $key => $value) {
             if (! $fields->has($key)) {
@@ -109,7 +121,6 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             $field = $fields->get($key);
             $normalizedValue = $this->prepareValue($field, $value);
 
-            // $familyFieldValue =
             $family->fieldValues()
                 ->updateOrCreate(
                 [
@@ -119,18 +130,7 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
                     'value' => $normalizedValue,
                 ],
             );
-            // $retainedFieldIds[] = (int) $familyFieldValue->data_field_id;
         }
-
-        // if ($overwriteMissing) {
-        //     $query = $family->fieldValues();
-
-        //     if ($retainedFieldIds !== []) {
-        //         $query->whereNotIn('data_field_id', $retainedFieldIds);
-        //     }
-
-        //     $query->delete();
-        // }
     }
 
     private function prepareValue(DataField $field, mixed $value): mixed

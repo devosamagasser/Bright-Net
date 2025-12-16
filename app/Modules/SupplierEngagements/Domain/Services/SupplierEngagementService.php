@@ -117,8 +117,9 @@ class SupplierEngagementService
 
         $subcategories = Subcategory::query()
             ->where('department_id', $departmentId)
-            ->with(['families' => function ($query) use ($supplierId) {
+            ->with(['families' => function ($query) use ($supplierId, $supplierDepartment) {
                 $query->where('supplier_id', $supplierId)->orderBy('id', 'desc');
+                $query->where('supplier_department_id', $supplierDepartment->getKey())->orderBy('id', 'desc');
             }, 'families.fieldValues.field'])
             ->orderBy('id')
             ->get();
