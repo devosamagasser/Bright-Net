@@ -29,15 +29,21 @@ class DataFieldData
                 'is_required' => $field->is_required,
                 'is_filterable' => $field->is_filterable,
                 'options' => match ($field->type) {
-                    'select' => collect($field->options ?? [])
+                    DataFieldType::SELECT => collect($field->options ?? [])
                         ->map(fn ($option) => [
                             'label' => $option,
                             'value' => $option,
                         ])
                         ->values()
                         ->all(),
-
-                    'groupedselect' => collect($field->options ?? [])
+                    DataFieldType::MULTISELECT => collect($field->options ?? [])
+                        ->map(fn ($option) => [
+                            'label' => $option,
+                            'value' => $option,
+                        ])
+                        ->values()
+                        ->all(),
+                    DataFieldType::GROUPEDSELECT => collect($field->options ?? [])
                         ->map(fn ($options, $group) => [
                             'label' => $group,
                             'options' => collect($options)
