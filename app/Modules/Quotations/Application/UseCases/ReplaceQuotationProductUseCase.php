@@ -105,12 +105,12 @@ class ReplaceQuotationProductUseCase
 
             $this->activityService->log(
                 model: $current,
-                activityType: QuotationActivityType::DELETE_PRODUCT,
+                activityType: QuotationActivityType::DELETE,
             );
 
             $this->activityService->log(
                 model: $replacement,
-                activityType: QuotationActivityType::CREATE_PRODUCT,
+                activityType: QuotationActivityType::CREATE,
             );
 
             return $this->quotations->refreshTotals($quotation);

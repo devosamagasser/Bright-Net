@@ -6,27 +6,29 @@ use App\Modules\Quotations\Domain\Models\Quotation;
 use App\Modules\Quotations\Domain\Models\QuotationProduct;
 use App\Modules\QuotationLogs\Domain\Models\QuotationActivityLog;
 use App\Modules\QuotationLogs\Domain\ValueObjects\QuotationActivityType;
-use App\Modules\QuotationLogs\Domain\Services\UndoActions\RemoveQuotationProductService;
-use App\Modules\QuotationLogs\Domain\Services\UndoActions\ReviveQuotationProductService;
-use App\Modules\QuotationLogs\Domain\Services\UndoActions\RevertUpdateQuotationProductService;
+use App\Modules\QuotationLogs\Domain\Services\UndoRedoActions\{
+    RemoveQuotationItemAction,
+    ReviveQuotationItemAction,
+    RevertQuotationItemUpdateAction,
+};
 
 class UndoService
 {
-    public function make(QuotationActivityLog $lastLog, Quotation $quotation): QuotationProduct|null      
+    public function make(QuotationActivityLog $lastLog, Quotation $quotation): QuotationProduct|null
     {
         $executer = match ($lastLog->activity_type) {
-            QuotationActivityType::CREATE_PRODUCT => app()->make(RemoveQuotationProductService::class),
-            QuotationActivityType::UPDATE_PRODUCT => app()->make(RevertUpdateQuotationProductService::class),
-            QuotationActivityType::DELETE_PRODUCT => app()->make(ReviveQuotationProductService::class),
+            QuotationActivityType::CREATE => app()->make(RemoveQuotationItemAction::class),
+            QuotationActivityType::UPDATE => app()->make(RevertQuotationItemUpdateAction::class),
+            QuotationActivityType::DELETE => app()->make(ReviveQuotationItemAction::class),
             default => null,
         };
-        $quotationProduct = $executer?->execute($lastLog);
-        if($quotationProduct === null) {
+        $quotationItem = $executer?->execute($lastLog);
+        if($quotationItem === null) {
             return null;
         }
         $this->updateQuotationStatusLog($quotation, $lastLog);
-        
-        return $quotationProduct;
+
+        return $quotationItem;
     }
 
     public function updateQuotationStatusLog(Quotation $quotation, QuotationActivityLog $lastLog): void

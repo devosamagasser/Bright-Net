@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Modules\DataSheets\Domain\Models\DataTemplate;
 
 class DataTemplateSeeder extends Seeder
 {
@@ -50,6 +51,39 @@ class DataTemplateSeeder extends Seeder
             29 => \Database\Seeders\DataTemplates\OutdoorEmergencyExitTemplate::class,
         ];
 
+
+
+
+        $templates = [
+            // -------------------------------
+            // Indoor (1 → 14)
+            // -------------------------------
+            1  => \Database\Seeders\DataTemplates\AIndoorTemplate::class,
+            2  => \Database\Seeders\DataTemplates\AIndoorTemplate::class,
+            3  => \Database\Seeders\DataTemplates\AIndoorTemplate::class,
+            4  => \Database\Seeders\DataTemplates\AIndoorTemplate::class,
+            5  => \Database\Seeders\DataTemplates\AIndoorTemplate::class,
+            7  => \Database\Seeders\DataTemplates\AIndoorTemplate::class,
+            8  => \Database\Seeders\DataTemplates\AIndoorTemplate::class,
+            9  => \Database\Seeders\DataTemplates\AIndoorTemplate::class,
+            10 => \Database\Seeders\DataTemplates\AIndoorTemplate::class,
+
+            // -------------------------------
+            // Outdoor (15 → 30)
+            // -------------------------------
+            11 => \Database\Seeders\DataTemplates\AOutdoorTemplate::class,
+            12 => \Database\Seeders\DataTemplates\AOutdoorTemplate::class,
+            13 => \Database\Seeders\DataTemplates\AOutdoorTemplate::class,
+            15 => \Database\Seeders\DataTemplates\AOutdoorTemplate::class,
+            16 => \Database\Seeders\DataTemplates\AOutdoorTemplate::class,
+            17 => \Database\Seeders\DataTemplates\AOutdoorTemplate::class,
+            18 => \Database\Seeders\DataTemplates\AOutdoorTemplate::class,
+            19 => \Database\Seeders\DataTemplates\AOutdoorTemplate::class,
+            20 => \Database\Seeders\DataTemplates\AOutdoorTemplate::class,
+            21 => \Database\Seeders\DataTemplates\AOutdoorTemplate::class,
+            22 => \Database\Seeders\DataTemplates\AOutdoorTemplate::class,
+        ];
+        
         foreach ($templates as $subcategoryId => $class) {
             (new $class)->build($subcategoryId);
         }

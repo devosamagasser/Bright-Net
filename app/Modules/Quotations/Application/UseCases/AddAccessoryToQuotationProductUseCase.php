@@ -60,30 +60,15 @@ class AddAccessoryToQuotationProductUseCase
             ]);
         }
 
-        $typeValue = $input->type;
-
-        if ($typeValue === null) {
-            throw ValidationException::withMessages([
-                'accessory_type' => trans('validation.required', ['attribute' => 'accessory type']),
-            ]);
-        }
-
-        $type = AccessoryType::tryFrom($typeValue);
-
-        if ($type === null) {
-            throw ValidationException::withMessages([
-                'accessory_type' => trans('validation.in', ['attribute' => 'accessory type']),
-            ]);
-        }
-
-        $this->assertAccessoryIsOptionalForProduct($product, $accessory, $type);
+        $this->assertAccessoryIsOptionalForProduct($product, $accessory);
 
         $accessory = $this->quotations->addAccessory($item, $accessory, $input->attributes());
 
         $this->activityService->log(
             model: $accessory,
-            activityType: QuotationActivityType::CREATE_ACCESSORY,
+            activityType: QuotationActivityType::CREATE,
         );
+        
         return $this->quotations->refreshTotals($quotation);
     }
 
@@ -96,20 +81,14 @@ class AddAccessoryToQuotationProductUseCase
         }
     }
 
-    private function assertAccessoryIsOptionalForProduct(Product $product, Product $accessory, AccessoryType $type): void
+    private function assertAccessoryIsOptionalForProduct(Product $product, Product $accessory): void
     {
-        // if ($type !== AccessoryType::OPTIONAL) {
-        //     throw ValidationException::withMessages([
-        //         'accessory_type' => trans('apiMessages.forbidden'),
-        //     ]);
-        // }
-
         $linkedAccessory = $product->accessories
             ->first(static function (ProductAccessory $definition) use ($accessory): bool {
                 return (int) $definition->accessory_id === (int) $accessory->getKey();
             });
 
-        if ($linkedAccessory === null || $linkedAccessory->accessory_type !== AccessoryType::OPTIONAL) {
+        if ($linkedAccessory === null) {
             throw ValidationException::withMessages([
                 'accessory_id' => trans('validation.in', ['attribute' => 'accessory']),
             ]);

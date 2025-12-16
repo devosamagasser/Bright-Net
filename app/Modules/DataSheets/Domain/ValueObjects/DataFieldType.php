@@ -10,6 +10,7 @@ enum DataFieldType: string
     case BOOLEAN = 'boolean';
     case DATE = 'date';
     case MULTISELECT = 'multiselect';
+    case GROUPEDSELECT = 'groupedselect';
 
     public static function values(): array
     {

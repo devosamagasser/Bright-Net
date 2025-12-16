@@ -14,10 +14,15 @@ return new class extends Migration
         Schema::create('data_fields', function (Blueprint $table) {
             $table->id();
             $table->foreignId('data_template_id')->constrained()->onDelete('cascade');
-            $table->string('type'); // text, number, select, boolean, date, multiselect
+            $table->string('name');
+            $table->string('type'); // text, select, multiselect, groupedselect,
             $table->boolean('is_required')->default(false);
+            $table->boolean('with_custom')->default(false);
+            $table->string('prefix')->nullable();
+            $table->string('suffix')->nullable();
             $table->json('options')->nullable();
             $table->boolean('is_filterable')->default(false);
+            $table->string('group')->nullable();
             $table->unsignedInteger('position')->default(0);
             $table->timestamps();
         });

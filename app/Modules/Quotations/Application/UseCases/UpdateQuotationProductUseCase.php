@@ -34,7 +34,7 @@ class UpdateQuotationProductUseCase
 
         $this->activityService->log(
             model: $item,
-            activityType: QuotationActivityType::UPDATE_PRODUCT,
+            activityType: QuotationActivityType::UPDATE,
             oldObject: $item->toArray(),
             newObject: $newItem->toArray()
         );

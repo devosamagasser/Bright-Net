@@ -1,11 +1,11 @@
 <?php
-namespace App\Modules\QuotationLogs\Domain\Services\UndoActions;
+namespace App\Modules\QuotationLogs\Domain\Services\UndoRedoActions;
 
 
 use App\Modules\Quotations\Domain\Models\QuotationProduct;
 use App\Modules\QuotationLogs\Domain\Models\QuotationActivityLog;
 
-class RemoveQuotationProductService
+class RemoveQuotationItemAction
 {
     public function execute(QuotationActivityLog $log):QuotationProduct
     {

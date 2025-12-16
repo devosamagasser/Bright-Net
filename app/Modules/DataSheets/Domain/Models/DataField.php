@@ -23,6 +23,9 @@ class DataField extends Model
         'is_filterable',
         'position',
         'name',
+        'with_custom',
+        'prefix',
+        'suffix',
     ];
 
     /**

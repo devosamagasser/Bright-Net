@@ -12,7 +12,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('data_fields', function (Blueprint $table) {
-            $table->string('name');
         });
     }
 

@@ -85,7 +85,7 @@ class AddProductToQuotationUseCase
 
         $this->activityService->log(
             model: $quotationProduct,
-            activityType: QuotationActivityType::CREATE_PRODUCT,
+            activityType: QuotationActivityType::CREATE,
         );
 
         return $this->quotations->refreshTotals($quotation);

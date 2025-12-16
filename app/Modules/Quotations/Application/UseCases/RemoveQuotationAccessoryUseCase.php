@@ -28,7 +28,7 @@ class RemoveQuotationAccessoryUseCase
         $this->quotations->deleteAccessory($accessory);
         $this->activityService->log(
             model: $accessory,
-            activityType: QuotationActivityType::DELETE_ACCESSORY,
+            activityType: QuotationActivityType::DELETE,
         );
         return $this->quotations->refreshTotals($quotation);
     }

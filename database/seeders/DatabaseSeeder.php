@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             ColorSeeder::class,
             SolutionSeeder::class,
             BrandSeeder::class,
+            DataTemplateSeeder::class,
             // CompanySeeder::class,
             // SupplierSeeder::class,
         ]);

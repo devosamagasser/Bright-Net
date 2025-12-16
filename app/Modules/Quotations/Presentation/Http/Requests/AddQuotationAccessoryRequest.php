@@ -18,17 +18,8 @@ class AddQuotationAccessoryRequest extends FormRequest
     {
         return [
             'accessory_id' => ['required', 'integer', 'exists:products,id'],
-            'accessory_type' => ['required', Rule::in([AccessoryType::OPTIONAL->value])],
             'quantity' => ['nullable', 'integer', 'min:1'],
-            // 'item_ref' => ['nullable', 'string', 'max:50'],
-            // 'position' => ['nullable', 'integer', 'min:0'],
-            // 'notes' => ['nullable', 'string'],
-            // 'price' => ['nullable', 'numeric', 'min:0'],
-            // 'discount' => ['nullable', 'numeric', 'min:0', 'max:100'],
-            // 'currency' => ['nullable', Rule::in(PriceCurrency::values())],
-            // 'delivery_time_unit' => ['nullable', Rule::in(DeliveryTimeUnit::values())],
-            // 'delivery_time_value' => ['nullable', 'string', 'max:50'],
-            // 'vat_included' => ['nullable', 'boolean'],
+            'item_ref' => ['nullable', 'string', 'max:50']
         ];
     }
 

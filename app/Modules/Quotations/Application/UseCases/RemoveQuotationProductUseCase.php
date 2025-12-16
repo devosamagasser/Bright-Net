@@ -32,7 +32,7 @@ class RemoveQuotationProductUseCase
 
             $this->activityService->log(
                 model: $item,
-                activityType: QuotationActivityType::DELETE_PRODUCT,
+                activityType: QuotationActivityType::DELETE,
             );
 
             return $this->quotations->refreshTotals($quotation);
