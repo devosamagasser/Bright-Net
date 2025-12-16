@@ -117,7 +117,7 @@ class AOutdoorTemplate
         |--------------------------------------------------------------------------
         */
         $finish = $template->fields()->create([
-            'type' => 'select',
+            'type' => 'groupedselect',
             'name' => 'finish_color',
             'position' => 4,
             'is_required' => false,
@@ -467,7 +467,7 @@ class AOutdoorTemplate
         |--------------------------------------------------------------------------
         */
         $beam = $template->fields()->create([
-            'type' => 'select',
+            'type' => 'groupedselect',
             'name' => 'beam_angle',
             'position' => 25,
             'with_custom' => true,
