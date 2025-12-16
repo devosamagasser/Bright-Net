@@ -43,7 +43,7 @@ class RequestValidationBuilder
 
                 if ($type === DataFieldType::SELECT) {
                     $ruleSet[] = Rule::in($allowed);
-                } else {
+                } else if($type === DataFieldType::MULTISELECT) {
                     $rules['values.' . $fieldKey . '.*'] = [Rule::in($allowed)];
                 }
             }

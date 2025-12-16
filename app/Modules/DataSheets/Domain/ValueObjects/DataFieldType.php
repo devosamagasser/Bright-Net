@@ -19,7 +19,7 @@ enum DataFieldType: string
 
     public static function selectable(): array
     {
-        return [self::SELECT, self::MULTISELECT];
+        return [self::SELECT, self::MULTISELECT, self::GROUPEDSELECT];
     }
 
     public function requiresOptions(): bool
@@ -34,6 +34,7 @@ enum DataFieldType: string
             self::NUMBER => 'numeric',
             self::SELECT => 'string',
             self::MULTISELECT => 'array',
+            self::GROUPEDSELECT => 'string',
             self::BOOLEAN => 'boolean',
             self::DATE => 'date',
         };
