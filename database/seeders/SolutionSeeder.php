@@ -53,7 +53,9 @@ class SolutionSeeder extends Seeder
                             ['translations' => ['en' => ['name' => 'LED Flex / Strip (IP Rated)'], 'ar' => ['name' => 'سترب خارجي']]],
                             ['translations' => ['en' => ['name' => 'Emergency / Exit'],            'ar' => ['name' => 'طوارئ / مخارج خارجية']]],
                         ],
-                        [
+
+                    ],
+                    [
                         'translations' => [
                             'en' => ['name' => 'Fittings & Accessories'],
                             'ar' => ['name' => 'إكسسوارات'],
@@ -67,7 +69,6 @@ class SolutionSeeder extends Seeder
                             ['translations' => ['en' => ['name' => 'Connector / Cable'],                    'ar' => ['name' => 'موصل / كابل']]],
                             ['translations' => ['en' => ['name' => 'Replacement Part (Lens, Cover)'],       'ar' => ['name' => 'قطعة غيار (عدسة ، غطاء)']]],
                         ],
-                    ],
                     ],
                 ],
             ]
