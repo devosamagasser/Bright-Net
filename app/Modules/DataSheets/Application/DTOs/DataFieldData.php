@@ -28,7 +28,7 @@ class DataFieldData
                 'type' => $field->type instanceof DataFieldType ? $field->type->value : $field->type,
                 'is_required' => $field->is_required,
                 'is_filterable' => $field->is_filterable,
-                'with_custom' => $field->with_custom,
+                'with_custom' => (bool) $field->with_custom,
                 'prefix' => $field->prefix,
                 'suffix' => $field->suffix,
                 'options' => match ($field->type) {

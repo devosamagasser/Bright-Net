@@ -25,12 +25,17 @@ class CreateProductUseCase
         $family = $this->requireFamily((int) ($attributes['family_id'] ?? 0));
         $this->assertFamilyBelongsToSupplier($family, $input->supplierId);
 
-        $template = $this->requireTemplate($family);
-        $this->assertTemplateMatchesFamily($template, $family);
-
-        $attributes = $attributes + [
-            'data_template_id' => $template->id,
-        ];
+        $template = $this->templates->findBySubcategoryAndType(
+                        $family->subcategory_id,
+                        DataTemplateType::PRODUCT
+                    );
+                    
+        if ($template !== null) {
+            $this->assertTemplateMatchesFamily($template, $family);
+            $attributes = $attributes + [
+                'data_template_id' => $template->id,
+            ];
+        }
 
         $product = $this->products->create(
             $attributes,
@@ -60,22 +65,6 @@ class CreateProductUseCase
 
         return $family;
     }
-
-    private function requireTemplate(Family $family): DataTemplate
-    {
-        $template = $this->templates->findBySubcategoryAndType(
-            $family->subcategory_id,
-            DataTemplateType::PRODUCT
-        );
-        if ($template === null) {
-            throw ValidationException::withMessages([
-                'data_template_id' => trans('validation.exists', ['attribute' => 'data template']),
-            ]);
-        }
-
-        return $template;
-    }
-
 
     private function assertFamilyBelongsToSupplier(Family $family, ?int $supplierId): void
     {
