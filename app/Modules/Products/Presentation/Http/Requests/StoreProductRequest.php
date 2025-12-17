@@ -40,7 +40,8 @@ class StoreProductRequest extends FormRequest
             'origin' => ['nullable', 'string'],
 
             'translations' => ['required', 'array', 'min:1'],
-            'translations.*.name' => ['required', 'string', 'min:1', 'max:255'],
+            'translations.ar.name' => ['nullable', 'string', 'min:1', 'max:255'],
+            'translations.en.name' => ['required', 'string', 'min:1', 'max:255'],
             'translations.*.description' => ['nullable', 'string'],
 
             'prices' => ['nullable', 'array'],
