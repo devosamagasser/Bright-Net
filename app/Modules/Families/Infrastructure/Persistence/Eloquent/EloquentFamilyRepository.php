@@ -3,9 +3,12 @@
 namespace App\Modules\Families\Infrastructure\Persistence\Eloquent;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use App\Modules\Families\Domain\Models\Family;
 use App\Modules\DataSheets\Domain\Models\DataField;
 use App\Modules\DataSheets\Domain\Models\DataTemplate;
@@ -28,7 +31,8 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             if($values !== [])
                 $this->syncFieldValues($family, $values);
 
-            $this->syncImage($family, $image);
+            $this->syncImage($family, $image, $attributes['image_url'] ?? null);
+
 
             return $this->loadAggregates($family);
         });
@@ -47,7 +51,7 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
                 $this->syncFieldValues($family, $values);
             }
 
-            $this->syncImage($family, $image);
+            $this->syncImage($family, $image, $attributes['image_url'] ?? null);
 
             return $this->loadAggregates($family);
         });
@@ -145,13 +149,70 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
         };
     }
 
-    private function syncImage(Family $family, ?UploadedFile $image = null): void
-    {
-        if ($image === null) {
+    private function syncImage(
+        Family $family,
+        ?UploadedFile $image = null,
+        ?string $imageUrl = null
+    ): void {
+        if ($image instanceof UploadedFile) {
+            $this->syncUploadedImage($family, $image);
             return;
         }
+
+        if ($imageUrl !== null) {
+            $this->syncImageFromLocalUrl($family, $imageUrl);
+        }
+    }
+
+    private function syncUploadedImage(Family $family, UploadedFile $image): void
+    {
+        $family->clearMediaCollection('images');
 
         $family->addMedia($image)
             ->toMediaCollection('images');
     }
+
+    private function syncImageFromLocalUrl(Family $family, string $imageUrl): void
+    {
+        $path = $this->resolveLocalStoragePath($imageUrl);
+
+        if ($path === null) {
+            return;
+        }
+
+        $excludedMedia = $family->media()
+        ->where('collection_name', 'gallery')
+        ->where('file_name', basename($path))
+        ->first();
+
+        if($excludedMedia !== null){
+            $family->clearMediaCollectionExcept('gallery', excludedMedia: $excludedMedia);
+            return;
+        }
+        
+        $family->addMedia($path)
+            ->preservingOriginal()
+            ->toMediaCollection('images');
+    }
+
+    private function resolveLocalStoragePath(string $url): ?string
+    {
+        $appUrl = rtrim(config('app.url'), '/');
+
+        if (!Str::startsWith($url, $appUrl . '/storage/')) {
+            return null;
+        }
+        $relativePath = Str::after(
+            parse_url($url, PHP_URL_PATH),
+            '/storage/'
+        );
+
+        if (!Storage::disk('public')->exists($relativePath)) {
+            return null;
+        }
+
+        return Storage::disk('public')->path($relativePath);
+    }
+
+
 }

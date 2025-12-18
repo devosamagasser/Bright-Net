@@ -343,17 +343,16 @@ class EloquentProductRepository implements ProductRepositoryInterface
 
     private function syncOldGallery(Product $product, array $oldGallery): void
     {
+        $fileNames = collect($oldGallery)
+            ->map(fn ($url) => basename($url))
+            ->unique()
+            ->values();
 
-            $fileNames = collect($oldGallery)
-                ->map(fn ($url) => basename($url))
-                ->unique()
-                ->values();
 
-
-            $excludedMedia = $product->media()
-                ->where('collection_name', 'gallery')
-                ->whereIn('file_name', $fileNames)
-                ->get();
+        $excludedMedia = $product->media()
+            ->where('collection_name', 'gallery')
+            ->whereIn('file_name', $fileNames)
+            ->get();
 
         $product->clearMediaCollectionExcept('gallery', excludedMedia: $excludedMedia);
     }
