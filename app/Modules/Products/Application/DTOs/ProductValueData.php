@@ -42,9 +42,40 @@ class ProductValueData
             'placeholder' => $field->placeholder,
             'is_required' => $field->is_required,
             'is_filterable' => $field->is_filterable,
-            'options' => collect($field->options ?? [])
-                ->map(fn($option) => ['label' => $option, 'value' => $option])
-                ->all(),
+            // 'options' => collect($field->options ?? [])
+            //     ->map(fn($option) => ['label' => $option, 'value' => $option])
+            //     ->all(),
+            'options' => match ($field->type) {
+                    DataFieldType::SELECT => collect($field->options ?? [])
+                        ->map(fn ($option) => [
+                            'label' => $option,
+                            'value' => $option,
+                        ])
+                        ->values()
+                        ->all(),
+                    DataFieldType::MULTISELECT => collect($field->options ?? [])
+                        ->map(fn ($option) => [
+                            'label' => $option,
+                            'value' => $option,
+                        ])
+                        ->values()
+                        ->all(),
+                    DataFieldType::GROUPEDSELECT => collect($field->options ?? [])
+                        ->map(fn ($options, $group) => [
+                            'label' => $group,
+                            'options' => collect($options)
+                                ->map(fn ($option) => [
+                                    'label' => $option,
+                                    'value' => $option,
+                                ])
+                                ->values()
+                                ->all(),
+                        ])
+                        ->values()
+                        ->all(),
+
+                    default => [],
+                },
         ];
     }
 

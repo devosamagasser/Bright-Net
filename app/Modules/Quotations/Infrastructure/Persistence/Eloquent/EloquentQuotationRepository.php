@@ -94,7 +94,7 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
             $item = $quotation->products()->create($payload);
 
             $this->attachIncludedAccessories($item, $product);
-            $this->attachNeededAccessories($item, $product);
+            // $this->attachNeededAccessories($item, $product);
 
             $this->createProvidedAccessories($item, $accessories);
 
@@ -134,7 +134,7 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
             $item = $quotation->products()->create($payload);
 
             $this->attachIncludedAccessories($item, $replacement);
-            $this->attachNeededAccessories($item, $replacement);
+            // $this->attachNeededAccessories($item, $replacement);
 
             $this->createProvidedAccessories($item, $accessories);
 
@@ -604,7 +604,7 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
                     $item,
                     $linked,
                     [
-                        'quantity' => $quantity,
+                        'quantity' => $quantity * $item->quantity,
                         'accessory_type' => AccessoryType::INCLUDED->value,
                         'price' => null,
                         'discount' => 0,

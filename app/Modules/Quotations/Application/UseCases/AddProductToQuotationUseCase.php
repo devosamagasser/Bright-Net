@@ -38,7 +38,6 @@ class AddProductToQuotationUseCase
         }
 
         $accessories = [];
-
         foreach ($input->accessories() as $accessoryInput) {
             $accessory = $this->products->find($accessoryInput->accessoryId);
             $accessory->loadMissing('family.supplier');

@@ -23,6 +23,7 @@ class UpdateQuotationProductRequest extends FormRequest
             'discount' => ['sometimes', 'nullable', 'numeric', 'min:0', 'max:100'],
             'currency' => ['sometimes', 'nullable', Rule::in(PriceCurrency::values())],
             'quantity' => ['sometimes', 'nullable', 'integer', 'min:1'],
+            'price' => ['sometimes', 'nullable', 'numeric', 'min:0'],
         ];
     }
 
