@@ -3,6 +3,7 @@
 namespace App\Modules\Products\Application\DTOs;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use App\Modules\Products\Domain\Models\ProductAccessory;
 use App\Modules\Products\Domain\ValueObjects\AccessoryType;
 
@@ -23,6 +24,9 @@ class ProductAccessoryData
         $product = $accessory->accessory;
         $product->loadMissing([
             'fieldValues.field.translations',
+            'family',
+            'family.subcategory.department',
+            'family.supplier',
         ]);
         return new self(
             type: $accessory->accessory_type?->value ?? AccessoryType::OPTIONAL->value,
@@ -38,6 +42,11 @@ class ProductAccessoryData
                     ->map(static fn ($value) => ProductValueData::fromModel($value))
                     ->values()
                     ->all(),
+                'roots' => [
+                    'family_id' => $product->family_id,
+                    'department_id' => $product->family->supplier_department_id,
+                    'subcategory_id' => $product->family->subcategory_id,
+                ],
                 // 'translations' => $product->translations
                 //     ->mapWithKeys(static fn ($translation) => [
                 //         $translation->locale => [
