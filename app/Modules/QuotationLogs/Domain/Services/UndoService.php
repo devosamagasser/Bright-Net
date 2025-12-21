@@ -3,7 +3,7 @@
 namespace App\Modules\QuotationLogs\Domain\Services;
 
 use App\Modules\Quotations\Domain\Models\Quotation;
-use App\Modules\Quotations\Domain\Models\QuotationProduct;
+use App\Modules\Quotations\Domain\Models\{QuotationProduct, QuotationProductAccessory};
 use App\Modules\QuotationLogs\Domain\Models\QuotationActivityLog;
 use App\Modules\QuotationLogs\Domain\ValueObjects\QuotationActivityType;
 use App\Modules\QuotationLogs\Domain\Services\UndoRedoActions\{
@@ -14,8 +14,9 @@ use App\Modules\QuotationLogs\Domain\Services\UndoRedoActions\{
 
 class UndoService
 {
-    public function make(QuotationActivityLog $lastLog, Quotation $quotation): QuotationProduct|null
+    public function make(QuotationActivityLog $lastLog, Quotation $quotation): QuotationProduct|QuotationProductAccessory|null
     {
+        // dd($lastLog);
         $executer = match ($lastLog->activity_type) {
             QuotationActivityType::CREATE => app()->make(RemoveQuotationItemAction::class),
             QuotationActivityType::UPDATE => app()->make(RevertQuotationItemUpdateAction::class),

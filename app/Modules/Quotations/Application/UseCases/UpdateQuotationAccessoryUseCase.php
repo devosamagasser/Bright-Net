@@ -29,9 +29,11 @@ class UpdateQuotationAccessoryUseCase
 
         $this->quotations->updateAccessory($accessory, $input->attributes());
             $this->activityService->log(
-            model: $accessory,
-            activityType: QuotationActivityType::UPDATE,
-        );
+                model: $accessory,
+                activityType: QuotationActivityType::UPDATE,
+                oldObject: $accessory->getOriginal(),
+                newObject: $accessory->getAttributes(),
+            );
 
         return $this->quotations->refreshTotals($quotation);
     }

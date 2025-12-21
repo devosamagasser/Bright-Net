@@ -17,6 +17,7 @@ class RedoService
 {
     public function make(QuotationActivityLog $currentLog, QuotationActivityLog|null $lastLog = null, Quotation $quotation): QuotationProduct|QuotationProductAccessory|null
     {
+    
         $executer = match ($currentLog->activity_type) {
             QuotationActivityType::CREATE => app()->make(ReviveQuotationItemAction::class),
             QuotationActivityType::UPDATE => app()->make(RevertQuotationItemUpdateAction::class),

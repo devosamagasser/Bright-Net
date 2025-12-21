@@ -2,19 +2,20 @@
 
 namespace App\Modules\QuotationLogs\Application\UseCases;
 
-use App\Modules\Quotations\Domain\Models\QuotationProduct;
-use App\Modules\QuotationLogs\Domain\Services\UndoService;
 use Illuminate\Validation\ValidationException;
 use App\Modules\Quotations\Domain\Models\Quotation;
+use App\Modules\QuotationLogs\Domain\Services\UndoService;
+use App\Modules\Quotations\Domain\Repositories\QuotationRepositoryInterface;
 
 class UndoActionQuotationUseCase
 {
     public function __construct(
         private readonly UndoService $undoService,
+        private readonly QuotationRepositoryInterface $draftQuotation,
     ) {
     }
 
-    public function handle(int $supplierId, Quotation $quotation): QuotationProduct
+    public function handle(int $supplierId, Quotation $quotation): Quotation
     {
         if($quotation->supplier_id !== $supplierId) {
             throw ValidationException::withMessages([
@@ -33,6 +34,8 @@ class UndoActionQuotationUseCase
                     'quotation' => trans('apiMessages.no_undo_available'),
                 ]);
             }
-        return $this->undoService->make($lastLog, $quotation);
+            $this->undoService->make($lastLog, $quotation);
+
+        return $this->draftQuotation->refreshTotals($quotation);
     }
 }

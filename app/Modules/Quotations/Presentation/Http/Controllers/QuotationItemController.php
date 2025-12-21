@@ -40,12 +40,14 @@ class QuotationItemController
 
     public function destroy(QuotationProduct $item)
     {
-        $this->removeItem->handle(
+        $quotation = $this->removeItem->handle(
             $item,
             $this->supplierId()
         );
 
-        return ApiResponse::deleted();
+        return ApiResponse::success(
+            QuotationResource::make($quotation)->resolve()
+        );
     }
 
     public function replace(ReplaceQuotationProductRequest $request, QuotationProduct $item)
