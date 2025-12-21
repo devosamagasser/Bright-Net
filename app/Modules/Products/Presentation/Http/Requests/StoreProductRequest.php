@@ -61,6 +61,8 @@ class StoreProductRequest extends FormRequest
             'colors' => ['nullable', 'array'],
             'colors.*' => ['integer', 'exists:colors,id'],
 
+            'old_gallery' => ['nullable', 'array'],
+            'old_gallery.*' => ['string', 'url'],
             'gallery' => ['nullable', 'array'],
             'gallery.*' => ['file'],
 

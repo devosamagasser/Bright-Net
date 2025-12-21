@@ -22,7 +22,7 @@ interface ProductRepositoryInterface
      * @param  array<string, mixed>  $values
      * @param  array<string, mixed>  $relations
      */
-    public function update(Product $product, array $attributes, array $translations, array $values, array $oldGallery = [], array $relations = []): Product;
+    public function update(Product $product, array $attributes, array $translations, array $values, array $relations = []): Product;
 
     public function delete(Product $product): void;
 

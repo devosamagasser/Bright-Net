@@ -30,7 +30,7 @@ class UpdateProductUseCase
             subcategoryId: $family->subcategory_id,
             type: DataTemplateType::PRODUCT
         );
-        
+
         if ($template !== null) {
             $this->assertTemplateMatchesFamily($template, $family);
 
@@ -44,7 +44,7 @@ class UpdateProductUseCase
             attributes: $attributes,
             translations: $input->translations,
             values: $input->values,
-            oldGallery: $input->oldGallery,
+            // oldGallery: $input->oldGallery,
             relations: [
                 'prices' => $input->prices,
                 'sync_prices' => $input->shouldSyncPrices,

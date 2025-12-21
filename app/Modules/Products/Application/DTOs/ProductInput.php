@@ -48,6 +48,7 @@ class ProductInput
 
         $media = [
             'gallery' => self::extractFiles(Arr::pull($payload, 'gallery', [])),
+            'old_gallery' => $oldGallery,
             'documents' => self::extractFiles(Arr::pull($payload, 'documents', [])),
             'dimensions' => self::extractFiles(Arr::pull($payload, 'dimensions', [])),
         ];
@@ -64,7 +65,7 @@ class ProductInput
             accessories: array_values(is_array($accessories) ? $accessories : []),
             shouldSyncAccessories: $shouldSyncAccessories,
             media: $media,
-            oldGallery: is_array($oldGallery) ? $oldGallery : [],
+            // oldGallery: is_array($oldGallery) ? $oldGallery : [],
             supplierId: is_numeric($supplierId) ? (int) $supplierId : null,
         );
     }

@@ -3,9 +3,11 @@
 namespace App\Modules\Products\Infrastructure\Persistence\Eloquent;
 
 use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 use App\Modules\DataSheets\Domain\Models\DataField;
 use App\Modules\DataSheets\Domain\Models\DataTemplate;
@@ -32,15 +34,15 @@ class EloquentProductRepository implements ProductRepositoryInterface
             $this->syncPrices($product, $relations, true);
             $this->syncAccessories($product, $relations, true);
             // $this->syncColors($product, $relations, true);
-            $this->syncMedia($product, $relations);
-
+            // $this->syncMedia($product, $relations);
+            $this->syncProductMedia($product, $relations['media'] ?? [], false);
             return $this->loadAggregates($product);
         });
     }
 
-    public function update(Product $product, array $attributes, array $translations, array $values, array $oldGallery = [], array $relations = []): Product
+    public function update(Product $product, array $attributes, array $translations, array $values, array $relations = []): Product
     {
-        return DB::transaction(function () use ($product, $attributes, $translations, $values, $oldGallery, $relations): Product {
+        return DB::transaction(function () use ($product, $attributes, $translations, $values, $relations): Product {
             $currentTemplateId = (int) $product->data_template_id;
             $templateChanged = array_key_exists('data_template_id', $attributes)
                 && (int) $attributes['data_template_id'] !== $currentTemplateId;
@@ -62,8 +64,9 @@ class EloquentProductRepository implements ProductRepositoryInterface
             $this->syncPrices($product, $relations, (bool) Arr::get($relations, 'sync_prices', false));
             $this->syncAccessories($product, $relations, (bool) Arr::get($relations, 'sync_accessories', false));
             // $this->syncColors($product, $relations, (bool) Arr::get($relations, 'sync_colors', false));
-            $this->syncOldGallery($product, $oldGallery);
-            $this->syncMedia($product, $relations);
+            // $this->syncOldGallery($product, $relations['media']['old_gallery'] ?? []);
+            // $this->syncMedia($product, $relations);
+            $this->syncProductMedia($product, $relations['media'] ?? [], true);
             return $this->loadAggregates($product);
         });
     }
@@ -316,46 +319,98 @@ class EloquentProductRepository implements ProductRepositoryInterface
         $product->colors()->sync(array_filter($colorIds));
     }
 
-    /**
-     * @param  array<string, mixed>  $relations
-     */
-    private function syncMedia(Product $product, array $relations): void
+    private function syncProductMedia(Product $product, array $media, bool $isUpdate = false): void
     {
-        $media = Arr::get($relations, 'media', []);
+        $uploadedFiles = $this->extractUploadedFiles($media);
+        $localUrls     = $this->extractLocalUrls($media);
 
-        if (! is_array($media)) {
-            return;
+        if ($isUpdate) {
+            $this->syncRemovedMedia($product, $localUrls);
         }
 
-        foreach (['gallery', 'documents', 'dimensions'] as $collection) {
-            $files = Arr::get($media, $collection, []);
-            if (! is_array($files) || $files === []) {
-                continue;
-            }
-
-            foreach ($files as $file) {
-                if ($file instanceof UploadedFile) {
-                    $product->addMedia($file)->toMediaCollection($collection);
-                }
-            }
-        }
+        $this->attachLocalMedia($product, $localUrls);
+        $this->attachUploadedFiles($product, $uploadedFiles);
     }
 
-    private function syncOldGallery(Product $product, array $oldGallery): void
+    private function extractUploadedFiles(array $media): array
     {
-        $fileNames = collect($oldGallery)
+        return collect($media)
+            ->flatten()
+            ->filter(fn ($item) => $item instanceof UploadedFile)
+            ->all();
+    }
+
+    private function extractLocalUrls(array $media): array
+    {
+        return collect($media)
+            ->flatten()
+            ->filter(fn ($item) => is_string($item))
+            ->all();
+    }
+
+    private function syncRemovedMedia(Product $product, array $urls): void
+    {
+        $keepFileNames = collect($urls)
             ->map(fn ($url) => basename($url))
-            ->unique()
-            ->values();
+            ->unique();
 
-
-        $excludedMedia = $product->media()
+        $toKeep = $product->media()
             ->where('collection_name', 'gallery')
-            ->whereIn('file_name', $fileNames)
+            ->whereIn('file_name', $keepFileNames)
             ->get();
 
-        $product->clearMediaCollectionExcept('gallery', excludedMedia: $excludedMedia);
+        $product->clearMediaCollectionExcept('gallery', excludedMedia: $toKeep);
     }
+
+    private function attachLocalMedia(Product $product, array $urls): void
+    {
+        collect($urls)
+            ->map(fn ($url) => $this->resolveLocalStoragePath($url))
+            ->filter()
+            ->each(function ($path) use ($product) {
+                $exists = $product->media()
+                    ->where('collection_name', 'gallery')
+                    ->where('file_name', basename($path))
+                    ->exists();
+
+                if ($exists) {
+                    return;
+                }
+
+                $product->addMedia($path)
+                    ->preservingOriginal()
+                    ->toMediaCollection('gallery');
+            });
+    }
+
+    private function attachUploadedFiles(Product $product, array $files): void
+    {
+        foreach ($files as $file) {
+            $product->addMedia($file)
+                ->toMediaCollection('gallery');
+        }
+    }
+
+    private function resolveLocalStoragePath(string $url): ?string
+    {
+        $appUrl = rtrim(config('app.url'), '/');
+
+        if (!Str::startsWith($url, $appUrl . '/storage/')) {
+            return null;
+        }
+
+        $relativePath = Str::after(
+            parse_url($url, PHP_URL_PATH),
+            '/storage/'
+        );
+
+        return Storage::disk('public')->exists($relativePath)
+            ? Storage::disk('public')->path($relativePath)
+            : null;
+    }
+
+
+
 
     public function findAccessoryOfProduct(int $product_id, int $accessory_id): ?ProductAccessory
     {
