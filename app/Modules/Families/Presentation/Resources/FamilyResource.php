@@ -18,7 +18,7 @@ class FamilyResource extends JsonResource
             'id' => $this->attributes['id'] ?? null,
             'subcategory_id' => $this->attributes['subcategory_id'] ?? null,
             'data_template_id' => $this->attributes['data_template_id'] ?? null,
-            'images' => $this->attributes['images'],
+            'image' => $this->attributes['images'],
             'name' => $this->attributes['name'] ?? null,
             'description' => $this->attributes['description'] ?? null,
             'translations' => $this->when(Request::is('api.families.show'), $this->translations),

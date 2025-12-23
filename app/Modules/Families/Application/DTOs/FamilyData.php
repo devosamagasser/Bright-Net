@@ -27,7 +27,7 @@ class FamilyData
                 'subcategory_id' => (int) $family->subcategory_id,
                 'supplier_id' => (int) $family->supplier_id,
                 'data_template_id' => (int) $family->data_template_id,
-                'images' => $family->relationLoaded('images') ? $family->media
+                'images' => $family->media
                             ->where('collection_name', 'images')
                             ->map(fn ($media) => [
                                 'id' => (int) $media->id,
@@ -37,7 +37,7 @@ class FamilyData
                                 'url' => $media->getUrl(),
                             ])
                             ->values()
-                            ->first() : null,
+                            ->first(),
                 'name' => $family->name,
                 'description' => $family->description,
                 'created_at' => $family->created_at?->toISOString(),
