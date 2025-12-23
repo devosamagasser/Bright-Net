@@ -2,6 +2,7 @@
 
 namespace App\Modules\Products\Application\UseCases;
 
+use App\Modules\Families\Domain\Repositories\FamilyRepositoryInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Modules\Families\Domain\Models\Family;
@@ -10,7 +11,10 @@ use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
 
 class ListProductsUseCase
 {
-    public function __construct(private readonly ProductRepositoryInterface $products)
+    public function __construct(
+        private readonly ProductRepositoryInterface $products,
+        private readonly FamilyRepositoryInterface $families
+    )
     {
     }
 
@@ -20,7 +24,7 @@ class ListProductsUseCase
     public function handle(int $familyId, ?int $supplierId = null): Collection
     {
         $products = $this->products->getByFamily($familyId, $supplierId);
-        $family = $products->first()?->family ?? Family::find($familyId);
+        $family = $products->first()?->family ?? $this->families->find($familyId);
         return ProductData::collection($products, $family);
     }
 
