@@ -27,17 +27,7 @@ class FamilyData
                 'subcategory_id' => (int) $family->subcategory_id,
                 'supplier_id' => (int) $family->supplier_id,
                 'data_template_id' => (int) $family->data_template_id,
-                'images' => $family->media
-                            ->where('collection_name', 'images')
-                            ->map(fn ($media) => [
-                                'id' => (int) $media->id,
-                                'name' => $media->name,
-                                'file_name' => $media->file_name,
-                                'mime_type' => $media->mime_type,
-                                'url' => $media->getUrl(),
-                            ])
-                            ->values()
-                            ->first(),
+                'images' => $family->getFirstMediaUrl('images'),
                 'name' => $family->name,
                 'description' => $family->description,
                 'created_at' => $family->created_at?->toISOString(),
