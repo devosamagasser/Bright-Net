@@ -39,7 +39,7 @@ class RequestValidationBuilder
             ];
 
             if ($type->requiresOptions() && !empty($field->options)) {
-                $allowed = $field->options;
+                $allowed = $field->options['values'] ?? $field->options;
 
                 if ($type === DataFieldType::SELECT) {
                     $ruleSet[] = Rule::in($allowed);
