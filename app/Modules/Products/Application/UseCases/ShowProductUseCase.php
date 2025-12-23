@@ -21,7 +21,7 @@ class ShowProductUseCase
         }
 
         return collect([
-            'product' => ProductData::fromModel($product),
+            'products' => ProductData::fromModel($product),
             'roots' => ProductData::serializeRoots($product->family),
         ]);
     }

@@ -27,7 +27,7 @@ class CutPasteProductsUseCase
         );
 
         return collect([
-            'product' => ProductData::fromModel($updatedProduct),
+            'products' => ProductData::fromModel($product),
             'roots' => ProductData::serializeRoots($family),
         ]);
     }
