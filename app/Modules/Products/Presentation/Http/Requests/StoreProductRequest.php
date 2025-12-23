@@ -8,6 +8,7 @@ use App\Modules\Families\Domain\Models\Family;
 use App\Modules\Shared\Support\Helper\RequestValidationBuilder;
 use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 use App\Modules\Products\Domain\ValueObjects\{AccessoryType, PriceCurrency, DeliveryTimeUnit};
+use Illuminate\Validation\Rules\Enum;
 
 class StoreProductRequest extends FormRequest
 {
@@ -48,14 +49,14 @@ class StoreProductRequest extends FormRequest
             'prices.*.price' => ['required', 'numeric', 'min:0'],
             'prices.*.from' => ['required', 'integer', 'min:0'],
             'prices.*.to' => ['required', 'integer', 'min:0'],
-            'prices.*.currency' => ['required', 'string', Rule::in(PriceCurrency::values())],
-            'prices.*.delivery_time_unit' => ['required', 'string', Rule::in(DeliveryTimeUnit::values())],
+            'prices.*.currency' => ['required', 'string', new Enum(PriceCurrency::class)],
+            'prices.*.delivery_time_unit' => ['required', 'string', new Enum(DeliveryTimeUnit::class)],
             'prices.*.delivery_time_value' => ['required', 'string'],
             'prices.*.vat_status' => ['required', 'boolean'],
 
             'accessories' => ['nullable', 'array'],
             'accessories.*.code' => ['required', 'string'],
-            'accessories.*.type' => ['required', 'string', Rule::in(AccessoryType::values())],
+            'accessories.*.type' => ['required', 'string', new Enum(AccessoryType::class)],
             'accessories.*.quantity' => ['required', 'integer', 'min:1'],
 
             'colors' => ['nullable', 'array'],
