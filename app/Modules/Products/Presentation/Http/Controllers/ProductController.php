@@ -41,7 +41,7 @@ class ProductController
     {
         $supplierId = $this->authenticatedSupplierId() ?? $request->query('supplier_id');
         $data = $this->listProducts->handle($family, $supplierId !== null ? (int) $supplierId : null);
-        $collection = ProductResource::collection($data['products'])
+        $collection = ProductResource::collection($data['product'])
             ->additional(['roots' => $data['roots']])
             ->response()
             ->getData(true);
