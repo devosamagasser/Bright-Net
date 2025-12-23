@@ -76,9 +76,7 @@ class ProductData
             ],
         );
 
-        return collect([
-            'products' => $productData,
-        ]);
+        return $productData;
     }
 
     /**
