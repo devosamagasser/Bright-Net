@@ -42,7 +42,7 @@ class ProductFieldValueSyncService
                 'updated_at'    => now(),
             ];
         }
-
+        dd($rows);
         // 3️⃣ bulk insert
         if ($rows !== []) {
             DB::table('product_field_values')->insert($rows);
