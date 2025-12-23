@@ -42,7 +42,6 @@ class ProductFieldValueSyncService
                 'updated_at'    => now(),
             ];
         }
-        dd($rows);
         // 3️⃣ bulk insert
         if ($rows !== []) {
             DB::table('product_field_values')->insert($rows);
@@ -54,7 +53,7 @@ class ProductFieldValueSyncService
         $type = $field->type;
 
         return match ($type) {
-            DataFieldType::MULTISELECT => array_values(Arr::wrap($value)),
+            DataFieldType::MULTISELECT => json_encode(array_values(Arr::wrap($value))),
             DataFieldType::BOOLEAN => filter_var($value, FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE),
             DataFieldType::NUMBER => is_numeric($value) ? $value + 0 : $value,
             default => $value,
