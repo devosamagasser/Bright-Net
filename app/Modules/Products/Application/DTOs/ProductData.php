@@ -78,7 +78,6 @@ class ProductData
 
         return collect([
             'products' => $productData,
-            'roots' => self::serializeRoots($product),
         ]);
     }
 
@@ -88,10 +87,7 @@ class ProductData
      */
     public static function collection(Collection $products, ?Family $family = null ): Collection
     {
-        return collect([
-            'products' => $products->map(fn(Product $product) => self::fromModel($product)),
-            'roots' => self::serializeRoots($products->first(), $family),
-        ]);
+        return $products->map(fn(Product $product) => self::fromModel($product));
     }
 
     public static function serializeMedia(Product $product, string $collection): array
@@ -109,27 +105,26 @@ class ProductData
             ->all();
     }
 
-    public static function serializeRoots($product, ?Family $family = null): array
+    public static function serializeRoots(Family $family): array
     {
-            $family = $product ? $product->family : $family;
-            return [
-                'solution' => [
-                    'name' => $family->subcategory->department->solution->name ?? null,
-                ],
-                'brand' => [
-                    'name' => $family->department->supplierBrand->brand->name ?? null,
-                ],
-                'department' => [
-                    'name' => $family->subcategory->department->name ?? null,
-                ],
-                'subcategory' => [
-                    'name' => $family->subcategory->name,
-                    'id' => $family->subcategory_id,
-                ],
-                'family' => [
-                    'name' => $family->name,
-                    'id' => $family->id,
-                ],
-            ];
+        return [
+            'solution' => [
+                'name' => $family->subcategory->department->solution->name ?? null,
+            ],
+            'brand' => [
+                'name' => $family->department->supplierBrand->brand->name ?? null,
+            ],
+            'department' => [
+                'name' => $family->subcategory->department->name ?? null,
+            ],
+            'subcategory' => [
+                'name' => $family->subcategory->name,
+                'id' => $family->subcategory_id,
+            ],
+            'family' => [
+                'name' => $family->name,
+                'id' => $family->id,
+            ],
+        ];
     }
 }

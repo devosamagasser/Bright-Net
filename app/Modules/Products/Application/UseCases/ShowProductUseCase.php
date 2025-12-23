@@ -20,6 +20,9 @@ class ShowProductUseCase
             throw new ModelNotFoundException();
         }
 
-        return ProductData::fromModel($product);
+        return collect([
+            'product' => ProductData::fromModel($product),
+            'roots' => ProductData::serializeRoots($product->family),
+        ]);
     }
 }
