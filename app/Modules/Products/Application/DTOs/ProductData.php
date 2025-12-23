@@ -90,7 +90,7 @@ class ProductData
     {
         return collect([
             'products' => $products->map(fn(Product $product) => self::fromModel($product)),
-            'roots' => self::serializeRoots($products->first()),
+            'roots' => self::serializeRoots($products->first(), $family),
         ]);
     }
 
@@ -109,29 +109,27 @@ class ProductData
             ->all();
     }
 
-    public static function serializeRoots($product): array
+    public static function serializeRoots($product, ?Family $family = null): array
     {
-        if(! $product) {
-            return [];
-        }
-        return [
-            'solution' => [
-                'name' => $product->family->subcategory->department->solution->name ?? null,
-            ],
-            'brand' => [
-                'name' => $product->family->department->supplierBrand->brand->name ?? null,
-            ],
-            'department' => [
-                'name' => $product->family->subcategory->department->name ?? null,
-            ],
-            'subcategory' => [
-                'name' => $product->family->subcategory->name,
-                'id' => $product->family->subcategory_id,
-            ],
-            'family' => [
-                'name' => $product->family->name,
-                'id' => $product->family->id,
-            ],
-        ];
+            $family = $product ? $product->family : $family;
+            return [
+                'solution' => [
+                    'name' => $family->subcategory->department->solution->name ?? null,
+                ],
+                'brand' => [
+                    'name' => $family->department->supplierBrand->brand->name ?? null,
+                ],
+                'department' => [
+                    'name' => $family->subcategory->department->name ?? null,
+                ],
+                'subcategory' => [
+                    'name' => $family->subcategory->name,
+                    'id' => $family->subcategory_id,
+                ],
+                'family' => [
+                    'name' => $family->name,
+                    'id' => $family->id,
+                ],
+            ];
     }
 }
