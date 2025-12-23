@@ -2,8 +2,9 @@
 
 namespace App\Modules\Products\Application\UseCases;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Collection;
 use App\Modules\Products\Application\DTOs\ProductData;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
 
 class ShowProductUseCase
@@ -12,7 +13,7 @@ class ShowProductUseCase
     {
     }
 
-    public function handle(int $productId)
+    public function handle(int $productId): Collection
     {
         $product = $this->products->find($productId);
 

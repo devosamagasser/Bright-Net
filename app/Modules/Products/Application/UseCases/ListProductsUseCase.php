@@ -27,7 +27,7 @@ class ListProductsUseCase
         $family = $products->first()?->family ?? $this->families->find($familyId);
 
         return collect([
-            'product' => ProductData::collection($products, $family),
+            'products' => ProductData::collection($products, $family),
             'roots' => ProductData::serializeRoots($family),
         ]);
     }

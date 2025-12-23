@@ -60,7 +60,7 @@ class AIndoorTemplate
             'name' => 'installation_type',
             'position' => 2,
             'is_required' => false,
-            'is_filterable' => true,
+            'is_filterable' => false,
             'options' => [
                 'Recessed (Trimmed)',
                 'Recessed (Trimless / Plaster-in)',
@@ -117,7 +117,7 @@ class AIndoorTemplate
             'name' => 'finish_color',
             'position' => 4,
             'is_required' => false,
-            'is_filterable' => true,
+            'is_filterable' => false,
             'with_custom' => true,
             'options' => [
                 'Standard' => [
@@ -318,7 +318,7 @@ class AIndoorTemplate
             'name' => 'light_source_type',
             'position' => 17,
             'is_required' => false,
-            'is_filterable' => true,
+            'is_filterable' => false,
             'options' => [
                 'Integrated LED (Chip is built-in)',
                 'Replaceable Lamp (Fixture is a holder/socket)',

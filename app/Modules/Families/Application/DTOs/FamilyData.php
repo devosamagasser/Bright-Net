@@ -27,7 +27,7 @@ class FamilyData
                 'subcategory_id' => (int) $family->subcategory_id,
                 'supplier_id' => (int) $family->supplier_id,
                 'data_template_id' => (int) $family->data_template_id,
-                'image' => $family->relationLoaded('media') ? $family->media
+                'images' => $family->relationLoaded('images') ? $family->media
                             ->where('collection_name', 'images')
                             ->map(fn ($media) => [
                                 'id' => (int) $media->id,

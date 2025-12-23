@@ -62,7 +62,7 @@ class UpdateProductUseCase
         });
 
         return collect([
-            'product' => ProductData::fromModel($product),
+            'product' => ProductData::fromModel($updatedProduct),
             'roots' => ProductData::serializeRoots($family),
         ]);
     }

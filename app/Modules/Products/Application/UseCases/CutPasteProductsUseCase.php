@@ -2,11 +2,12 @@
 
 namespace App\Modules\Products\Application\UseCases;
 
-use Illuminate\Validation\ValidationException;
-use App\Modules\Products\Application\DTOs\{ProductData, ProductInput};
-use App\Modules\Products\Domain\Models\Product;
-use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
+use Illuminate\Support\Collection;
 use App\Modules\Families\Domain\Models\Family;
+use Illuminate\Validation\ValidationException;
+use App\Modules\Products\Domain\Models\Product;
+use App\Modules\Products\Application\DTOs\{ProductData, ProductInput};
+use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
 
 class CutPasteProductsUseCase
 {
@@ -15,7 +16,7 @@ class CutPasteProductsUseCase
     ) {
     }
 
-    public function handle(Product $product, int $family_id)
+    public function handle(Product $product, int $family_id): Collection
     {
 
         $family = $this->requireFamily((int) ($family_id ?? 0));
@@ -27,7 +28,7 @@ class CutPasteProductsUseCase
         );
 
         return collect([
-            'product' => ProductData::fromModel($product),
+            'product' => ProductData::fromModel($updatedProduct),
             'roots' => ProductData::serializeRoots($family),
         ]);
     }
