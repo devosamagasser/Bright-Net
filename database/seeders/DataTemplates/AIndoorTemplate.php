@@ -32,7 +32,7 @@ class AIndoorTemplate
             'name' => 'recommended_applications',
             'position' => 1,
             'is_required' => false,
-            'is_filterable' => false,
+            'is_filterable' => true,
             'options' => [
                 'Office & Corporate',
                 'Retail & Showroom',
@@ -60,7 +60,7 @@ class AIndoorTemplate
             'name' => 'installation_type',
             'position' => 2,
             'is_required' => false,
-            'is_filterable' => false,
+            'is_filterable' => true,
             'options' => [
                 'Recessed (Trimmed)',
                 'Recessed (Trimless / Plaster-in)',
@@ -428,7 +428,7 @@ class AIndoorTemplate
             'name' => 'luminous_flux',
             'position' => 22,
             'is_required' => false,
-            'is_filterable' => false,
+            'is_filterable' => true,
             'en' => ['label' => 'Luminous Flux (lm)'],
             'ar' => ['label' => 'شدة الإضاءة (لومن)'],
         ]);
@@ -443,7 +443,7 @@ class AIndoorTemplate
             'name' => 'cct',
             'position' => 23,
             'is_required' => false,
-            'is_filterable' => false,
+            'is_filterable' => true,
             'options' => [
                 [
                     'label' => '2700K (Very Warm White - Incandescent)',

@@ -30,6 +30,7 @@ class ProductAccessoryData
                 'code' => $product->code,
                 'name' => $product->name,
                 'description' => $product->description,
+                'quotation_image' => ProductData::serializeMedia($product, 'quotation_image'),
                 'gallery' => ProductData::serializeMedia($product, 'gallery'),
                 'values' => $product->fieldValues
                     ->sortBy(static fn ($value) => $value->field?->position ?? 0)
