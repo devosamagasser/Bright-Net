@@ -42,7 +42,7 @@ class RequestValidationBuilder
                 $options = $field->options;
 
                 if ($type === DataFieldType::SELECT) {
-                    $options = $options[0]?['value'] ? array_map(fn($opt) => $opt['value'], $options) : $options;
+                    $options = $options[0]['value'] ? array_map(fn($opt) => $opt['value'], $options) : $options;
                     $ruleSet[] = Rule::in($options);
                 } else if($type === DataFieldType::MULTISELECT) {
                     $rules['values.' . $fieldKey . '.*'] = [Rule::in($options)];
