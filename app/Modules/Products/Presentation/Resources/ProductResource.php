@@ -15,9 +15,9 @@ class ProductResource extends JsonResource
     public function toArray($request): array
     {
         $hide = $request->is('*/families/*/products') && $request->isMethod('GET');
-        $product = $this['product'];
+        // $product = $this['product'];
         return [
-            'id' => $product->attributes['id'] ?? null,
+            'id' => $this->attributes['id'] ?? null,
             'roots' => $this->when(!$hide, $this['roots']),
             'data_template_id' => $product->attributes['data_template_id'] ?? null,
             'code' => $product->attributes['code'] ?? null,
