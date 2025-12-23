@@ -44,15 +44,25 @@ class ProductInput
 
         $shouldSyncAccessories = Arr::exists($payload, 'accessories');
         $accessories = Arr::pull($payload, 'accessories', []);
-        $oldGallery = Arr::pull($payload, 'old_gallery', []);
 
         $media = [
-            'gallery' => self::extractFiles(Arr::pull($payload, 'gallery', [])),
-            'old_gallery' => $oldGallery,
-            'documents' => self::extractFiles(Arr::pull($payload, 'documents', [])),
-            'dimensions' => self::extractFiles(Arr::pull($payload, 'dimensions', [])),
+            'gallery' => [
+                'files' => self::extractFiles(Arr::pull($payload, 'gallery', [])),
+                'urls' =>  Arr::pull($payload, 'old_gallery', []),
+            ],
+            'documents' => [
+                'files' => self::extractFiles(Arr::pull($payload, 'documents', [])),
+                'urls' =>  Arr::pull($payload, 'old_documents', []),
+            ],
+            'dimensions' => [
+                'files' => self::extractFiles(Arr::pull($payload, 'dimensions', [])),
+                'urls' =>  Arr::pull($payload, 'old_dimensions', []),
+            ],
+            'quotation_image' => [
+                'files' => self::extractFiles(Arr::pull($payload, 'quotation_image')),
+                'urls' =>  [Arr::pull($payload, 'old_quotation_image', '')],
+            ],
         ];
-
 
         $supplierId = Arr::pull($payload, 'supplier_id');
 
@@ -65,7 +75,6 @@ class ProductInput
             accessories: array_values(is_array($accessories) ? $accessories : []),
             shouldSyncAccessories: $shouldSyncAccessories,
             media: $media,
-            // oldGallery: is_array($oldGallery) ? $oldGallery : [],
             supplierId: is_numeric($supplierId) ? (int) $supplierId : null,
         );
     }

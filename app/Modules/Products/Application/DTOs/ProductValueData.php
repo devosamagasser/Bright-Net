@@ -42,14 +42,11 @@ class ProductValueData
             'placeholder' => $field->placeholder,
             'is_required' => $field->is_required,
             'is_filterable' => $field->is_filterable,
-            // 'options' => collect($field->options ?? [])
-            //     ->map(fn($option) => ['label' => $option, 'value' => $option])
-            //     ->all(),
             'options' => match ($field->type) {
                     DataFieldType::SELECT => collect($field->options ?? [])
                         ->map(fn ($option) => [
-                            'label' => $option,
-                            'value' => $option,
+                            'label' => $option['label'] ?? $option,
+                            'value' => $option['value'] ?? $option,
                         ])
                         ->values()
                         ->all(),

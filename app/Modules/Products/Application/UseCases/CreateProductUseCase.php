@@ -2,19 +2,26 @@
 
 namespace App\Modules\Products\Application\UseCases;
 
+use Illuminate\Support\Facades\DB;
+use App\Modules\Families\Domain\Models\Family;
 use Illuminate\Validation\ValidationException;
+use App\Modules\DataSheets\Domain\Models\DataTemplate;
+use App\Modules\Products\Domain\Services\ProductPriceService;
+use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
+use App\Modules\Products\Domain\Services\ProductAccessoryService;
 use App\Modules\Products\Application\DTOs\{ProductData, ProductInput};
+use App\Modules\Products\Domain\Services\ProductFieldValueSyncService;
 use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
 use App\Modules\DataSheets\Domain\Repositories\DataTemplateRepositoryInterface;
-use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
-use App\Modules\Families\Domain\Models\Family;
-use App\Modules\DataSheets\Domain\Models\DataTemplate;
 
 class CreateProductUseCase
 {
     public function __construct(
         private readonly ProductRepositoryInterface $products,
         private readonly DataTemplateRepositoryInterface $templates,
+        private readonly ProductFieldValueSyncService $fieldValueSync,
+        private readonly ProductAccessoryService $productAccessoryService,
+        private readonly ProductPriceService $productPriceService
     ) {
     }
 
@@ -29,7 +36,7 @@ class CreateProductUseCase
                         $family->subcategory_id,
                         DataTemplateType::PRODUCT
                     );
-                    
+
         if ($template !== null) {
             $this->assertTemplateMatchesFamily($template, $family);
             $attributes = $attributes + [
@@ -37,18 +44,18 @@ class CreateProductUseCase
             ];
         }
 
-        $product = $this->products->create(
-            $attributes,
-            $input->translations,
-            $input->values,
-            [
-                'prices' => $input->prices,
-                'sync_prices' => true,
-                'accessories' => $input->accessories,
-                'sync_accessories' => true,
-                'media' => $input->media,
-            ]
-        );
+        $product = DB::transaction(function () use ($attributes, $input, &$product) {
+            $product = $this->products->create(
+                $attributes,
+                $input->translations,
+                $input->media
+            );
+
+            $this->fieldValueSync->syncFieldValues($product, $input->values);
+            $this->productAccessoryService->syncAccessories($product, $input->accessories);
+            $this->productPriceService->syncPrices($product, $input->prices);
+            return $product;
+        });
 
         return ProductData::fromModel($product );
     }

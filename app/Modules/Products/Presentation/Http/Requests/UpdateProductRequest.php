@@ -62,16 +62,24 @@ class UpdateProductRequest extends FormRequest
             'accessories.*.type' => ['required', 'string', Rule::in(AccessoryType::values())],
             'accessories.*.quantity' => ['required', 'integer', 'min:1'],
 
-            'old_gallery' => ['nullable', 'array'],
-            'old_gallery.*' => ['string', 'url'],
+            // media \\
             'gallery' => ['nullable', 'array'],
             'gallery.*' => ['file'],
+            'old_gallery' => ['nullable', 'array'],
+            'old_gallery.*' => ['string', 'url'],
+
+            'quotation_image' => ['nullable', 'file'],
+            'old_quotation_image.*' => ['string', 'url'],
 
             'documents' => ['nullable', 'array'],
             'documents.*' => ['file'],
+            'old_documents' => ['nullable', 'array'],
+            'old_documents.*' => ['string', 'url'],
 
             'dimensions' => ['nullable', 'array'],
             'dimensions.*' => ['file'],
+            'old_dimensions' => ['nullable', 'array'],
+            'old_dimensions.*' => ['string', 'url'],
         ];
     }
 

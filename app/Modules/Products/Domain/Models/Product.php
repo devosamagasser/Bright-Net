@@ -65,6 +65,7 @@ class Product extends Model implements HasMedia
         $this->addMediaCollection('gallery');
         $this->addMediaCollection('documents');
         $this->addMediaCollection('dimensions');
+        $this->addMediaCollection('quotation_image');
         $this->addMediaCollection('consultant_approvals');
     }
 

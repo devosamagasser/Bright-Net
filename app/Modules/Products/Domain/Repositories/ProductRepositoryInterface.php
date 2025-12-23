@@ -14,7 +14,7 @@ interface ProductRepositoryInterface
      * @param  array<string, mixed>  $values
      * @param  array<string, mixed>  $relations
      */
-    public function create(array $attributes, array $translations, array $values, array $relations = []): Product;
+    public function create(array $attributes, array $translations, array $media): Product;
 
     /**
      * @param  array<string, mixed>  $attributes
@@ -22,7 +22,7 @@ interface ProductRepositoryInterface
      * @param  array<string, mixed>  $values
      * @param  array<string, mixed>  $relations
      */
-    public function update(Product $product, array $attributes, array $translations, array $values, array $relations = []): Product;
+    public function update(Product $product, array $attributes, array $translations, array $media): Product;
 
     public function delete(Product $product): void;
 
@@ -39,8 +39,6 @@ interface ProductRepositoryInterface
         AccessoryType $type,
         ?int $quantity = null
     ): ProductAccessory;
-
-    public function findAccessoryOfProduct(int $product, int $accessoryId): ?ProductAccessory;
 
     public function cutPasteProduct(Product $product, int $family_id): Product;
 }

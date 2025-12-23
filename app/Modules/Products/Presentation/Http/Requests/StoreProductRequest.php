@@ -31,7 +31,7 @@ class StoreProductRequest extends FormRequest
                 'max:255',
                 Rule::unique('products', 'code')->where(fn ($query) => $query->where('family_id', $familyId)),
             ],
-            'stock' => ['required', 'integer', 'min:0'],
+            'stock' => ['nullable', 'integer', 'min:0'],
             'disclaimer' => ['nullable', 'string'],
             'color' => ['nullable', 'string'],
             'style'=> ['nullable', 'string'],
@@ -61,16 +61,24 @@ class StoreProductRequest extends FormRequest
             'colors' => ['nullable', 'array'],
             'colors.*' => ['integer', 'exists:colors,id'],
 
-            'old_gallery' => ['nullable', 'array'],
-            'old_gallery.*' => ['string', 'url'],
+            // media \\
             'gallery' => ['nullable', 'array'],
             'gallery.*' => ['file'],
+            'old_gallery' => ['nullable', 'array'],
+            'old_gallery.*' => ['string', 'url'],
+
+            'quotation_image' => ['nullable', 'file'],
+            'old_quotation_image.*' => ['string', 'url'],
 
             'documents' => ['nullable', 'array'],
             'documents.*' => ['file'],
+            'old_documents' => ['nullable', 'array'],
+            'old_documents.*' => ['string', 'url'],
 
             'dimensions' => ['nullable', 'array'],
             'dimensions.*' => ['file'],
+            'old_dimensions' => ['nullable', 'array'],
+            'old_dimensions.*' => ['string', 'url'],
         ];
 
     }

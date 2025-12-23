@@ -22,12 +22,6 @@ class ProductAccessoryData
     public static function fromModel(ProductAccessory $accessory): self
     {
         $product = $accessory->accessory;
-        $product->loadMissing([
-            'fieldValues.field.translations',
-            'family',
-            'family.subcategory.department',
-            'family.supplier',
-        ]);
         return new self(
             type: $accessory->accessory_type?->value ?? AccessoryType::OPTIONAL->value,
             quantity: $accessory->quantity ?? 1,
@@ -47,13 +41,6 @@ class ProductAccessoryData
                     'department_id' => $product->family->supplier_department_id,
                     'subcategory_id' => $product->family->subcategory_id,
                 ],
-                // 'translations' => $product->translations
-                //     ->mapWithKeys(static fn ($translation) => [
-                //         $translation->locale => [
-                //             'name' => $translation->name,
-                //             'description' => $translation->description,
-                //         ],
-                //     ])->toArray(),
             ] : [],
         );
     }

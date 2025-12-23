@@ -4,6 +4,7 @@ namespace App\Modules\Families\Presentation\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 use App\Modules\Families\Application\DTOs\FamilyValueData;
+use Request;
 
 class FamilyResource extends JsonResource
 {
@@ -17,15 +18,18 @@ class FamilyResource extends JsonResource
             'id' => $this->attributes['id'] ?? null,
             'subcategory_id' => $this->attributes['subcategory_id'] ?? null,
             'data_template_id' => $this->attributes['data_template_id'] ?? null,
-            'image' => $this->attributes['image'] ?? null,
+            'image' => $this->when($this->attributes['image'], $this->attributes['image']),
             'name' => $this->attributes['name'] ?? null,
-            'translations' => $this->translations,
-            'values' => array_map(
-                static fn (FamilyValueData $value) => [
-                    'field' => $value->field,
-                    'value' => $value->value,
-                ],
-                $this->values
+            'description' => $this->attributes['description'] ?? null,
+            'translations' => $this->when(Request::is('api.families.show'), $this->translations),
+            'values' => $this->when($this->values,
+                array_map(
+                    static fn (FamilyValueData $value) => [
+                        'field' => $value->field,
+                        'value' => $value->value,
+                    ],
+                    $this->values
+                )
             ),
         ];
     }

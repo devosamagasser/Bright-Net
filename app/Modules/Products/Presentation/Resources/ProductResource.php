@@ -37,11 +37,9 @@ class ProductResource extends JsonResource
              fn() => $product->translations ?? []),
             'values' => array_values(array_filter(array_map(
                 static function (ProductValueData $value) use ($hide) {
-
                     if ($hide && !$value->field['is_filterable']) {
                         return null;
                     }
-
                     return [
                         'field' => $value->field,
                         'value' => $value->value,
@@ -49,11 +47,17 @@ class ProductResource extends JsonResource
                 },
                 $product->values
             ))),
-            'prices' => array_map(
-                static fn (ProductPriceData $price) => $price->attributes,
-                $product->prices
+            'prices' => $this->when(
+                $request->is('*/products/*') && $request->method() === 'GET',
+                fn() => array_map(
+                    static fn (ProductPriceData $price) => $price->attributes,
+                    $product->prices
+                    )
             ),
-            'accessories' => $product->accessories ?? [],
+            'accessories' => $this->when(
+                $request->is('*/products/*') && $request->method() === 'GET',
+                fn() => $product->accessories ?? []
+            ),
             'media' => $product->media ?? [],
         ];
     }

@@ -120,7 +120,7 @@ class SupplierEngagementService
             ->with(['families' => function ($query) use ($supplierId, $supplierDepartment) {
                 $query->where('supplier_id', $supplierId)->orderBy('id', 'desc');
                 $query->where('supplier_department_id', $supplierDepartment->getKey())->orderBy('id', 'desc');
-            }, 'families.fieldValues.field'])
+            }, 'families.fieldValues.field', 'families.media'])
             ->orderBy('id')
             ->get();
 

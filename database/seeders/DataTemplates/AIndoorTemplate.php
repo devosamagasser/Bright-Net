@@ -32,7 +32,7 @@ class AIndoorTemplate
             'name' => 'recommended_applications',
             'position' => 1,
             'is_required' => false,
-            'is_filterable' => true,
+            'is_filterable' => false,
             'options' => [
                 'Office & Corporate',
                 'Retail & Showroom',
@@ -59,8 +59,8 @@ class AIndoorTemplate
             'type' => 'select',
             'name' => 'installation_type',
             'position' => 2,
-            'is_required' => true,
-            'is_filterable' => true,
+            'is_required' => false,
+            'is_filterable' => false,
             'options' => [
                 'Recessed (Trimmed)',
                 'Recessed (Trimless / Plaster-in)',
@@ -89,7 +89,7 @@ class AIndoorTemplate
             'type' => 'select',
             'name' => 'housing_material',
             'position' => 3,
-            'is_required' => true,
+            'is_required' => false,
             'is_filterable' => false,
             'options' => [
                 'Aluminum (Die-cast)',
@@ -152,7 +152,7 @@ class AIndoorTemplate
             'name' => 'diffuser_optic_type',
             'position' => 16,
             'is_required' => false,
-            'is_filterable' => true,
+            'is_filterable' => false,
             'options' => [
                 'Opal / Frosted (Uniform light)',
                 'Microprismatic (Low Glare - UGR<19)',
@@ -181,7 +181,7 @@ class AIndoorTemplate
             'type' => 'select',
             'name' => 'shape',
             'position' => 5,
-            'is_required' => true,
+            'is_required' => false,
             'is_filterable' => false,
             'options' => ['Linear', 'Rectangular', 'Square', 'Round'],
             'en' => ['label' => 'Shape'],
@@ -215,6 +215,18 @@ class AIndoorTemplate
         $width->dependency()->create([
             'depends_on_field_id' => $shape->id,
             'values' => ['Linear', 'Rectangular'],
+        ]);
+
+        $depth = $template->fields()->create([
+            'type' => 'number',
+            'name' => 'depth',
+            'position' => 7,
+            'en' => ['label' => 'Depth (mm)'],
+            'ar' => ['label' => 'العمق (مم)'],
+        ]);
+        $depth->dependency()->create([
+            'depends_on_field_id' => $shape->id,
+            'values' => ['Linear', 'Rectangular', 'square', 'Round'],
         ]);
 
         $side = $template->fields()->create([
@@ -251,7 +263,7 @@ class AIndoorTemplate
             'name' => 'input_power',
             'suffix' => 'W',
             'position' => 10,
-            'is_required' => true,
+            'is_required' => false,
             'is_filterable' => true,
             'en' => ['label' => 'Input Power (W)'],
             'ar' => ['label' => 'القدرة (واط)'],
@@ -261,6 +273,7 @@ class AIndoorTemplate
             'type' => 'select',
             'name' => 'input_voltage',
             'position' => 11,
+            'is_filterable' => true,
             'options' => [
                 '220-240V AC',
                 '100-277V AC',
@@ -304,7 +317,7 @@ class AIndoorTemplate
             'type' => 'select',
             'name' => 'light_source_type',
             'position' => 17,
-            'is_required' => true,
+            'is_required' => false,
             'is_filterable' => true,
             'options' => [
                 'Integrated LED (Chip is built-in)',
@@ -414,8 +427,8 @@ class AIndoorTemplate
             'type' => 'number',
             'name' => 'luminous_flux',
             'position' => 22,
-            'is_required' => true,
-            'is_filterable' => true,
+            'is_required' => false,
+            'is_filterable' => false,
             'en' => ['label' => 'Luminous Flux (lm)'],
             'ar' => ['label' => 'شدة الإضاءة (لومن)'],
         ]);
@@ -429,13 +442,53 @@ class AIndoorTemplate
             'type' => 'select',
             'name' => 'cct',
             'position' => 23,
-            'is_required' => true,
-            'is_filterable' => true,
+            'is_required' => false,
+            'is_filterable' => false,
             'options' => [
-                '2700K','3000K','3500K','4000K','5000K',
-                '5700K','6000K','6500K',
-                'Tunable White (2700K-6500K)',
-                'RGB','RGBW','Custom',
+                [
+                    'label' => '2700K (Very Warm White - Incandescent)',
+                    'value' => '2700K',
+                ],
+                [
+                    'label' => '3000K (Warm White - Hospitality/Home)',
+                    'value' => '3000K',
+                ],
+                [
+                    'label' => '3500K (Neutral-Warm White - Commercial)',
+                    'value' => '3500K',
+                ],
+                [
+                    'label' => '4000K (Neutral White - Office/Retail)',
+                    'value' => '4000K',
+                ],
+                [
+                    'label' => '5000K (Cool White - Industrial/Task)',
+                    'value' => '5000K',
+                ],
+                [
+                    'label' => '5700K (Daylight - High Task/Outdoor)',
+                    'value' => '5700K',
+                ],
+                [
+                    'label' => '6000K (Daylight - Industrial)',
+                    'value' => '6000K',
+                ],
+                [
+                    'label' => '6500K (Very Cool Daylight)',
+                    'value' => '6500K',
+                ],
+                [
+                    'label' => 'Tunable White (Adjustable 2700K-6500K)',
+                    'value' => 'Tunable White',
+                ],
+                [
+                    'label' => 'RGB (Color Changing)',
+                    'value' => 'RGB',
+                ],
+                [
+                    'label' => 'RGBW (Color + White)',
+                    'value' => 'RGBW',
+                ]
             ],
             'en' => ['label' => 'CCT'],
             'ar' => ['label' => 'درجة حرارة اللون'],
@@ -451,7 +504,11 @@ class AIndoorTemplate
             'name' => 'cri',
             'position' => 24,
             'options' => [
-                'CRI 70+','CRI 80+','CRI 90+','CRI 95+','CRI 98+',
+                ['label' => 'CRI 70+ (Functional)', 'value' => 'CRI 70+'],
+                ['label' => 'CRI 80+ (Standard)', 'value' => 'CRI 80+'],
+                ['label' => 'CRI 90+ (High-End)', 'value' => 'CRI 90+'],
+                ['label' => 'CRI 95+ (Retail / Art)', 'value' => 'CRI 95+'],
+                ['label' => 'CRI 98+ (Museum Grade)', 'value' => 'CRI 98+']
             ],
             'en' => ['label' => 'CRI'],
             'ar' => ['label' => 'معامل تجسيد اللون'],
@@ -567,7 +624,7 @@ class AIndoorTemplate
             'type' => 'select',
             'name' => 'ip_rating',
             'position' => 31,
-            'is_filterable' => true,
+            'is_filterable' => false,
             'options' => [
                 'IP20','IP40','IP44','IP54','IP65',
                 'IP66','IP67','IP68','IP69K',

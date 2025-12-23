@@ -11,17 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('data_fields', function (Blueprint $table) {
+        Schema::table('products', function (Blueprint $table) {
+            $table->integer('stock')->default(0)->change();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
-    {
-        Schema::table('data_fields', function (Blueprint $table) {
-            //
-        });
-    }
 };

@@ -86,7 +86,6 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
     public function getBySubcategoryAndSupplierDepartment(int $subcategoryId, int $supplierDepartmentId, ?int $supplierId = null): Collection
     {
         return Family::query()
-            ->with(['translations', 'fieldValues.field.translations'])
             ->when($supplierId !== null, static function ($query) use ($supplierId): void {
                 $query->where('supplier_id', $supplierId);
             })
@@ -189,7 +188,7 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             $family->clearMediaCollectionExcept('gallery', excludedMedia: $excludedMedia);
             return;
         }
-        
+
         $family->addMedia($path)
             ->preservingOriginal()
             ->toMediaCollection('images');

@@ -20,7 +20,7 @@ class ListProductsUseCase
     public function handle(int $familyId, ?int $supplierId = null): Collection
     {
         $products = $this->products->getByFamily($familyId, $supplierId);
-        $family = Family::find($familyId);
+        $family = $products->first()?->family;
         return ProductData::collection($products, $family ?? null);
     }
 

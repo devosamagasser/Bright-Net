@@ -2,20 +2,27 @@
 
 namespace App\Modules\Products\Application\UseCases;
 
+use Illuminate\Support\Facades\DB;
+use App\Modules\Families\Domain\Models\Family;
 use Illuminate\Validation\ValidationException;
-use App\Modules\Products\Application\DTOs\{ProductData, ProductInput};
 use App\Modules\Products\Domain\Models\Product;
+use App\Modules\DataSheets\Domain\Models\DataTemplate;
+use App\Modules\Products\Domain\Services\ProductPriceService;
+use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
+use App\Modules\Products\Domain\Services\ProductAccessoryService;
+use App\Modules\Products\Application\DTOs\{ProductData, ProductInput};
+use App\Modules\Products\Domain\Services\ProductFieldValueSyncService;
 use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
 use App\Modules\DataSheets\Domain\Repositories\DataTemplateRepositoryInterface;
-use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
-use App\Modules\Families\Domain\Models\Family;
-use App\Modules\DataSheets\Domain\Models\DataTemplate;
 
 class UpdateProductUseCase
 {
     public function __construct(
         private readonly ProductRepositoryInterface $products,
         private readonly DataTemplateRepositoryInterface $templates,
+        private readonly ProductFieldValueSyncService $fieldValueSync,
+        private readonly ProductAccessoryService $productAccessoryService,
+        private readonly ProductPriceService $productPriceService,
     ) {
     }
 
@@ -39,21 +46,20 @@ class UpdateProductUseCase
             ];
         }
 
-        $updatedProduct = $this->products->update(
-            product: $product,
-            attributes: $attributes,
-            translations: $input->translations,
-            values: $input->values,
-            // oldGallery: $input->oldGallery,
-            relations: [
-                'prices' => $input->prices,
-                'sync_prices' => $input->shouldSyncPrices,
-                'accessories' => $input->accessories,
-                'sync_accessories' => $input->shouldSyncAccessories,
-                'media' => $input->media,
-            ],
+        $updatedProduct = DB::transaction(function () use ($product, $attributes, $input, &$updatedProduct) {
+            // Placeholder for any pre-update logic if needed in the future
+            $updatedProduct = $this->products->update(
+                product: $product,
+                attributes: $attributes,
+                translations: $input->translations,
+                media: $input->media
+            );
 
-        );
+            $this->fieldValueSync->syncFieldValues($product, $input->values);
+            $this->productAccessoryService->syncAccessories($product, $input->accessories);
+            $this->productPriceService->syncPrices($product, $input->prices);
+            return $updatedProduct;
+        });
 
         return ProductData::fromModel($updatedProduct);
     }

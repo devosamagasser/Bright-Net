@@ -21,30 +21,39 @@ class FamilyData
 
     public static function fromModel(Family $family): self
     {
-        $family->loadMissing('translations', 'fieldValues.field.translations');
-
         return new self(
             attributes: [
                 'id' => (int) $family->getKey(),
                 'subcategory_id' => (int) $family->subcategory_id,
                 'supplier_id' => (int) $family->supplier_id,
                 'data_template_id' => (int) $family->data_template_id,
-                'image' => $family->getFirstMediaUrl('images') ?: null,
+                'image' => $family->relationLoaded('media') ? $family->media
+                            ->where('collection_name', 'images')
+                            ->map(fn ($media) => [
+                                'id' => (int) $media->id,
+                                'name' => $media->name,
+                                'file_name' => $media->file_name,
+                                'mime_type' => $media->mime_type,
+                                'url' => $media->getUrl(),
+                            ])
+                            ->values()
+                            ->first() : null,
                 'name' => $family->name,
+                'description' => $family->description,
                 'created_at' => $family->created_at?->toISOString(),
                 'updated_at' => $family->updated_at?->toISOString(),
             ],
-            translations: $family->translations
+            translations: $family->relationLoaded('translations') ? $family->translations
                 ->mapWithKeys(static fn ($translation) => [
                     $translation->locale => [
                         'description' => $translation->description,
                     ],
-                ])->toArray(),
-            values: $family->fieldValues
+                ])->toArray() : [],
+            values: $family->relationLoaded('fieldValues') ? $family->fieldValues
                 ->sortBy(static fn ($value) => $value->field?->position ?? 0)
                 ->map(static fn ($value) => FamilyValueData::fromModel($value))
                 ->values()
-                ->all(),
+                ->all() : [],
         );
     }
 

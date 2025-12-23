@@ -31,14 +31,6 @@ class ProductData
 
     public static function fromModel(Product $product)
     {
-        $product->loadMissing([
-            'fieldValues.field.translations',
-            'prices',
-            'accessories.accessory.translations',
-            'family',
-            'family.subcategory.department',
-            'family.supplier',
-        ]);
         $productData = new self(
             attributes: [
                 'id' => (int) $product->getKey(),
@@ -57,35 +49,26 @@ class ProductData
                 'created_at' => $product->created_at?->toISOString(),
                 'updated_at' => $product->updated_at?->toISOString(),
             ],
-            translations: $product->translations
+            translations: $product->relationLoaded('translations') ? $product->translations
                 ->mapWithKeys(static fn ($translation) => [
                     $translation->locale => [
                         'name' => $translation->name,
                         'description' => $translation->description,
                     ],
-                ])->toArray(),
+                ])->toArray() : [],
             values: $product->fieldValues
                 ->sortBy(static fn ($value) => $value->field?->position ?? 0)
                 ->map(static fn ($value) => ProductValueData::fromModel($value))
                 ->values()
                 ->all(),
-            prices: $product->prices
+            prices: $product->relationLoaded('prices') ? $product->prices
                 ->sortBy('from')
                 ->map(static fn ($price) => ProductPriceData::fromModel($price))
                 ->values()
-                ->all(),
-            accessories: ProductAccessoryData::grouped($product->accessories),
-            // colors: $product->colors
-            //     ->map(static function ($color) {
-            //         return [
-            //             'id' => (int) $color->getKey(),
-            //             'hex_code' => $color->hex_code,
-            //             'name' => $color->name,
-            //         ];
-            //     })
-            //     ->values()
-            //     ->all(),
+                ->all() : [],
+            accessories: $product->relationLoaded('accessories') ? ProductAccessoryData::grouped($product->accessories) : [],
             media: [
+                'quotation_image' => self::serializeMedia($product, 'quotation_image'),
                 'gallery' => self::serializeMedia($product, 'gallery'),
                 'documents' => self::serializeMedia($product, 'documents'),
                 'dimensions' => self::serializeMedia($product, 'dimensions'),
@@ -95,7 +78,7 @@ class ProductData
 
         return collect([
             'products' => $productData,
-            'roots' => self::serializeRoots($product->family),
+            'roots' => self::serializeRoots($product),
         ]);
     }
 
@@ -107,17 +90,15 @@ class ProductData
     {
         return collect([
             'products' => $products->map(fn(Product $product) => self::fromModel($product)),
-            'roots' => self::serializeRoots($family),
+            'roots' => self::serializeRoots($products->first()),
         ]);
     }
 
-    /**
-     * @return array<int, array<string, mixed>>
-     */
     public static function serializeMedia(Product $product, string $collection): array
     {
-        return $product->getMedia($collection)
-            ->map(static fn ($media) => [
+        return $product->media
+            ->where('collection_name', $collection)
+            ->map(fn ($media) => [
                 'id' => (int) $media->id,
                 'name' => $media->name,
                 'file_name' => $media->file_name,
@@ -128,59 +109,28 @@ class ProductData
             ->all();
     }
 
-    public static function serializeRoots($family): array
+    public static function serializeRoots($product): array
     {
-        if(! $family) {
+        if(! $product) {
             return [];
         }
-        $supplierId = $family->supplier_id;
-        $departmentId = $family->subcategory->department_id;
-        $locale = app()->getLocale();
-
-        $data = DB::table('brands')
-            ->join('supplier_brands', 'brands.id', '=', 'supplier_brands.brand_id')
-            ->join('supplier_solutions', 'supplier_brands.supplier_solution_id', '=', 'supplier_solutions.id')
-            ->join('supplier_departments', 'supplier_brands.id', '=', 'supplier_departments.supplier_brand_id')
-            ->join('solutions', 'solutions.id', '=', 'supplier_solutions.solution_id')
-            ->join('departments', 'departments.id', '=', 'supplier_departments.department_id')
-            ->leftJoin('solution_translations', function ($join) use ($locale) {
-                $join->on('solutions.id', '=', 'solution_translations.solution_id')
-                    ->where('solution_translations.locale', '=', $locale);
-            })
-            ->leftJoin('department_translations', function ($join) use ($locale) {
-                $join->on('departments.id', '=', 'department_translations.department_id')
-                    ->where('department_translations.locale', '=', $locale);
-            })
-            ->where('supplier_solutions.supplier_id', $supplierId)
-            ->where('supplier_departments.department_id', $departmentId)
-            ->select([
-                'brands.id as brand_id',
-                'brands.name as brand_name',
-                'departments.id as department_id',
-                'solutions.id as solution_id',
-                // ✅ استخدمنا فقط الترجمة
-                'department_translations.name as department_name',
-                'solution_translations.name as solution_name',
-            ])
-            ->first();
-
         return [
+            'solution' => [
+                'name' => $product->family->subcategory->department->solution->name ?? null,
+            ],
             'brand' => [
-                'name' => $data->brand_name ?? null,
+                'name' => $product->family->department->supplierBrand->brand->name ?? null,
             ],
             'department' => [
-                'name' => $data->department_name ?? null,
-            ],
-            'solution' => [
-                'name' => $data->solution_name ?? null,
+                'name' => $product->family->subcategory->department->name ?? null,
             ],
             'subcategory' => [
-                'name' => $family->subcategory->name,
-                'id' => $family->subcategory->id,
+                'name' => $product->family->subcategory->name,
+                'id' => $product->family->subcategory_id,
             ],
             'family' => [
-                'name' => $family->name,
-                'id' => $family->id,
+                'name' => $product->family->name,
+                'id' => $product->family->id,
             ],
         ];
     }

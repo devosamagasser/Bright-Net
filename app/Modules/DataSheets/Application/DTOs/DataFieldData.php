@@ -34,8 +34,8 @@ class DataFieldData
                 'options' => match ($field->type) {
                     DataFieldType::SELECT => collect($field->options ?? [])
                         ->map(fn ($option) => [
-                            'label' => $option,
-                            'value' => $option,
+                            'label' => $option['label'] ?? $option,
+                            'value' => $option['value'] ?? $option,
                         ])
                         ->values()
                         ->all(),
