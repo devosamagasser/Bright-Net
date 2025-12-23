@@ -58,7 +58,7 @@ class CreateProductUseCase
         });
 
         return collect([
-            'products' => ProductData::fromModel($product),
+            ProductData::fromModel($product),
             'roots' => ProductData::serializeRoots($family),
         ]);
     }
