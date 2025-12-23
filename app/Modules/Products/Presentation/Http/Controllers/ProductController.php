@@ -5,7 +5,7 @@ namespace App\Modules\Products\Presentation\Http\Controllers;
 use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
 use Illuminate\Http\Request;
 use App\Modules\Shared\Support\Helper\ApiResponse;
-use App\Modules\Products\Presentation\Resources\{ProductResource, ProductDataSheetResource};
+use App\Modules\Products\Presentation\Resources\{ProductResource, ProductDataSheetResource, AllProductResource};
 use App\Modules\Products\Presentation\Http\Requests\{
     StoreProductRequest,
     UpdateProductRequest,
@@ -41,7 +41,7 @@ class ProductController
     {
         $supplierId = $this->authenticatedSupplierId() ?? $request->query('supplier_id');
         $data = $this->listProducts->handle($family, $supplierId !== null ? (int) $supplierId : null);
-        $collection = ProductResource::collection($data['product'])
+        $collection = AllProductResource::collection($data['product'])
             ->additional(['roots' => $data['roots']])
             ->response()
             ->getData(true);
