@@ -47,12 +47,12 @@ class StoreProductRequest extends FormRequest
 
             'prices' => ['nullable', 'array'],
             'prices.*.price' => ['nullable', 'numeric', 'min:0'],
-            'prices.*.from' => ['required_with:prices.*.price', 'integer', 'min:0'],
-            'prices.*.to' => ['required_with:prices.*.price', 'integer', 'min:0'],
-            'prices.*.currency' => ['required_with:prices.*.price', 'string', new Enum(PriceCurrency::class)],
-            'prices.*.delivery_time_unit' => ['required_with:prices.*.price', 'string', new Enum(DeliveryTimeUnit::class)],
-            'prices.*.delivery_time_value' => ['required_with:prices.*.price', 'string'],
-            'prices.*.vat_status' => ['required_with:prices.*.price', 'boolean'],
+            'prices.*.from' => ['nullable', 'integer', 'min:0'],
+            'prices.*.to' => ['nullable', 'integer', 'min:0'],
+            'prices.*.currency' => ['nullable', 'string', new Enum(PriceCurrency::class)],
+            'prices.*.delivery_time_unit' => ['nullable', 'string', new Enum(DeliveryTimeUnit::class)],
+            'prices.*.delivery_time_value' => ['nullable', 'string'],
+            'prices.*.vat_status' => ['nullable', 'boolean'],
 
             'accessories' => ['nullable', 'array'],
             'accessories.*.code' => ['required', 'string'],
