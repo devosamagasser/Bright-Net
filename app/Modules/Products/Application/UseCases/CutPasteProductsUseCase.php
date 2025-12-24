@@ -16,7 +16,7 @@ class CutPasteProductsUseCase
     ) {
     }
 
-    public function handle(Product $product, int $family_id): Collection
+    public function handle(Product $product, int $family_id)
     {
 
         $family = $this->requireFamily((int) ($family_id ?? 0));
@@ -27,10 +27,7 @@ class CutPasteProductsUseCase
             $family_id
         );
 
-        return collect([
-            'product' => ProductData::fromModel($updatedProduct),
-            'roots' => ProductData::serializeRoots($family),
-        ]);
+        return ProductData::fromModel($updatedProduct,$family);
     }
 
     private function requireFamily(int $familyId): Family

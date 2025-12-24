@@ -13,7 +13,7 @@ class ShowProductUseCase
     {
     }
 
-    public function handle(int $productId): Collection
+    public function handle(int $productId)
     {
         $product = $this->products->find($productId);
 
@@ -21,9 +21,7 @@ class ShowProductUseCase
             throw new ModelNotFoundException();
         }
 
-        return collect([
-            'product' => ProductData::fromModel($product),
-            'roots' => ProductData::serializeRoots($product->family),
-        ]);
+        return ProductData::fromModel($product, $product->family);
+
     }
 }

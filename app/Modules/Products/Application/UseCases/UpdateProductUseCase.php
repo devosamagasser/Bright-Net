@@ -61,10 +61,7 @@ class UpdateProductUseCase
             return $updatedProduct;
         });
 
-        return collect([
-            'product' => ProductData::fromModel($updatedProduct),
-            'roots' => ProductData::serializeRoots($family),
-        ]);
+        return ProductData::fromModel($updatedProduct,$family);
     }
 
     private function requireFamily(int $familyId): Family

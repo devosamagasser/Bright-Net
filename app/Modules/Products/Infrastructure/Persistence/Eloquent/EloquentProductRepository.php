@@ -81,7 +81,6 @@ class EloquentProductRepository implements ProductRepositoryInterface
                 'family.department.department',
                 'family.subcategory',
             ])
-
             ->where('family_id', $familyId)
             ->when($supplierId !== null, static function ($query) use ($supplierId): void {
                 $query->whereHas('family', static function ($familyQuery) use ($supplierId): void {

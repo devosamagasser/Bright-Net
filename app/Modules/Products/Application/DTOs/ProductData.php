@@ -19,19 +19,20 @@ class ProductData
      * @param  array<string, array<int, array<string, mixed>>>  $media
      */
     private function __construct(
+        public readonly array $roots,
         public readonly array $attributes,
         public readonly array $translations,
         public readonly array $values,
         public readonly array $prices,
         public readonly array $accessories,
-        // public readonly array $colors,
         public readonly array $media,
     ) {
     }
 
-    public static function fromModel(Product $product)
+    public static function fromModel(Product $product, ?Family $family = null): self
     {
         $productData = new self(
+            roots: $family ? self::serializeRoots($family) : [],
             attributes: [
                 'id' => (int) $product->getKey(),
                 'family_id' => (int) $product->family_id,
@@ -83,7 +84,7 @@ class ProductData
      * @param  Collection<int, Product>  $products
      * @return Collection<int, self>
      */
-    public static function collection(Collection $products, ?Family $family = null ): Collection
+    public static function collection(Collection $products): Collection
     {
         return $products->map(fn(Product $product) => self::fromModel($product));
     }
@@ -105,19 +106,26 @@ class ProductData
 
     public static function serializeRoots(Family $family): array
     {
+        $subcategory = $family->subcategory;
+        $originalDepartment = $subcategory->department;
+        $supplierSnapshotDepartment = $family->department;
+        $supplierSnapshotBrand = $supplierSnapshotDepartment->supplierBrand;
+
         return [
             'solution' => [
-                'name' => $family->subcategory->department->solution->name ?? null,
+                'name' => $originalDepartment->solution->name ?? null,
             ],
             'brand' => [
-                'name' => $family->department->supplierBrand->brand->name ?? null,
+                'name' => $supplierSnapshotBrand->brand->name ?? null,
+                'id' => $supplierSnapshotBrand->id ?? null,
             ],
             'department' => [
-                'name' => $family->subcategory->department->name ?? null,
+                'name' => $originalDepartment->name ?? null,
+                'id' => $supplierSnapshotDepartment->id ?? null,
             ],
             'subcategory' => [
-                'name' => $family->subcategory->name,
-                'id' => $family->subcategory_id,
+                'name' => $subcategory->name,
+                'id' => $subcategory->id,
             ],
             'family' => [
                 'name' => $family->name,

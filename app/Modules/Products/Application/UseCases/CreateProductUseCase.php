@@ -57,10 +57,7 @@ class CreateProductUseCase
             return $product;
         });
 
-        return collect([
-            'product' => ProductData::fromModel($product),
-            'roots' => ProductData::serializeRoots($family),
-        ]);
+        return ProductData::fromModel($product, $family);
     }
 
     private function requireFamily(int $familyId): Family

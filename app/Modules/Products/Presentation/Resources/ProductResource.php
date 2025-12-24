@@ -14,49 +14,54 @@ class ProductResource extends JsonResource
      */
     public function toArray($request): array
     {
-        $hide = $request->is('*/families/*/products') && $request->isMethod('GET');
-        $product = $this['product'];
+        $collectionRequest = (bool) ($request->is('*/families/*/products') && $request->isMethod('GET'));
+        $singleRequest = (bool) ($request->is('*/products/*') && $request->method() === 'GET');
+        $attributes = $this->attributes;    
         return [
-            'id' => $product->attributes['id'] ?? null,
-            'roots' => $this->when(!$hide, $this['roots']),
-            'data_template_id' => $product->attributes['data_template_id'] ?? null,
-            'code' => $product->attributes['code'] ?? null,
-            'stock' => $product->attributes['stock'] ?? null,
-            'disclaimer' => $product->attributes['disclaimer'] ?? null,
-            'name' => $product->attributes['name'] ?? null,
-            'description' => $product->attributes['description'] ?? null,
-            'color' => $this->when($product->attributes['color'], fn() => $product->attributes['color']),
-            'style' => $this->when($product->attributes['style'], fn() => $product->attributes['style']),
-            'manufacturer' => $this->when($product->attributes['manufacturer'], fn() => $product->attributes['manufacturer']),
-            'application' => $this->when($product->attributes['application'], fn() => $product->attributes['application']),
-            'origin' => $this->when($product->attributes['origin'], fn() => $product->attributes['origin']),
+            'id' => $attributes['id'] ?? null,
+            'roots' => $this->when(!$collectionRequest, $this->roots),
+            'data_template_id' => $attributes['data_template_id'] ?? null,
+            'code' => $attributes['code'] ?? null,
+            'stock' => $attributes['stock'] ?? null,
+            'disclaimer' => $attributes['disclaimer'] ?? null,
+            'name' => $attributes['name'] ?? null,
+            'description' => $attributes['description'] ?? null,
+            'color' => $this->when($attributes['color'], fn() => $attributes['color']),
+            'style' => $this->when($attributes['style'], fn() => $attributes['style']),
+            'manufacturer' => $this->when($attributes['manufacturer'], fn() => $attributes['manufacturer']),
+            'application' => $this->when($attributes['application'], fn() => $attributes['application']),
+            'origin' => $this->when($attributes['origin'], fn() => $attributes['origin']),
             'translations' => $this->when(
-                $request->is('*/products/*') && $request->method() === 'GET',
-             fn() => $product->translations ?? []),
-            'values' => array_values(array_filter(array_map(
-                static function (ProductValueData $value) use ($hide) {
-                    if ($hide && !$value->field['is_filterable']) {
-                        return null;
-                    }
-                    return [
-                        'field' => $value->field,
-                        'value' => $value->value,
-                    ];
-                },
-                $product->values
-            ))),
-            'prices' => $this->when(
-                $request->is('*/products/*') && $request->method() === 'GET',
-                fn() => array_map(
-                    static fn (ProductPriceData $price) => $price->attributes,
-                    $product->prices
+                condition: $singleRequest,
+                value: fn() => $this->translations ?? []
+            ),
+            'values' => array_values(array_filter(
+                    array: array_map(
+                        callback: static function (ProductValueData $value) use ($collectionRequest) {
+                            if ($collectionRequest && !$value->field['is_filterable']) {
+                                return;
+                            }
+                            return [
+                                'field' => $value->field,
+                                'value' => $value->value,
+                            ];
+                        },
+                        array: $this->values
                     )
+                )
+            ),
+            'prices' => $this->when(
+                condition: $singleRequest,
+                value: fn() => array_map(
+                    callback: static fn (ProductPriceData $price) => $price->attributes,
+                    array: $this->prices
+                )
             ),
             'accessories' => $this->when(
-                $request->is('*/products/*') && $request->method() === 'GET',
-                fn() => $product->accessories ?? []
+                condition: $singleRequest,
+                value: fn() => $this->accessories ?? []
             ),
-            'media' => $product->media ?? [],
+            'media' => $this->media ?? [],
         ];
     }
 }
