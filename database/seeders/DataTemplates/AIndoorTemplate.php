@@ -226,7 +226,7 @@ class AIndoorTemplate
         ]);
         $depth->dependency()->create([
             'depends_on_field_id' => $shape->id,
-            'values' => ['Linear', 'Rectangular', 'square', 'Round'],
+            'values' => ['Linear', 'Rectangular', 'Square', 'Round'],
         ]);
 
         $side = $template->fields()->create([
