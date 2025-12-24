@@ -32,7 +32,7 @@ class AOutdoorTemplate
             'name' => 'recommended_applications',
             'position' => 1,
             'is_required' => false,
-            'is_filterable' => true,
+            'is_filterable' => false,
             'options' => [
                 'Facade & Structure',
                 'Landscape & Garden',
@@ -64,7 +64,7 @@ class AOutdoorTemplate
             'name' => 'installation_type',
             'position' => 2,
             'is_required' => false,
-            'is_filterable' => true,
+            'is_filterable' => false,
             'options' => [
                 'Recessed (Trimmed)',
                 'Recessed (Trimless / Plaster-in)',
@@ -121,7 +121,7 @@ class AOutdoorTemplate
             'name' => 'finish_color',
             'position' => 4,
             'is_required' => false,
-            'is_filterable' => true,
+            'is_filterable' => false,
             'with_custom' => true,
             'options' => [
                 'Standard' => [

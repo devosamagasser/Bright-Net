@@ -32,7 +32,7 @@ class AIndoorTemplate
             'name' => 'recommended_applications',
             'position' => 1,
             'is_required' => false,
-            'is_filterable' => true,
+            'is_filterable' => false,
             'options' => [
                 'Office & Corporate',
                 'Retail & Showroom',
@@ -273,7 +273,7 @@ class AIndoorTemplate
             'type' => 'select',
             'name' => 'input_voltage',
             'position' => 11,
-            'is_filterable' => true,
+            'is_filterable' => false,
             'options' => [
                 '220-240V AC',
                 '100-277V AC',
