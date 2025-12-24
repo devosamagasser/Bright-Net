@@ -60,6 +60,11 @@ class Product extends Model implements HasMedia
         'description',
     ];
 
+
+    public function setStockAttribute(?int $value): void
+    {
+        $this->attributes['stock'] = $value ?? 0;
+    }
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('gallery');
