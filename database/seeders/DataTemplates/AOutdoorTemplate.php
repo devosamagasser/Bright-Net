@@ -30,6 +30,7 @@ class AOutdoorTemplate
         $applications = $template->fields()->create([
             'type' => 'multiselect',
             'name' => 'recommended_applications',
+            'group' => 'Physical',
             'position' => 1,
             'is_required' => false,
             'is_filterable' => false,

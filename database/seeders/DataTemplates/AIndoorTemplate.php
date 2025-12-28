@@ -31,6 +31,7 @@ class AIndoorTemplate
             'type' => 'multiselect',
             'name' => 'recommended_applications',
             'position' => 1,
+            'group' => 'Physical',
             'is_required' => false,
             'is_filterable' => false,
             'group' => 'Physical',
