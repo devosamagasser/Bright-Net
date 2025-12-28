@@ -27,6 +27,7 @@ class Family extends Model implements HasMedia
         'supplier_id',
         'data_template_id',
         'supplier_department_id',
+        'order',
     ];
 
     /**
@@ -36,6 +37,7 @@ class Family extends Model implements HasMedia
         'subcategory_id' => 'integer',
         'supplier_id' => 'integer',
         'data_template_id' => 'integer',
+        'order' => 'integer',
     ];
 
     /**
@@ -52,6 +54,15 @@ class Family extends Model implements HasMedia
         'translations',
     ];
 
+    public static function boot()
+    {
+        parent::boot();
+        static::creating(function (Family $family) {
+            $maxOrder = Family::where('subcategory_id', $family->subcategory_id)
+                ->max('order');
+            $family->order = $maxOrder !== null ? $maxOrder + 1 : 1;
+        });
+    }
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('image');

@@ -53,7 +53,6 @@ class AOutdoorTemplate
             ],
         ]);
 
-
         /*
         |--------------------------------------------------------------------------
         | FIELD — INSTALLATION TYPE
@@ -61,6 +60,7 @@ class AOutdoorTemplate
         */
         $installation = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Physical',
             'name' => 'installation_type',
             'position' => 2,
             'is_required' => false,
@@ -91,6 +91,7 @@ class AOutdoorTemplate
         */
         $housing = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Physical',
             'name' => 'housing_material',
             'position' => 3,
             'is_required' => false,
@@ -118,6 +119,7 @@ class AOutdoorTemplate
         */
         $finish = $template->fields()->create([
             'type' => 'groupedselect',
+            'group' => 'Physical',
             'name' => 'finish_color',
             'position' => 4,
             'is_required' => false,
@@ -153,6 +155,7 @@ class AOutdoorTemplate
         */
         $diffuser = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Physical',
             'name' => 'diffuser_optic_type',
             'position' => 16,
             'is_required' => false,
@@ -176,6 +179,37 @@ class AOutdoorTemplate
             ],
         ]);
 
+                /*
+        |--------------------------------------------------------------------------
+        | BEAM ANGLE
+        |--------------------------------------------------------------------------
+        */
+        $beam = $template->fields()->create([
+            'type' => 'groupedselect',
+            'name' => 'beam_angle',
+            'position' => 25,
+            'with_custom' => true,
+            'group' => 'Physical',
+            'options' => [
+                'Standard Spots' => [
+                    '< 18°',
+                    '18°-29°',
+                    '29°-46°',
+                ],
+                'Standard Floods' => [
+                    '46°-70°',
+                    '70°-100°',
+                    '> 100°',
+                ],
+                'Specialist' => [
+                    'Asymmetric',
+                    'Double Asymmetric',
+                ],
+            ],
+            'en' => ['label' => 'Beam Angle'],
+            'ar' => ['label' => 'زاوية الإضاءة'],
+        ]);
+
         /*
         |--------------------------------------------------------------------------
         | FIELD — SHAPE
@@ -183,6 +217,7 @@ class AOutdoorTemplate
         */
         $shape = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Physical',
             'name' => 'shape',
             'position' => 5,
             'is_required' => false,
@@ -199,6 +234,7 @@ class AOutdoorTemplate
         */
         $length = $template->fields()->create([
             'type' => 'number',
+            'group' => 'Physical',
             'name' => 'length',
             'position' => 6,
             'en' => ['label' => 'Length (mm)'],
@@ -211,6 +247,7 @@ class AOutdoorTemplate
 
         $width = $template->fields()->create([
             'type' => 'number',
+            'group' => 'Physical',
             'name' => 'width',
             'position' => 7,
             'en' => ['label' => 'Width (mm)'],
@@ -223,6 +260,7 @@ class AOutdoorTemplate
 
         $depth = $template->fields()->create([
             'type' => 'number',
+            'group' => 'Physical',
             'name' => 'depth',
             'position' => 7,
             'en' => ['label' => 'Depth (mm)'],
@@ -232,8 +270,10 @@ class AOutdoorTemplate
             'depends_on_field_id' => $shape->id,
             'values' => ['Linear', 'Rectangular', 'Square', 'Round'],
         ]);
+
         $side = $template->fields()->create([
             'type' => 'number',
+            'group' => 'Physical',
             'name' => 'side',
             'position' => 8,
             'en' => ['label' => 'Side (mm)'],
@@ -246,6 +286,7 @@ class AOutdoorTemplate
 
         $diameter = $template->fields()->create([
             'type' => 'number',
+            'group' => 'Physical',
             'name' => 'diameter',
             'position' => 9,
             'en' => ['label' => 'Diameter (mm)'],
@@ -258,67 +299,12 @@ class AOutdoorTemplate
 
         /*
         |--------------------------------------------------------------------------
-        | ELECTRICAL
-        |--------------------------------------------------------------------------
-        */
-        $power = $template->fields()->create([
-            'type' => 'number',
-            'name' => 'input_power',
-            'suffix' => 'W',
-            'position' => 10,
-            'is_required' => false,
-            'is_filterable' => true,
-            'en' => ['label' => 'Input Power (W)'],
-            'ar' => ['label' => 'القدرة (واط)'],
-        ]);
-
-        $voltage = $template->fields()->create([
-            'type' => 'select',
-            'name' => 'input_voltage',
-            'position' => 11,
-            'is_filterable' => true,
-            'options' => [
-                '220-240V AC',
-                '100-277V AC',
-                '12V DC',
-                '24V DC',
-                '48V DC',
-            ],
-            'en' => ['label' => 'Input Voltage'],
-            'ar' => ['label' => 'جهد التشغيل'],
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
-        | DRIVER CONTROL
-        |--------------------------------------------------------------------------
-        */
-        $driver = $template->fields()->create([
-            'type' => 'select',
-            'name' => 'driver_control',
-            'position' => 12,
-            'is_filterable' => true,
-            'options' => [
-                'Non-Dimmable (On/Off)',
-                'TRIAC',
-                '1-10V',
-                '0-10V',
-                'DALI',
-                'DMX',
-                'Wireless',
-                'Push-button',
-            ],
-            'en' => ['label' => 'Driver Control'],
-            'ar' => ['label' => 'نظام التحكم'],
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
         | LIGHT SOURCE TYPE
         |--------------------------------------------------------------------------
         */
         $lightSource = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Photometric',
             'name' => 'light_source_type',
             'position' => 17,
             'is_required' => false,
@@ -338,6 +324,7 @@ class AOutdoorTemplate
         */
         $ledType = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Photometric',
             'name' => 'led_type',
             'position' => 18,
             'options' => [
@@ -362,6 +349,7 @@ class AOutdoorTemplate
         */
         $lampBase = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Photometric',
             'name' => 'lamp_base',
             'position' => 19,
             'options' => [
@@ -392,6 +380,7 @@ class AOutdoorTemplate
         */
         $lampIncluded = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Photometric',
             'name' => 'lamp_included',
             'position' => 20,
             'options' => ['Yes', 'No'],
@@ -406,13 +395,159 @@ class AOutdoorTemplate
 
         /*
         |--------------------------------------------------------------------------
+        | PHOTOMETRIC — LUMINOUS FLUX
+        |--------------------------------------------------------------------------
+        */
+        $lumen = $template->fields()->create([
+            'type' => 'number',
+            'group' => 'Photometric',
+            'name' => 'luminous_flux',
+            'position' => 22,
+            'is_required' => false,
+            'is_filterable' => true,
+            'en' => ['label' => 'Luminous Flux (lm)'],
+            'ar' => ['label' => 'شدة الإضاءة (لومن)'],
+        ]);
+
+                /*
+        |--------------------------------------------------------------------------
+        | LUMEN MAINTENANCE (L-B)
+        |--------------------------------------------------------------------------
+        */
+        $l_value = $template->fields()->create([
+            'type' => 'select',
+            'group' => 'Photometric',
+            'name' => 'l_value',
+            'position' => 28,
+            'options' => ['L50','L60','L70','L80','L90'],
+            'en' => ['label' => 'L-Value'],
+            'ar' => ['label' => 'قيمة L'],
+        ]);
+
+        $b_value = $template->fields()->create([
+            'type' => 'select',
+            'group' => 'Photometric',
+            'name' => 'b_value',
+            'position' => 29,
+            'options' => ['B05','B10','B20','B50'],
+            'en' => ['label' => 'B-Value'],
+            'ar' => ['label' => 'قيمة B'],
+        ]);
+
+        $l_hours = $template->fields()->create([
+            'type' => 'select',
+            'group' => 'Photometric',
+            'name' => 'lifetime_hours',
+            'position' => 30,
+            'options' => [
+                '15000','25000','30000','35000',
+                '50000','60000','75000','100000',
+            ],
+            'en' => ['label' => 'Lifetime (Hours)'],
+            'ar' => ['label' => 'العمر التشغيلي (ساعات)'],
+        ]);
+
+                /*
+        |--------------------------------------------------------------------------
+        | ELECTRICAL
+        |--------------------------------------------------------------------------
+        */
+        $power = $template->fields()->create([
+            'type' => 'number',
+            'group' => 'Electrical',
+            'name' => 'input_power',
+            'suffix' => 'W',
+            'position' => 10,
+            'is_required' => false,
+            'is_filterable' => true,
+            'en' => ['label' => 'Input Power (W)'],
+            'ar' => ['label' => 'القدرة (واط)'],
+        ]);
+
+        $voltage = $template->fields()->create([
+            'type' => 'select',
+            'group' => 'Electrical',
+            'name' => 'input_voltage',
+            'position' => 11,
+            'is_filterable' => false,
+            'options' => [
+                '220-240V AC',
+                '100-277V AC',
+                '12V DC',
+                '24V DC',
+                '48V DC',
+            ],
+            'en' => ['label' => 'Input Voltage'],
+            'ar' => ['label' => 'جهد التشغيل'],
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | ELECTRICAL
+        |--------------------------------------------------------------------------
+        */
+        $power = $template->fields()->create([
+            'type' => 'number',
+            'group' => 'Electrical',
+            'name' => 'input_power',
+            'suffix' => 'W',
+            'position' => 10,
+            'is_required' => false,
+            'is_filterable' => true,
+            'en' => ['label' => 'Input Power (W)'],
+            'ar' => ['label' => 'القدرة (واط)'],
+        ]);
+
+        $voltage = $template->fields()->create([
+            'type' => 'select',
+            'group' => 'Electrical',
+            'name' => 'input_voltage',
+            'position' => 11,
+            'is_filterable' => false,
+            'options' => [
+                '220-240V AC',
+                '100-277V AC',
+                '12V DC',
+                '24V DC',
+                '48V DC',
+            ],
+            'en' => ['label' => 'Input Voltage'],
+            'ar' => ['label' => 'جهد التشغيل'],
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | DRIVER CONTROL
+        |--------------------------------------------------------------------------
+        */
+        $driver = $template->fields()->create([
+            'type' => 'select',
+            'group' => 'Electrical',
+            'name' => 'driver_control',
+            'position' => 12,
+            'options' => [
+                'Non-Dimmable (On/Off)',
+                'TRIAC',
+                '1-10V',
+                '0-10V',
+                'DALI',
+                'DMX',
+                'Wireless',
+                'Push-button',
+            ],
+            'en' => ['label' => 'Driver Control'],
+            'ar' => ['label' => 'نظام التحكم'],
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
         | LAMP WATTAGE MAX (Conditional)
         |--------------------------------------------------------------------------
         */
         $lampWattage = $template->fields()->create([
             'type' => 'number',
+            'group' => 'Electrical',
             'name' => 'lamp_wattage_max',
-            'is_filterable' => true,
             'position' => 21,
             'en' => ['label' => 'Lamp Wattage (Max) W'],
             'ar' => ['label' => 'أقصى قدرة لللمبة (واط)'],
@@ -425,27 +560,12 @@ class AOutdoorTemplate
 
         /*
         |--------------------------------------------------------------------------
-        | PHOTOMETRIC — LUMINOUS FLUX
-        |--------------------------------------------------------------------------
-        */
-        $lumen = $template->fields()->create([
-            'type' => 'number',
-            'name' => 'luminous_flux',
-            'is_filterable' => true,
-            'position' => 22,
-            'is_required' => false,
-            'is_filterable' => true,
-            'en' => ['label' => 'Luminous Flux (lm)'],
-            'ar' => ['label' => 'شدة الإضاءة (لومن)'],
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
         | CCT
         |--------------------------------------------------------------------------
         */
         $cct = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Electrical',
             'name' => 'cct',
             'position' => 23,
             'is_required' => false,
@@ -507,6 +627,7 @@ class AOutdoorTemplate
         */
         $cri = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Electrical',
             'name' => 'cri',
             'position' => 24,
             'options' => [
@@ -522,41 +643,12 @@ class AOutdoorTemplate
 
         /*
         |--------------------------------------------------------------------------
-        | BEAM ANGLE
-        |--------------------------------------------------------------------------
-        */
-        $beam = $template->fields()->create([
-            'type' => 'groupedselect',
-            'name' => 'beam_angle',
-            'position' => 25,
-            'with_custom' => true,
-            'options' => [
-                'Standard Spots' => [
-                    '< 18°',
-                    '18°-29°',
-                    '29°-46°',
-                ],
-                'Standard Floods' => [
-                    '46°-70°',
-                    '70°-100°',
-                    '> 100°',
-                ],
-                'Specialist' => [
-                    'Asymmetric',
-                    'Double Asymmetric',
-                ],
-            ],
-            'en' => ['label' => 'Beam Angle'],
-            'ar' => ['label' => 'زاوية الإضاءة'],
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
         | UGR
         |--------------------------------------------------------------------------
         */
         $ugr = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Electrical',
             'name' => 'ugr',
             'position' => 26,
             'options' => [
@@ -577,6 +669,7 @@ class AOutdoorTemplate
         */
         $sdcm = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Electrical',
             'name' => 'sdcm',
             'position' => 27,
             'options' => [
@@ -586,40 +679,6 @@ class AOutdoorTemplate
             'ar' => ['label' => 'ثبات اللون (SDCM)'],
         ]);
 
-        /*
-        |--------------------------------------------------------------------------
-        | LUMEN MAINTENANCE (L-B)
-        |--------------------------------------------------------------------------
-        */
-        $l_value = $template->fields()->create([
-            'type' => 'select',
-            'name' => 'l_value',
-            'position' => 28,
-            'options' => ['L50','L60','L70','L80','L90'],
-            'en' => ['label' => 'L-Value'],
-            'ar' => ['label' => 'قيمة L'],
-        ]);
-
-        $b_value = $template->fields()->create([
-            'type' => 'select',
-            'name' => 'b_value',
-            'position' => 29,
-            'options' => ['B05','B10','B20','B50'],
-            'en' => ['label' => 'B-Value'],
-            'ar' => ['label' => 'قيمة B'],
-        ]);
-
-        $l_hours = $template->fields()->create([
-            'type' => 'select',
-            'name' => 'lifetime_hours',
-            'position' => 30,
-            'options' => [
-                '15000','25000','30000','35000',
-                '50000','60000','75000','100000',
-            ],
-            'en' => ['label' => 'Lifetime (Hours)'],
-            'ar' => ['label' => 'العمر التشغيلي (ساعات)'],
-        ]);
 
         /*
         |--------------------------------------------------------------------------
@@ -628,6 +687,7 @@ class AOutdoorTemplate
         */
         $ip = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Electrical',
             'name' => 'ip_rating',
             'position' => 31,
             'is_filterable' => false,
@@ -646,6 +706,7 @@ class AOutdoorTemplate
         */
         $ik = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Electrical',
             'name' => 'ik_rating',
             'position' => 32,
             'options' => [
@@ -662,6 +723,7 @@ class AOutdoorTemplate
         */
         $warranty = $template->fields()->create([
             'type' => 'select',
+            'group' => 'Electrical',
             'name' => 'warranty',
             'position' => 33,
             'options' => [

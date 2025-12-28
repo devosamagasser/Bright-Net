@@ -118,15 +118,15 @@ class SupplierEngagementService
         $subcategories = Subcategory::query()
             ->where('department_id', $departmentId)
             ->with(['families' => function ($query) use ($supplierId, $supplierDepartment) {
-                $query->where('supplier_id', $supplierId)->orderBy('id', 'desc');
-                $query->where('supplier_department_id', $supplierDepartment->getKey())->orderBy('id', 'desc');
+                $query->where('supplier_id', $supplierId)
+                    ->where('supplier_department_id', $supplierDepartment->getKey())
+                    ->orderBy('order', 'desc');
             }, 'families.fieldValues.field', 'families.media'])
             ->orderBy('id')
             ->get();
 
         return $subcategories;
     }
-
 
     private function ensureSupplierSolutionBelongsToSupplier(SupplierSolution $supplierSolution, int $supplierId): void
     {

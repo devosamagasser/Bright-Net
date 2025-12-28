@@ -46,28 +46,8 @@ class EloquentProductRepository implements ProductRepositoryInterface
     public function find(int $id): ?Product
     {
         return Product::query()
-            ->with([
-                'media',
-                'translations',
-                'fieldValues.field.translations',
-                'prices',
-                'family.translations',
-                'family.supplier',
-                'family.subcategory.department.solution.translations',
-                'family.department.supplierBrand.brand',
-                'family.department.department.translations',
-                'family.subcategory.translations',
-                'accessories.accessory.translations',
-                'accessories.accessory.media',
-                'accessories.accessory.fieldValues.field.translations',
-                'accessories.accessory.family.translations',
-                'accessories.accessory.family.supplier',
-                'accessories.accessory.family.subcategory.department.solution.translations',
-                'accessories.accessory.family.department.supplierBrand.brand',
-                'accessories.accessory.family.department.department.translations',
-                'accessories.accessory.family.subcategory.translations',
-            ])
-        ->find($id);
+            ->with($this->allRelations())
+            ->find($id);
     }
 
     public function getByFamily(int $familyId, ?int $supplierId = null): Collection
@@ -101,6 +81,37 @@ class EloquentProductRepository implements ProductRepositoryInterface
         });
     }
 
+    public function compare(int $firstProduct, int $secondProduct): array
+    {
+        $products = Product::query()
+            ->whereIn('id', [$firstProduct, $secondProduct])
+            ->with($this->allRelations())
+            ->get();
+
+        if ($products->count() < 2) {
+            throw new \InvalidArgumentException('Both products must exist for comparison.');
+        }
+
+        if ($products->first()->family_id !== $products->last()->family_id) {
+            throw new \InvalidArgumentException('Products must belong to the same family for comparison.');
+        }
+
+        $comparisonResult = [];
+        $attributes = array_keys($products[0]->toArray());
+
+        foreach ($attributes as $attribute) {
+            $values = array_map(fn($product) => Arr::get($product->toArray(), $attribute, null), $products->all());
+            $allSame = count(array_unique($values)) === 1;
+
+            $comparisonResult[$attribute] = [
+                'values' => $values,
+                'all_same' => $allSame,
+            ];
+        }
+
+        return $comparisonResult;
+    }
+
     public function attachAccessory( Product $product, Product $accessory, AccessoryType $type, ?int $quantity = null): ProductAccessory {
         return DB::transaction(function () use ($product, $accessory, $type, $quantity): ProductAccessory {
             /** @var ProductAccessory $record */
@@ -120,7 +131,21 @@ class EloquentProductRepository implements ProductRepositoryInterface
 
     private function loadAggregates(Product $product): Product
     {
-        return $product->load([
+        return $product->load($this->allRelations());
+    }
+
+    protected function fillProduct(Product $product, array $attributes, array $translations, array $media, bool $isUpdate = false): Product
+    {
+        $product->fill($attributes);
+        $this->fillTranslations($product, $translations);
+        $product->save();
+        $this->syncMedia($product, $media, $isUpdate);
+        return $product;
+    }
+
+    private function allRelations()
+    {
+        return [
             'media',
             'translations',
             'fieldValues.field.translations',
@@ -140,15 +165,6 @@ class EloquentProductRepository implements ProductRepositoryInterface
             'accessories.accessory.family.department.supplierBrand.brand',
             'accessories.accessory.family.department.department.translations',
             'accessories.accessory.family.subcategory.translations',
-        ]);
-    }
-
-    protected function fillProduct(Product $product, array $attributes, array $translations, array $media, bool $isUpdate = false): Product
-    {
-        $product->fill($attributes);
-        $this->fillTranslations($product, $translations);
-        $product->save();
-        $this->syncMedia($product, $media, $isUpdate);
-        return $product;
+        ];
     }
 }

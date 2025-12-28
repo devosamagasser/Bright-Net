@@ -26,6 +26,7 @@ interface FamilyRepositoryInterface
 
     public function find(int $id): ?Family;
 
+    public function changeOrder(Family $family, Family $familyBefore);
     /**
      * @return Collection<int, Family>
      */

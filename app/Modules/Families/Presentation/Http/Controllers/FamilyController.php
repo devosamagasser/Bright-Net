@@ -15,7 +15,8 @@ use App\Modules\Families\Application\UseCases\{
     ListFamiliesUseCase,
     ShowFamilyUseCase,
     UpdateFamilyUseCase,
-    FamilyExportUseCase
+    FamilyExportUseCase,
+    ChangeOrderUserCase
 };
 use App\Modules\Families\Application\DTOs\FamilyInput;
 use App\Modules\Families\Domain\Models\Family;
@@ -31,6 +32,7 @@ class FamilyController
         private readonly DeleteFamilyUseCase $deleteFamily,
         private readonly ShowFamilyUseCase $showFamily,
         private readonly ListFamiliesUseCase $listFamilies,
+        private readonly ChangeOrderUserCase $changeOrder,
     ) {
     }
 
@@ -81,6 +83,15 @@ class FamilyController
         return ApiResponse::updated(
             FamilyResource::make($familyData)->resolve()
         );
+    }
+
+    public function changeOrder(Family $family, Family $familyBefore)
+    {
+        $this->changeOrder->handle(
+            family: $family,
+            familyBefore: $familyBefore
+        );
+        return ApiResponse::message('Order changed successfully');
     }
 
     public function destroy(Family $family)

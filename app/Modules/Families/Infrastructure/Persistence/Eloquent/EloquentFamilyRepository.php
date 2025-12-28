@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Modules\Families\Domain\Models\Family;
 use App\Modules\DataSheets\Domain\Models\DataField;
 use App\Modules\DataSheets\Domain\Models\DataTemplate;
+use App\Modules\Families\Domain\Jobs\ChangeFamilyOrderJob;
 use App\Modules\Shared\Support\Traits\HandlesTranslations;
 use App\Modules\DataSheets\Domain\ValueObjects\DataFieldType;
 use App\Modules\Families\Domain\Repositories\FamilyRepositoryInterface;
@@ -62,6 +63,11 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
         DB::transaction(static function () use ($family): void {
             $family->delete();
         });
+    }
+
+    public function changeOrder(Family $family, Family $familyBefore)
+    {
+        ChangeFamilyOrderJob::dispatch($family, $familyBefore);
     }
 
     public function find(int $id): ?Family

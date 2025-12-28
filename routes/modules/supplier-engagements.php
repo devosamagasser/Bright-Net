@@ -42,6 +42,10 @@ Route::prefix('suppliers')
             ->whereNumber('subcategory')
             ->whereIn('type', DataTemplateType::values());
 
+        Route::get('subcategories/{subcategory}/data-templates/{type}/v2', [SupplierDataTemplateController::class, 'showV2'])
+            ->whereNumber('subcategory')
+            ->whereIn('type', DataTemplateType::values());
+
         Route::get('families/{family}/products', [ProductController::class, 'index'])
             ->whereNumber('family');
 
@@ -58,6 +62,9 @@ Route::prefix('suppliers')
                 Route::get('subcategory/{subcategory}/department/{supplierDepartmentId}', [FamilyController::class, 'index'])
                     ->whereNumber('subcategory')
                     ->whereNumber('supplierDepartmentId');
+                Route::patch('/set/{family}/before/{familyBefore}', [FamilyController::class, 'changeOrder'])
+                    ->whereNumber('family')
+                    ->whereNumber('familyBefore');
             });
 
         Route::prefix('products')

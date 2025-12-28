@@ -21,6 +21,7 @@ class DataFieldData
     {
         return new self(
             attributes: [
+                'group' => $field->group,
                 'id' => $field->getKey(),
                 'label' => $field->label,
                 'placeholder' => $field->placeholder,

@@ -43,7 +43,7 @@ class ProductImportUseCase implements ToModel, WithHeadingRow
                                 ->first();
         $attributes = [
             'family_id' => $this->family->id,
-            'data_template_id' => $dataTemplate->id,
+            'data_template_id' => $dataTemplate?->id,
             'code' => $data['code'],
             'stock' => $data['stock'],
             'disclaimer' => $data['disclaimer']
