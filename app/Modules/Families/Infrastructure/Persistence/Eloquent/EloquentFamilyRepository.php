@@ -163,6 +163,7 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             $this->syncUploadedImage($family, $image);
             return;
         }
+                dd($imageUrl);
 
         if ($imageUrl !== null) {
             $this->syncImageFromLocalUrl($family, $imageUrl);
@@ -186,9 +187,9 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
         }
 
         $excludedMedia = $family->media()
-        ->where('collection_name', 'images')
-        ->where('file_name', basename($path))
-        ->first();
+            ->where('collection_name', 'images')
+            ->where('file_name', basename($path))
+            ->first();
 
         if($excludedMedia !== null){
             $family->clearMediaCollectionExcept('images', excludedMedia: $excludedMedia);
