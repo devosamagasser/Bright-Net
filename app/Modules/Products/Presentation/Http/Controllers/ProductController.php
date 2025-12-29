@@ -137,10 +137,8 @@ class ProductController
     public function budgetPrice(Request $request, Product $product)
     {
         $data = $request->validate(['quantity'=>'required|integer|min:1']);
-        $price = $this->calculateBudgetPrice->handle($product, $data['quantity']);
-        return ApiResponse::success([
-            'price' => $price
-        ]);
+        $budgetPrice = $this->calculateBudgetPrice->handle($product, $data['quantity']);
+        return ApiResponse::success($budgetPrice);
     }
 
     private function authenticatedSupplierId(): ?int

@@ -51,7 +51,15 @@ class ProductPriceService
             throw new \InvalidArgumentException('No applicable price found for the given quantity.');
         }
 
-        return $applicablePrice->price * $quantity;
+        return $applicablePrice->map(fn($price) => [
+            'quantity' => $quantity,
+            'unit_price' => $applicablePrice->price,
+            'total_price' => $applicablePrice->price * $quantity,
+            'currency' => $applicablePrice->currency,
+            'delivery_time_unit' => $applicablePrice->delivery_time_unit,
+            'delivery_time_value' => $applicablePrice->delivery_time_value,
+            'vat_status' => $applicablePrice->vat_status
+        ]);
     }
 
 }
