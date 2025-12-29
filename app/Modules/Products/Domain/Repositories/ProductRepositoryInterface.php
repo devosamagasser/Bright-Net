@@ -28,6 +28,8 @@ interface ProductRepositoryInterface
 
     public function find(int $id): ?Product;
 
+    public function compare(int $firstProduct, int $secondProduct): Collection;
+
     /**
      * @return Collection<int, Product>
      */

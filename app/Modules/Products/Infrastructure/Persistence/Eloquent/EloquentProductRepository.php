@@ -2,10 +2,11 @@
 
 namespace App\Modules\Products\Infrastructure\Persistence\Eloquent;
 
-use App\Modules\Shared\Support\Traits\HandleMedia;
 use Illuminate\Support\Arr;
+use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use App\Modules\Shared\Support\Traits\HandleMedia;
 use App\Modules\Shared\Support\Traits\HandlesTranslations;
 use App\Modules\Products\Domain\ValueObjects\AccessoryType;
 use App\Modules\Products\Domain\Models\{Product, ProductAccessory};
@@ -81,35 +82,23 @@ class EloquentProductRepository implements ProductRepositoryInterface
         });
     }
 
-    public function compare(int $firstProduct, int $secondProduct): array
+    public function compare(int $firstProduct, int $secondProduct): Collection
     {
         $products = Product::query()
             ->whereIn('id', [$firstProduct, $secondProduct])
             ->with($this->allRelations())
+            ->limit(2)
             ->get();
 
         if ($products->count() < 2) {
-            throw new \InvalidArgumentException('Both products must exist for comparison.');
+            throw new \InvalidArgumentException('Both products must exist for comparison.', Response::HTTP_NOT_FOUND);
         }
 
-        if ($products->first()->family_id !== $products->last()->family_id) {
-            throw new \InvalidArgumentException('Products must belong to the same family for comparison.');
+        if ($products->first()->family->subcategory_id !== $products->last()->family->subcategory_id) {
+            throw new \InvalidArgumentException('Products must belong to the same roots for comparison.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        $comparisonResult = [];
-        $attributes = array_keys($products[0]->toArray());
-
-        foreach ($attributes as $attribute) {
-            $values = array_map(fn($product) => Arr::get($product->toArray(), $attribute, null), $products->all());
-            $allSame = count(array_unique($values)) === 1;
-
-            $comparisonResult[$attribute] = [
-                'values' => $values,
-                'all_same' => $allSame,
-            ];
-        }
-
-        return $comparisonResult;
+        return $products;
     }
 
     public function attachAccessory( Product $product, Product $accessory, AccessoryType $type, ?int $quantity = null): ProductAccessory {

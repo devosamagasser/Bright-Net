@@ -53,4 +53,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $exceptions->render(function (HttpException $e, $request){
             return ApiResponse::message($e->getMessage(), $e->getStatusCode());
         });
+
+        $exceptions->render(function (InvalidArgumentException $e, $request){
+            return ApiResponse::message($e->getMessage(), $e->getCode());
+        });
     })->create();

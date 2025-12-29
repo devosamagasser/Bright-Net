@@ -2,6 +2,7 @@
 
 namespace App\Modules\Products\Presentation\Http\Controllers;
 
+use App\Modules\Products\Application\UseCases\ProductsCompareUseCase;
 use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
 use Illuminate\Http\Request;
 use App\Modules\Shared\Support\Helper\ApiResponse;
@@ -36,6 +37,7 @@ class ProductController
         private readonly ListProductsUseCase $listProducts,
         private readonly CutPasteProductsUseCase $cutPasteProducts,
         private readonly CalculateBudgetPriceUseCase $calculateBudgetPrice,
+        private readonly ProductsCompareUseCase $productsCompareUseCase
     ) {
     }
 
@@ -132,6 +134,12 @@ class ProductController
         );
 
         return ApiResponse::message('Products imported successfully');
+    }
+
+    public function compare(int $firstProductId, int $secondProductId)
+    {
+        $data = $this->productsCompareUseCase->handle($firstProductId, $secondProductId);
+        return ApiResponse::success($data);
     }
 
     public function budgetPrice(Request $request, Product $product)
