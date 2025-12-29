@@ -186,12 +186,12 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
         }
 
         $excludedMedia = $family->media()
-        ->where('collection_name', 'gallery')
+        ->where('collection_name', 'images')
         ->where('file_name', basename($path))
         ->first();
 
         if($excludedMedia !== null){
-            $family->clearMediaCollectionExcept('gallery', excludedMedia: $excludedMedia);
+            $family->clearMediaCollectionExcept('images', excludedMedia: $excludedMedia);
             return;
         }
 

@@ -482,40 +482,6 @@ class AIndoorTemplate
 
         /*
         |--------------------------------------------------------------------------
-        | ELECTRICAL
-        |--------------------------------------------------------------------------
-        */
-        $power = $template->fields()->create([
-            'type' => 'number',
-            'group' => 'Electrical',
-            'name' => 'input_power',
-            'suffix' => 'W',
-            'position' => 10,
-            'is_required' => false,
-            'is_filterable' => true,
-            'en' => ['label' => 'Input Power (W)'],
-            'ar' => ['label' => 'القدرة (واط)'],
-        ]);
-
-        $voltage = $template->fields()->create([
-            'type' => 'select',
-            'group' => 'Electrical',
-            'name' => 'input_voltage',
-            'position' => 11,
-            'is_filterable' => false,
-            'options' => [
-                '220-240V AC',
-                '100-277V AC',
-                '12V DC',
-                '24V DC',
-                '48V DC',
-            ],
-            'en' => ['label' => 'Input Voltage'],
-            'ar' => ['label' => 'جهد التشغيل'],
-        ]);
-
-        /*
-        |--------------------------------------------------------------------------
         | DRIVER CONTROL
         |--------------------------------------------------------------------------
         */
