@@ -22,7 +22,7 @@ class CalculateBudgetPriceUseCase
     ) {
     }
 
-    public function handle(Product $product, int $quantity): float
+    public function handle(Product $product, int $quantity)
     {
         return $this->productPriceService->calculateBudgetPrice($product, $quantity);
     }

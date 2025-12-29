@@ -69,15 +69,22 @@ class ProductInput
             attributes: $payload,
             translations: is_array($translations) ? $translations : [],
             values: is_array($values) ? $values : [],
-//             prices: array_values(
-//                 is_array($prices)
-//                     ? collect($prices)
-//                         ->filter(fn ($price) => $price['price'] !== null)
-//                         ->values()
-//                         ->all()
-//                     : []
-// ),
-            prices: [],
+            prices: array_values(
+                is_array($prices)
+                    ? collect($prices)
+                        ->filter(fn ($price) => (
+                            $price['price'] !== null &&
+                            $price['from'] !== null &&
+                            $price['to'] !== null &&
+                            $price['currency'] !== null &&
+                            $price['vat_status'] !== null &&
+                            $price['delivery_time_unit'] !== null &&
+                            $price['delivery_time_value'] !== null
+                            ))
+                        ->values()
+                        ->all()
+                    : []
+            ),
             shouldSyncPrices: $shouldSyncPrices,
             accessories: array_values(is_array($accessories) ? $accessories : []),
             shouldSyncAccessories: $shouldSyncAccessories,

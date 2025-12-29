@@ -36,7 +36,7 @@ class ProductPriceService
         DB::table('product_prices')->insert($rows);
     }
 
-    public function calculateBudgetPrice(Product $product, int $quantity): float
+    public function calculateBudgetPrice(Product $product, int $quantity)
     {
         $applicablePrice = $product->prices()
             ->where('from', '<=', $quantity)
@@ -47,19 +47,16 @@ class ProductPriceService
             ->orderBy('from', 'desc')
             ->first();
 
-        if ($applicablePrice === null) {
-            throw new \InvalidArgumentException('No applicable price found for the given quantity.');
-        }
 
-        return $applicablePrice->map(fn($price) => [
+        return [
             'quantity' => $quantity,
-            'unit_price' => $applicablePrice->price,
-            'total_price' => $applicablePrice->price * $quantity,
-            'currency' => $applicablePrice->currency,
-            'delivery_time_unit' => $applicablePrice->delivery_time_unit,
-            'delivery_time_value' => $applicablePrice->delivery_time_value,
-            'vat_status' => $applicablePrice->vat_status
-        ]);
+            'unit_price' => $applicablePrice?->price ?? 0,
+            'total_price' => $applicablePrice?->price * $quantity ?? 0,
+            'currency' => $applicablePrice?->currency,
+            'delivery_time_unit' => $applicablePrice?->delivery_time_unit,
+            'delivery_time_value' => $applicablePrice?->delivery_time_value,
+            'vat_status' => $applicablePrice?->vat_status
+        ];
     }
 
 }
