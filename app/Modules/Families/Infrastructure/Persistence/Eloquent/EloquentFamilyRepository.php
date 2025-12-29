@@ -163,7 +163,6 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
             $this->syncUploadedImage($family, $image);
             return;
         }
-                // dd($imageUrl);
 
         if ($imageUrl !== null) {
             $this->syncImageFromLocalUrl($family, $imageUrl);

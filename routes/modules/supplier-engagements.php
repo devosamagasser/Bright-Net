@@ -85,5 +85,6 @@ Route::prefix('suppliers')
                 Route::post('/upload/{family}', [ProductController::class, 'import'])
                     ->whereNumber('family');
                 });
+                Route::post('/products/budget-price/{product}', [ProductController::class, 'budgetPrice']);
             });
 

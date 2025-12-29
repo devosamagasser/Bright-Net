@@ -19,7 +19,8 @@ use App\Modules\Products\Application\UseCases\{
     UpdateProductUseCase,
     CutPasteProductsUseCase,
     ProductExportUseCase,
-    ProductImportUseCase
+    ProductImportUseCase,
+    CalculateBudgetPriceUseCase
 };
 use App\Modules\Products\Application\DTOs\ProductInput;
 use App\Modules\Products\Domain\Models\Product;
@@ -34,6 +35,7 @@ class ProductController
         private readonly ShowProductUseCase $showProduct,
         private readonly ListProductsUseCase $listProducts,
         private readonly CutPasteProductsUseCase $cutPasteProducts,
+        private readonly CalculateBudgetPriceUseCase $calculateBudgetPrice,
     ) {
     }
 
@@ -130,6 +132,15 @@ class ProductController
         );
 
         return ApiResponse::message('Products imported successfully');
+    }
+
+    public function budgetPrice(Request $request, Product $product)
+    {
+        $data = $request->validate(['quantity'=>'required|integer|min:1']);
+        $price = $this->calculateBudgetPrice->handle($product, $data['quantity']);
+        return ApiResponse::success([
+            'price' => $price
+        ]);
     }
 
     private function authenticatedSupplierId(): ?int

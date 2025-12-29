@@ -36,4 +36,22 @@ class ProductPriceService
         DB::table('product_prices')->insert($rows);
     }
 
+    public function calculateBudgetPrice(Product $product, int $quantity): float
+    {
+        $applicablePrice = $product->prices()
+            ->where('from', '<=', $quantity)
+            ->where(function ($query) use ($quantity) {
+                $query->where('to', '>=', $quantity)
+                    ->orWhereNull('to');
+            })
+            ->orderBy('from', 'desc')
+            ->first();
+
+        if ($applicablePrice === null) {
+            throw new \InvalidArgumentException('No applicable price found for the given quantity.');
+        }
+
+        return $applicablePrice->price * $quantity;
+    }
+
 }
