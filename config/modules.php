@@ -26,6 +26,7 @@ return [
         \App\Modules\Families\Infrastructure\Providers\FamiliesServiceProvider::class,
         \App\Modules\Products\Infrastructure\Providers\ProductsServiceProvider::class,
         \App\Modules\Quotations\Infrastructure\Providers\QuotationsServiceProvider::class,
+        \App\Modules\Favourites\Infrastructure\Providers\FavouritesServiceProvider::class,
     ],
 ];
 
