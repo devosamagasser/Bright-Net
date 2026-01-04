@@ -51,32 +51,32 @@ class AIndoorTemplate
             'ar' => ['label' => 'الاستخدامات الموصى بها'],
         ]);
 
-        $template->fields()->create([
-            'type' => 'multiselect',
-            'name' => 'type',
-            'position' => 1,
-            'group' => 'Physical',
-            'is_required' => false,
-            'is_filterable' => false,
-            'options' => [
-                'Downlight',
-                'Spotlight',
-                'Track Light',
-                'Linear',
-                'Pendant',
-                'Troffer / Panel',
-                'High Bay',
-                'Low Bay',
-                'Wall-Washer',
-                'Wall-Grazer',
-                'Wall Mounted (Indoor)',
-                'LED Flex / Strip',
-                'Emergency / Exit',
-                'Fittings & Accessories (Indoor)'
-            ],
-            'en' => ['label' => 'Product Type '],
-            'ar' => ['label' => 'نوع المنتج'],
-        ]);
+        // $template->fields()->create([
+        //     'type' => 'multiselect',
+        //     'name' => 'type',
+        //     'position' => 1,
+        //     'group' => 'Physical',
+        //     'is_required' => false,
+        //     'is_filterable' => false,
+        //     'options' => [
+        //         'Downlight',
+        //         'Spotlight',
+        //         'Track Light',
+        //         'Linear',
+        //         'Pendant',
+        //         'Troffer / Panel',
+        //         'High Bay',
+        //         'Low Bay',
+        //         'Wall-Washer',
+        //         'Wall-Grazer',
+        //         'Wall Mounted (Indoor)',
+        //         'LED Flex / Strip',
+        //         'Emergency / Exit',
+        //         'Fittings & Accessories (Indoor)'
+        //     ],
+        //     'en' => ['label' => 'Product Type '],
+        //     'ar' => ['label' => 'نوع المنتج'],
+        // ]);
 
 
         (new AGeneralTemplate())->build($template);

@@ -83,14 +83,6 @@ class AGeneralTemplate
             'is_filterable' => false,
             'with_custom' => true,
             'options' => [
-                'Standard' => [
-                    'White (Matte)',
-                    'White (Gloss)',
-                    'Black (Matte)',
-                    'Black (Gloss)',
-                    'Grey / Silver',
-                    'Graphite / Anthracite',
-                ],
                 'Metallic' => [
                     'Anodized Aluminum',
                     'Brushed Aluminum',
@@ -99,10 +91,18 @@ class AGeneralTemplate
                     'Brass',
                     'Copper',
                 ],
+                'Standard' => [
+                    'White (Matte)',
+                    'White (Gloss)',
+                    'Black (Matte)',
+                    'Black (Gloss)',
+                    'Grey / Silver',
+                    'Graphite / Anthracite',
+                ],
             ],
             'en' => [
                 'label' => 'Finish Color',
-                'placeholder' => 'Select or type custom color',
+                'placeholder' => 'Select or Enter Custom RAL (Prefix: "RAL" +$$Number Input$$)',
             ],
             'ar' => [
                 'label' => 'لون التشطيب',
@@ -651,6 +651,7 @@ class AGeneralTemplate
             'position' => 23,
             'is_required' => false,
             'is_filterable' => true,
+            'with_custom' => true,
             'options' => [
                 [
                     'label' => '2700K (Very Warm White - Incandescent)',
@@ -784,10 +785,36 @@ class AGeneralTemplate
             'name' => 'sdcm',
             'position' => 27,
             'options' => [
-                '1-Step','2-Step','3-Step','5-Step','7-Step',
+                [
+                    'label' => '1-Step (Imperceptible difference - Museum)',
+                    'value' => '1-Step',
+                ],
+                [
+                    'label' => '2-Step (Barely perceptible - High-End Retail)',
+                    'value' => '2-Step',
+                ],
+                [
+                    'label' => '3-Step (Noticeable - Professional Standard)',
+                    'value' => '3-Step',
+                ],
+                [
+                    'label' => '5-Step (Noticeable - Standard Commercial)',
+                    'value' => '5-Step',
+                ],
+                [
+                    'label' => '7-Step (Visible difference - Economy)',
+                    'value' => '7-Step',
+                ],
+
             ],
-            'en' => ['label' => 'MacAdam Ellipse (SDCM)'],
-            'ar' => ['label' => 'ثبات اللون (SDCM)'],
+            'en' => [
+                'label' => 'MacAdam Ellipse (SDCM)',
+                'placeholder' => 'Color consistency between fixtures'
+            ],
+            'ar' => [
+                'label' => 'ثبات اللون (SDCM)',
+                'placeholder' => 'Color consistency between fixtures'
+            ],
         ]);
 
 

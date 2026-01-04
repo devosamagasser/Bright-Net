@@ -13,7 +13,7 @@ class DataTemplateResource extends JsonResource
      */
     public function toArray($request): array
     {
-        $includeTranslations = $request->is('api/data-templates/*') || $request->method() === 'GET';
+        $includeTranslations = $request->is('api/data-templates/*') && $request->method() === 'GET';
 
         return [
             'id' => $this->attributes['id'] ?? null,
@@ -22,14 +22,13 @@ class DataTemplateResource extends JsonResource
             'description' => $this->attributes['description'],
             'type' => $this->attributes['type'] ?? null,
             'translations' => $this->when(
-                $request->is('api/data-templates/*') ?? $request->method() === 'GET',
                 $includeTranslations,
-                $this->translations
+                $this->translations,
             ),
             'fields' => array_map(
-                function (DataFieldData $field) use ($request) {
+                function (DataFieldData $field) use ( $includeTranslations) {
                     return $this->when(
-                            $request->is('api/data-templates/*') ?? $request->method() === 'GET',
+                            $includeTranslations,
                             array_merge(
                                 $field->attributes, ['translations' => $field->translations],
                             )

@@ -54,34 +54,35 @@ class AOutdoorTemplate
             ],
         ]);
 
-        $template->fields()->create([
-            'type' => 'multiselect',
-            'name' => 'type',
-            'position' => 1,
-            'group' => 'Physical',
-            'is_required' => false,
-            'is_filterable' => false,
-            'options' => [
-                'Floodlight',
-                'Wall Pack',
-                'Bollard',
-                'In-Ground',
-                'Streetlight',
-                'Post Top',
-                'Downlight (IP Rated)',
-                'Spotlight (IP Rated)',
-                'Linear (IP Rated)',
-                'Pendant (IP Rated)',
-                'Wall-Washer (IP Rated)',
-                'Wall-Grazer (IP Rated)',
-                'Wall Mounted (Outdoor)',
-                'LED Flex / Strip (IP Rated)',
-                'Emergency / Exit',
-                'Fittings & Accessories (Outdoor)',
-            ],
-            'en' => ['label' => 'Product Type'],
-            'ar' => ['label' => 'نوع المنتج'],
-        ]);
+        // $template->fields()->create([
+        //     'type' => 'multiselect',
+        //     'name' => 'type',
+        //     'position' => 1,
+        //     'group' => 'Physical',
+        //     'is_required' => false,
+        //     'is_filterable' => false,
+        //     'options' => [
+        //         'Floodlight',
+        //         'Wall Pack',
+        //         'Bollard',
+        //         'In-Ground',
+        //         'Streetlight',
+        //         'Post Top',
+        //         'Downlight (IP Rated)',
+        //         'Spotlight (IP Rated)',
+        //         'Linear (IP Rated)',
+        //         'Pendant (IP Rated)',
+        //         'Wall-Washer (IP Rated)',
+        //         'Wall-Grazer (IP Rated)',
+        //         'Wall Mounted (Outdoor)',
+        //         'LED Flex / Strip (IP Rated)',
+        //         'Emergency / Exit',
+        //         'Fittings & Accessories (Outdoor)',
+        //     ],
+        //     'en' => ['label' => 'Product Type'],
+        //     'ar' => ['label' => 'نوع المنتج'],
+        // ]);
+
 
         (new AGeneralTemplate())->build($template);
 
