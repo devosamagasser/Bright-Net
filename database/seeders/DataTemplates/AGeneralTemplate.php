@@ -700,7 +700,7 @@ class AGeneralTemplate
             ],
             'en' => [
                 'label' => 'Correlated Color Temperature (CCT)',
-                'placeholder' => 'Light color warmth (Kelvin)',
+                'placeholder' => 'Select or type Custom kelvin value',
             ],
             'ar' => [
                 'label' => 'درجة حرارة اللون',
