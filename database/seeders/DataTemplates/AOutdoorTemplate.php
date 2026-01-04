@@ -113,12 +113,13 @@ class AOutdoorTemplate
             'ar' => ['label' => 'مادة الهيكل'],
         ]);
 
+
         /*
         |--------------------------------------------------------------------------
         | FIELD — FINISH COLOR
         |--------------------------------------------------------------------------
         */
-        $finish = $template->fields()->create([
+        $template->fields()->create([
             'type' => 'groupedselect',
             'group' => 'Physical',
             'name' => 'finish_color',
@@ -142,11 +143,16 @@ class AOutdoorTemplate
                     'Bronze',
                     'Brass',
                     'Copper',
-                    'Custom RAL',
                 ],
             ],
-            'en' => ['label' => 'Finish Color'],
-            'ar' => ['label' => 'لون التشطيب'],
+            'en' => [
+                'label' => 'Finish Color',
+                'placeholder' => 'Select or type custom color',
+            ],
+            'ar' => [
+                'label' => 'لون التشطيب',
+                'placeholder' => 'اختر اللون أو حدد لوناً مخصصاً',
+            ],
         ]);
 
         /*
@@ -154,7 +160,7 @@ class AOutdoorTemplate
         | FIELD — DIFFUSER / OPTIC TYPE
         |--------------------------------------------------------------------------
         */
-        $diffuser = $template->fields()->create([
+        $template->fields()->create([
             'type' => 'select',
             'group' => 'Physical',
             'name' => 'diffuser_optic_type',
@@ -185,7 +191,7 @@ class AOutdoorTemplate
         | BEAM ANGLE
         |--------------------------------------------------------------------------
         */
-        $beam = $template->fields()->create([
+        $template->fields()->create([
             'type' => 'groupedselect',
             'name' => 'beam_angle',
             'position' => 25,
@@ -207,8 +213,14 @@ class AOutdoorTemplate
                     'Double Asymmetric',
                 ],
             ],
-            'en' => ['label' => 'Beam Angle'],
-            'ar' => ['label' => 'زاوية الإضاءة'],
+            'en' => [
+                'label' => 'Beam Angle',
+                'placeholder' => 'Select or type custom angle',
+            ],
+            'ar' => [
+                'label' => 'زاوية الإضاءة',
+                'placeholder' => 'اختر الزاوية أو حدد زاوية مخصصة',
+            ],
         ]);
 
         /*
@@ -291,6 +303,64 @@ class AOutdoorTemplate
             'name' => 'diameter',
             'position' => 9,
             'en' => ['label' => 'Diameter (mm)'],
+            'ar' => ['label' => 'القطر (مم)'],
+        ]);
+        $diameter->dependency()->create([
+            'depends_on_field_id' => $shape->id,
+            'values' => ['Round'],
+        ]);
+
+        /*
+        |--------------------------------------------------------------------------
+        | CutOut DIMENSIONS — CONDITIONAL
+        |--------------------------------------------------------------------------
+        */
+
+        $cutoutLength = $template->fields()->create([
+            'type' => 'number',
+            'group' => 'Physical',
+            'name' => 'cutout_length',
+            'position' => 6,
+            'en' => ['label' => 'Cutout Length (mm)', 'placeholder' => 'Enter length in millimeters'],
+            'ar' => ['label' => 'الطول (مم)', 'placeholder' => 'أدخل الطول بالملليمترات'],
+        ]);
+        $cutoutLength->dependency()->create([
+            'depends_on_field_id' => $shape->id,
+            'values' => ['Rectangular'],
+        ]);
+
+        $cutoutWidth = $template->fields()->create([
+            'type' => 'number',
+            'group' => 'Physical',
+            'name' => 'cutout_width',
+            'position' => 7,
+            'en' => ['label' => 'Cutout Width (mm)', 'placeholder' => 'Enter width in millimeters'],
+            'ar' => ['label' => 'العرض (مم)', 'placeholder' => 'أدخل العرض بالملليمترات'],
+        ]);
+        $cutoutWidth->dependency()->create([
+            'depends_on_field_id' => $shape->id,
+            'values' => ['Rectangular'],
+        ]);
+
+        $side = $template->fields()->create([
+            'type' => 'number',
+            'group' => 'Physical',
+            'name' => 'cutout_side',
+            'position' => 8,
+            'en' => ['label' => 'Cutout Side (mm)'],
+            'ar' => ['label' => 'الضلع (مم)'],
+        ]);
+        $side->dependency()->create([
+            'depends_on_field_id' => $shape->id,
+            'values' => ['Square'],
+        ]);
+
+        $diameter = $template->fields()->create([
+            'type' => 'number',
+            'group' => 'Physical',
+            'name' => 'cutout_diameter',
+            'position' => 9,
+            'en' => ['label' => 'Cutout Diameter (mm)'],
             'ar' => ['label' => 'القطر (مم)'],
         ]);
         $diameter->dependency()->create([
@@ -406,8 +476,14 @@ class AOutdoorTemplate
             'position' => 22,
             'is_required' => false,
             'is_filterable' => true,
-            'en' => ['label' => 'Luminous Flux (lm)'],
-            'ar' => ['label' => 'شدة الإضاءة (لومن)'],
+            'en' => [
+                'label' => 'Luminous Flux (lm)',
+                'placeholder' => 'Total light output in lumens',
+            ],
+            'ar' => [
+                'label' => 'شدة الإضاءة (لومن)',
+                'placeholder' => 'إجمالي كمية الضوء باللومن',
+            ],
         ]);
 
                 /*
@@ -583,8 +659,14 @@ class AOutdoorTemplate
                     'value' => 'RGBW',
                 ]
             ],
-            'en' => ['label' => 'CCT'],
-            'ar' => ['label' => 'درجة حرارة اللون'],
+            'en' => [
+                'label' => 'Correlated Color Temperature (CCT)',
+                'placeholder' => 'Light color warmth (Kelvin)',
+            ],
+            'ar' => [
+                'label' => 'درجة حرارة اللون',
+                'placeholder' => 'دفء لون الضوء (كلفن)',
+            ],
         ]);
 
         /*
@@ -604,8 +686,16 @@ class AOutdoorTemplate
                 ['label' => 'CRI 95+ (Retail / Art)', 'value' => 'CRI 95+'],
                 ['label' => 'CRI 98+ (Museum Grade)', 'value' => 'CRI 98+']
             ],
-            'en' => ['label' => 'CRI'],
-            'ar' => ['label' => 'معامل تجسيد اللون'],
+            'en' => [
+                'label' => 'Color Rendering Index (CRI)',
+                'placeholder' => 'Color accuracy (0-100)'
+            ],
+
+            'ar' => [
+                'label' => 'معامل تجسيد اللون',
+                'placeholder' => 'دقة تجسيد اللون (0-100)'
+            ],
+
         ]);
 
         /*
@@ -662,8 +752,14 @@ class AOutdoorTemplate
                 'IP20','IP40','IP44','IP54','IP65',
                 'IP66','IP67','IP68','IP69K',
             ],
-            'en' => ['label' => 'IP Rating'],
-            'ar' => ['label' => 'درجة الحماية IP'],
+            'en' => [
+                'label' => 'Ingress Protection (IP) Rating',
+                'placeholder' => 'Dust/Water ingress protection'
+            ],
+            'ar' => [
+                'label' => 'درجة الحماية IP',
+                'placeholder' => 'مستوى الحماية من الغبار/الماء'
+            ],
         ]);
 
         /*
@@ -679,8 +775,16 @@ class AOutdoorTemplate
             'options' => [
                 'IK00','IK02','IK05','IK07','IK08','IK10',
             ],
-            'en' => ['label' => 'IK Rating'],
-            'ar' => ['label' => 'مقاومة الصدمات IK'],
+            'en' => [
+                'label' => 'Impact Resistance (IK) Rating',
+                'placeholder' => 'Impact/Vandal protection'
+            ],
+
+            'ar' => [
+                'label' => 'مقاومة الصدمات IK',
+                'placeholder' => 'مستوى الحماية من الصدمات/التخريب'
+            ],
+
         ]);
 
         /*
@@ -697,8 +801,16 @@ class AOutdoorTemplate
                 '1 Year','2 Years','3 Years',
                 '5 Years','7 Years','10 Years',
             ],
-            'en' => ['label' => 'Warranty'],
-            'ar' => ['label' => 'الضمان'],
+            'en' => [
+                'label' => 'Warranty',
+                'placeholder' => 'Select warranty period'
+            ],
+
+            'ar' => [
+                'label' => 'الضمان',
+                'placeholder' => 'Select warranty period'
+            ],
+
         ]);
     }
 }

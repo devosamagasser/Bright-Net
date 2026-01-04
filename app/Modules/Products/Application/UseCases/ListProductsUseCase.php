@@ -28,7 +28,7 @@ class ListProductsUseCase
 
         return collect([
             'products' => ProductData::collection($products),
-            'roots' => ProductData::serializeRoots($family),
+            'roots' => $family ? ProductData::serializeRoots($family) : [],
         ]);
     }
 
