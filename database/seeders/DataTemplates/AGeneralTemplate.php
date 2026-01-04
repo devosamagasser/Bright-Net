@@ -83,14 +83,6 @@ class AGeneralTemplate
             'is_filterable' => false,
             'with_custom' => true,
             'options' => [
-                'Metallic' => [
-                    'Anodized Aluminum',
-                    'Brushed Aluminum',
-                    'Chrome (Polished)',
-                    'Bronze',
-                    'Brass',
-                    'Copper',
-                ],
                 'Standard' => [
                     'White (Matte)',
                     'White (Gloss)',
@@ -99,10 +91,18 @@ class AGeneralTemplate
                     'Grey / Silver',
                     'Graphite / Anthracite',
                 ],
+                'Metallic' => [
+                    'Anodized Aluminum',
+                    'Brushed Aluminum',
+                    'Chrome (Polished)',
+                    'Bronze',
+                    'Brass',
+                    'Copper',
+                ],
             ],
             'en' => [
                 'label' => 'Finish Color',
-                'placeholder' => 'Select or Enter Custom RAL (Prefix: "RAL" +$$Number Input$$)',
+                'placeholder' => 'Select or Enter Custom RAL',
             ],
             'ar' => [
                 'label' => 'لون التشطيب',
