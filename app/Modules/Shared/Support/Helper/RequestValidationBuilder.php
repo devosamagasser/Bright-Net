@@ -57,7 +57,7 @@ class RequestValidationBuilder
     {
         if(is_array($options[0])){
             foreach($options as $option){
-                $optionsValues[] = $option['value'];
+                $optionsValues[] = $option['value'] ?? ;
             }
         }else{
             $optionsValues = $options;

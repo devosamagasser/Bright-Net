@@ -596,7 +596,6 @@ class AGeneralTemplate
             'name' => 'driver_control',
             'position' => 12,
             'options' => [
-
                 [
                     'label' => 'Non-Dimmable (On/Off)',
                     'value' => 'Non-Dimmable (On/Off)',
@@ -780,23 +779,23 @@ class AGeneralTemplate
             'options' => [
                 [
                     'label' => 'UGR <16 (High Task - e.g., Drafting)',
-                    'UGR <16',
+                    'value' => 'UGR <16',
                 ],
                 [
                     'label' => 'UGR <19 (Standard - Office / Education)',
-                    'UGR <19',
+                    'value' => 'UGR <19',
                 ],
                 [
                     'label' => 'UGR <22 (General - Corridors / Industry)',
-                    'UGR <22',
+                    'value' => 'UGR <22',
                 ],
                 [
                     'label' => 'UGR <25 (General Industry)',
-                    'UGR <25',
+                    'value' => 'UGR <25',
                 ],
                 [
                     'label' => 'UGR >28 (Not specified / High Glare)',
-                    'UGR >28',
+                    'value' => 'UGR >28',
                 ],
 
             ],
