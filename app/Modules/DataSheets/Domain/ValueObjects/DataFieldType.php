@@ -39,4 +39,6 @@ enum DataFieldType: string
             self::DATE => 'date',
         };
     }
+
+
 }

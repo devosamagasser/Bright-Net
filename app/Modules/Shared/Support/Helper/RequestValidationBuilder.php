@@ -39,20 +39,12 @@ class RequestValidationBuilder
             ];
 
             if ($type->requiresOptions() && !empty($field->options)) {
-                $allowed = $field->options;
-
-                if ($type === DataFieldType::SELECT) {
-                    if(is_array($allowed[0])){
-                        foreach($allowed as $option){
-                            $optionsValues[] = $option['value'];
-                        }
-                    }else{
-                        $optionsValues = $allowed;
-                    }
-                    $ruleSet[] = Rule::in($optionsValues);
-                } else if($type === DataFieldType::MULTISELECT) {
-                    $rules['values.' . $fieldKey . '.*'] = [Rule::in($allowed)];
-                }
+                match ($type) {
+                    DataFieldType::SELECT => $ruleSet[] = self::rawSelectValidation($field->options),
+                    DataFieldType::MULTISELECT => $rules['values.' . $fieldKey . '.*'] = self::multiSelectValidation($field->options),
+                    DataFieldType::GROUPEDSELECT => null,
+                    default => throw new \InvalidArgumentException("Unsupported field type for options validation: {$type->value}"),
+                };
             }
 
             $rules['values.' . $fieldKey] = $ruleSet;
@@ -60,5 +52,24 @@ class RequestValidationBuilder
 
         return $rules;
     }
+
+    private static function rawSelectValidation($options)
+    {
+        if(is_array($options[0])){
+            foreach($options as $option){
+                $optionsValues[] = $option['value'];
+            }
+        }else{
+            $optionsValues = $options;
+        }
+        return Rule::in($optionsValues);
+    }
+
+    private static function multiSelectValidation($options)
+    {
+        return [Rule::in($options)];
+    }
+
+
 
 }

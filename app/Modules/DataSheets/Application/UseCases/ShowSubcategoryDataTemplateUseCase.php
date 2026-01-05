@@ -17,11 +17,6 @@ class ShowSubcategoryDataTemplateUseCase
     public function handle(int $subcategoryId, DataTemplateType $type): DataTemplateData
     {
         $template = $this->repository->findBySubcategoryAndType($subcategoryId, $type);
-        
-        if (! $template) {
-            throw new ModelNotFoundException();
-        }
-
         return DataTemplateData::fromModel($template);
     }
 }

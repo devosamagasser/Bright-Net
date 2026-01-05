@@ -83,21 +83,27 @@ class AGeneralTemplate
             'is_filterable' => false,
             'with_custom' => true,
             'options' => [
-                'Standard' => [
-                    'White (Matte)',
-                    'White (Gloss)',
-                    'Black (Matte)',
-                    'Black (Gloss)',
-                    'Grey / Silver',
-                    'Graphite / Anthracite',
+                [
+                    'group' => 'Standard',
+                    'options' => [
+                        'White (Matte)',
+                        'White (Gloss)',
+                        'Black (Matte)',
+                        'Black (Gloss)',
+                        'Grey / Silver',
+                        'Graphite / Anthracite',
+                    ],
                 ],
-                'Metallic' => [
-                    'Anodized Aluminum',
-                    'Brushed Aluminum',
-                    'Chrome (Polished)',
-                    'Bronze',
-                    'Brass',
-                    'Copper',
+                [
+                    'group' => 'Metallic',
+                    'options' => [
+                        'Anodized Aluminum',
+                        'Brushed Aluminum',
+                        'Chrome (Polished)',
+                        'Bronze',
+                        'Brass',
+                        'Copper',
+                    ],
                 ],
             ],
             'en' => [
@@ -153,19 +159,28 @@ class AGeneralTemplate
             'with_custom' => true,
             'group' => 'Physical',
             'options' => [
-                'Standard Spots' => [
-                    '< 18°',
-                    '18°-29°',
-                    '29°-46°',
+                [
+                    'group' => 'Standard Spots',
+                    'options' => [
+                        '< 18°',
+                        '18°-29°',
+                        '29°-46°',
+                    ],
                 ],
-                'Standard Floods' => [
-                    '46°-70°',
-                    '70°-100°',
-                    '> 100°',
+                [
+                    'group' => 'Standard Floods',
+                    'options' => [
+                        '46°-70°',
+                        '70°-100°',
+                        '> 100°',
+                    ],
                 ],
-                'Specialist' => [
-                    'Asymmetric',
-                    'Double Asymmetric',
+                [
+                    'group' => 'Specialist',
+                    'options' => [
+                        'Asymmetric',
+                        'Double Asymmetric',
+                    ],
                 ],
             ],
             'en' => [
@@ -719,11 +734,26 @@ class AGeneralTemplate
             'name' => 'cri',
             'position' => 24,
             'options' => [
-                ['label' => 'CRI 70+ (Functional)', 'value' => 'CRI 70+'],
-                ['label' => 'CRI 80+ (Standard)', 'value' => 'CRI 80+'],
-                ['label' => 'CRI 90+ (High-End)', 'value' => 'CRI 90+'],
-                ['label' => 'CRI 95+ (Retail / Art)', 'value' => 'CRI 95+'],
-                ['label' => 'CRI 98+ (Museum Grade)', 'value' => 'CRI 98+']
+                [
+                    'label' => 'CRI 70+ (Functional)',
+                    'value' => 'CRI 70+'
+                ],
+                [
+                    'label' => 'CRI 80+ (Standard)',
+                    'value' => 'CRI 80+'
+                ],
+                [
+                    'label' => 'CRI 90+ (High-End)',
+                    'value' => 'CRI 90+'
+                ],
+                [
+                    'label' => 'CRI 95+ (Retail / Art)',
+                    'value' => 'CRI 95+'
+                ],
+                [
+                    'label' => 'CRI 98+ (Museum Grade)',
+                    'value' => 'CRI 98+'
+                ]
             ],
             'en' => [
                 'label' => 'Color Rendering Index (CRI)',

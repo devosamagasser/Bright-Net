@@ -48,9 +48,9 @@ class DataFieldData
                         ->values()
                         ->all(),
                     DataFieldType::GROUPEDSELECT => collect($field->options ?? [])
-                        ->map(fn ($options, $group) => [
-                            'label' => $group,
-                            'options' => collect($options)
+                        ->map(fn ($options) => [
+                            'label' => $options['group'],
+                            'options' => collect($options['options'])
                                 ->map(fn ($option) => [
                                     'label' => $option,
                                     'value' => $option,
