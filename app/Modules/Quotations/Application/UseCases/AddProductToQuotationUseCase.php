@@ -2,85 +2,61 @@
 
 namespace App\Modules\Quotations\Application\UseCases;
 
-use Illuminate\Support\Arr;
+use App\Modules\Products\Domain\Services\ProductAccessoryService;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Validation\ValidationException;
-use App\Modules\Products\Domain\Models\Product;
+use App\Modules\Quotations\Application\Concerns\AssertsQuotationEditable;
 use App\Modules\Quotations\Domain\Models\Quotation;
-use App\Modules\Products\Domain\Models\ProductAccessory;
-use App\Modules\Products\Domain\ValueObjects\AccessoryType;
 use App\Modules\Quotations\Application\DTOs\QuotationProductInput;
 use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
 use App\Modules\Quotations\Domain\Repositories\QuotationRepositoryInterface;
 use App\Modules\QuotationLogs\Domain\Services\ActivityService;
 use App\Modules\QuotationLogs\Domain\ValueObjects\QuotationActivityType;
+
 class AddProductToQuotationUseCase
 {
+    use AssertsQuotationEditable;
+
     public function __construct(
         private readonly QuotationRepositoryInterface $quotations,
         private readonly ProductRepositoryInterface $products,
         private readonly ActivityService $activityService,
+        private readonly ProductAccessoryService $accessoryService,
     ) {
     }
 
-    public function handle(int $supplierId, QuotationProductInput $input): Quotation
+    public function handle(Model $user, QuotationProductInput $input): Quotation
     {
-        $quotation = $this->quotations->getOrCreateDraft($supplierId);
+        $quotation = $this->quotations->getOrCreateDraft($user);
 
-        $product = $this->products->find($input->productId);
-        $product->loadMissing(relations: ['family.supplier', 'accessories']);
+        $this->assertEditable($quotation, $user->company->supplier->id);
 
-        $productSupplierId = $product->family?->supplier?->getKey();
+        $product = $this->products->find($input->productId, relations:[
+            'family',
+            'brand',
+            'prices',
+            'translations',
+            'accessories.accessory.prices',
+            'accessories.accessory.family',
+            'accessories.accessory.brand',
+            'accessories.accessory.supplier',
+            'accessories.accessory.translations',
+        ]);
 
-        if ($productSupplierId === null || (int) $productSupplierId !== $supplierId) {
+        if ($product->supplier_id === null || (int) $product->supplier_id !== $user->company->supplier->id) {
             throw ValidationException::withMessages([
                 'product_id' => trans('apiMessages.forbidden'),
             ]);
         }
 
-        $accessories = [];
-        foreach ($input->accessories() as $accessoryInput) {
-            $accessory = $this->products->find($accessoryInput->accessoryId);
-            $accessory->loadMissing('family.supplier');
+        $accessories = $this->accessoryService->buildQuotationAccessoriesPayload($product, $input->accessories());
 
-            $accessorySupplierId = $accessory->family?->supplier?->getKey();
-
-            if ($accessorySupplierId === null || (int) $accessorySupplierId !== $supplierId) {
-                throw ValidationException::withMessages([
-                    'accessories.*.accessory_id' => trans('apiMessages.forbidden'),
-                ]);
-            }
-
-            $typeValue = $accessoryInput->type;
-
-            if ($typeValue === null) {
-                throw ValidationException::withMessages([
-                    'accessories.*.accessory_type' => trans('validation.required', ['attribute' => 'accessory type']),
-                ]);
-            }
-
-            $type = AccessoryType::tryFrom($typeValue);
-
-            if ($type === null) {
-                throw ValidationException::withMessages([
-                    'accessories.*.accessory_type' => trans('validation.in', ['attribute' => 'accessory type']),
-                ]);
-            }
-
-            $this->assertAccessoryIsOptionalForProduct($product, $accessory, $type);
-
-            $attributes = $accessoryInput->attributes();
-
-            if (! Arr::exists($attributes, 'accessory_type')) {
-                $attributes['accessory_type'] = $type->value;
-            }
-
-            $accessories[] = [
-                'product' => $accessory,
-                'attributes' => $attributes,
-            ];
-        }
-
-        $quotationProduct = $this->quotations->addProduct($quotation, $product, $input->attributes(), $accessories);
+        $quotationProduct = $this->quotations->addProduct(
+            $quotation,
+            $product,
+            $input->attributes(),
+            $accessories
+        );
 
         $this->activityService->log(
             model: $quotationProduct,
@@ -88,19 +64,5 @@ class AddProductToQuotationUseCase
         );
 
         return $this->quotations->refreshTotals($quotation);
-    }
-
-    private function assertAccessoryIsOptionalForProduct(Product $product, Product $accessory, AccessoryType $type): void
-    {
-        $linkedAccessory = $product->accessories
-            ->first(static function (ProductAccessory $definition) use ($accessory): bool {
-                return (int) $definition->accessory_id === (int) $accessory->getKey();
-            });
-
-        if ($linkedAccessory === null || $linkedAccessory->accessory_type !== AccessoryType::OPTIONAL) {
-            throw ValidationException::withMessages([
-                'accessories.*.accessory_id' => trans('validation.in', ['attribute' => 'accessory']),
-            ]);
-        }
     }
 }

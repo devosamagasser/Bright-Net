@@ -2,17 +2,15 @@
 
 namespace App\Modules\Quotations\Presentation\Http\Controllers;
 
-use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Request;
 use App\Modules\Quotations\Domain\Models\QuotationProduct;
-use App\Modules\Quotations\Presentation\Http\Requests\{
+use App\Modules\Quotations\Presentation\Http\Requests\{AddQuotationProductRequest,
     ReplaceQuotationProductRequest,
-    UpdateQuotationProductRequest,
-};
-use App\Modules\Quotations\Application\UseCases\{
+    UpdateQuotationProductRequest};
+use App\Modules\Quotations\Application\UseCases\{AddProductToQuotationUseCase,
     RemoveQuotationProductUseCase,
     ReplaceQuotationProductUseCase,
-    UpdateQuotationProductUseCase,
-};
+    UpdateQuotationProductUseCase};
 use App\Modules\Quotations\Presentation\Resources\QuotationResource;
 use App\Modules\Shared\Support\Helper\ApiResponse;
 
@@ -22,7 +20,21 @@ class QuotationItemController
         private readonly UpdateQuotationProductUseCase $updateItem,
         private readonly RemoveQuotationProductUseCase $removeItem,
         private readonly ReplaceQuotationProductUseCase $replaceItem,
+        private readonly AddProductToQuotationUseCase $addProduct,
+
     ) {
+    }
+
+    public function storeItem(AddQuotationProductRequest $request)
+    {
+        $quotation = $this->addProduct->handle(
+            $request->user(),
+            $request->toInput()
+        );
+
+        return ApiResponse::created(
+            QuotationResource::make($quotation)->resolve()
+        );
     }
 
     public function update(UpdateQuotationProductRequest $request, QuotationProduct $item)
@@ -30,7 +42,7 @@ class QuotationItemController
         $quotation = $this->updateItem->handle(
             $item,
             $request->toInput(),
-            $this->supplierId()
+            $request->input('supplier_id')
         );
 
         return ApiResponse::updated(
@@ -38,11 +50,11 @@ class QuotationItemController
         );
     }
 
-    public function destroy(QuotationProduct $item)
+    public function destroy(Request $request, QuotationProduct $item)
     {
         $quotation = $this->removeItem->handle(
             $item,
-            $this->supplierId()
+            $request->input('supplier_id')
         );
 
         return ApiResponse::success(
@@ -55,7 +67,7 @@ class QuotationItemController
         $quotation = $this->replaceItem->handle(
             $item,
             $request->toInput(),
-            $this->supplierId()
+            $request->input('supplier_id')
         );
 
         return ApiResponse::updated(
@@ -63,20 +75,4 @@ class QuotationItemController
         );
     }
 
-    private function supplierId(): int
-    {
-        $user = auth()->user();
-
-        if ($user !== null && method_exists($user, 'company')) {
-            $user->loadMissing('company.supplier');
-        }
-
-        if ($user === null || ! method_exists($user, 'company') || $user->company === null || $user->company->supplier === null) {
-            throw ValidationException::withMessages([
-                'supplier' => trans('apiMessages.forbidden'),
-            ]);
-        }
-
-        return (int) $user->company->supplier->getKey();
-    }
 }

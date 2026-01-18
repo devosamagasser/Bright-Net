@@ -2,6 +2,8 @@
 
 namespace App\Modules\Products\Application\UseCases;
 
+use App\Modules\Families\Domain\Repositories\FamilyRepositoryInterface;
+use App\Modules\Products\Domain\Repositories\ProductGroupRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use App\Modules\Families\Domain\Models\Family;
 use Illuminate\Validation\ValidationException;
@@ -18,10 +20,12 @@ class CreateProductUseCase
 {
     public function __construct(
         private readonly ProductRepositoryInterface $products,
+        private readonly ProductGroupRepositoryInterface $groups,
         private readonly DataTemplateRepositoryInterface $templates,
         private readonly ProductFieldValueSyncService $fieldValueSync,
         private readonly ProductAccessoryService $productAccessoryService,
-        private readonly ProductPriceService $productPriceService
+        private readonly ProductPriceService $productPriceService,
+        private readonly FamilyRepositoryInterface $family,
     ) {
     }
 
@@ -41,17 +45,31 @@ class CreateProductUseCase
             $this->assertTemplateMatchesFamily($template, $family);
             $attributes = $attributes + [
                 'data_template_id' => $template->id,
+                'supplier_id'=> $family->supplier_id,
+                'solution_id'=> $family->subcategory->department->solution_id,
+                'supplier_solution_id'=> $family->department->supplierBrand->supplier_solution_id,
+                'brand_id'=> $family->department->supplierBrand->brand_id,
+                'supplier_brand_id'=> $family->department->supplier_brand_id,
+                'department_id'=> $family->department->department_id,
+                'supplier_department_id'=> $family->department->id,
+                'subcategory_id'=> $family->subcategory_id,
             ];
         }
 
         $product = DB::transaction(function () use ($attributes, $input, &$product) {
+
+            $groupId = isset($attributes['group_id']) ? (int) $attributes['group_id'] : null;
+            $group = $this->groups->firstOrcreate($groupId, $attributes);
+            $attributes['product_group_id'] = $group->id;
+            unset($attributes['group_id']);
+
             $product = $this->products->create(
                 $attributes,
                 $input->translations,
                 $input->media
             );
 
-            $this->fieldValueSync->syncFieldValues($product, $input->values);
+            $this->fieldValueSync->syncFieldValues($template ?? null, $product, $input->values);
             $this->productAccessoryService->syncAccessories($product, $input->accessories);
             $this->productPriceService->syncPrices($product, $input->prices);
             return $product;
@@ -62,7 +80,7 @@ class CreateProductUseCase
 
     private function requireFamily(int $familyId): Family
     {
-        $family = Family::find($familyId);
+        $family = $this->family->find($familyId);
 
         if ($family === null) {
             throw ValidationException::withMessages([
@@ -88,7 +106,7 @@ class CreateProductUseCase
 
     private function assertTemplateMatchesFamily(DataTemplate $template, Family $family): void
     {
-        if ((int) $template->subcategory_id !== (int) $family->subcategory_id) {
+        if ((int) $template->subcategory_id !== $family->subcategory_id) {
 
             throw ValidationException::withMessages([
                 'data_template_id' => trans('validation.in', ['attribute' => 'data template']),

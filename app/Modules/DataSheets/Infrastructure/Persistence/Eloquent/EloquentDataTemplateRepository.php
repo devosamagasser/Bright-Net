@@ -78,7 +78,7 @@ class EloquentDataTemplateRepository implements DataTemplateRepositoryInterface
             ->with(['fields.dependency.dependsOnField'])
             ->where('subcategory_id', $subcategoryId)
             ->where('type', $type->value)
-            ->firstOrFail();
+            ->first();
     }
 
     public function update(DataTemplate $template, array $attributes, array $translations, array $fields): DataTemplate

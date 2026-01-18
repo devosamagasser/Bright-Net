@@ -9,7 +9,7 @@ use App\Modules\Products\Domain\Models\Product;
 use App\Modules\Products\Domain\Models\ProductAccessory;
 use App\Modules\Products\Domain\ValueObjects\AccessoryType;
 use App\Modules\QuotationLogs\Domain\Services\ActivityService;
-use App\Modules\Quotations\Domain\ValueObjects\QuotationStatus;
+use App\Modules\Quotations\Application\Concerns\AssertsQuotationEditable;
 use App\Modules\Quotations\Application\DTOs\QuotationProductInput;
 use App\Modules\Quotations\Domain\Models\{Quotation, QuotationProduct};
 use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
@@ -18,6 +18,8 @@ use App\Modules\Quotations\Domain\Repositories\QuotationRepositoryInterface;
 
 class ReplaceQuotationProductUseCase
 {
+    use AssertsQuotationEditable;
+
     public function __construct(
         private readonly QuotationRepositoryInterface $quotations,
         private readonly ProductRepositoryInterface $products,
@@ -27,7 +29,7 @@ class ReplaceQuotationProductUseCase
 
     public function handle(QuotationProduct $current, QuotationProductInput $input, int $supplierId): Quotation
     {
-        return DB::transaction(function () use ($current, $input, $supplierId, &$quotation) {
+        return DB::transaction(function () use ($current, $input, $supplierId) {
             $quotation = $current->quotation;
 
             $this->assertEditable($quotation, $supplierId);
@@ -40,7 +42,18 @@ class ReplaceQuotationProductUseCase
                 ]);
             }
 
-            $replacement->loadMissing(['family.supplier', 'accessories']);
+            // Eager load all needed relations at once
+            $replacement->loadMissing([
+                'family.supplier',
+                'family.subcategory.department.solution',
+                'brand',
+                'accessories.accessory.prices',
+                'accessories.accessory.family.subcategory.department.solution',
+                'accessories.accessory.family.supplier.company',
+                'accessories.accessory.brand',
+                'prices',
+                'translations',
+            ]);
 
             $replacementSupplierId = $replacement->family?->supplier?->getKey();
 
@@ -50,58 +63,9 @@ class ReplaceQuotationProductUseCase
                 ]);
             }
 
-            $accessories = [];
+            $accessories = $this->prepareAccessories($replacement, $input->accessories(), $supplierId);
 
-            foreach ($input->accessories() as $accessoryInput) {
-                $accessory = $this->products->find($accessoryInput->accessoryId);
-
-                if ($accessory === null) {
-                    throw ValidationException::withMessages([
-                        'accessories.*.accessory_id' => trans('validation.exists', ['attribute' => 'accessory']),
-                    ]);
-                }
-
-                $accessory->loadMissing('family.supplier');
-
-                $accessorySupplierId = $accessory->family?->supplier?->getKey();
-
-                if ($accessorySupplierId === null || (int) $accessorySupplierId !== $supplierId) {
-                    throw ValidationException::withMessages([
-                        'accessories.*.accessory_id' => trans('apiMessages.forbidden'),
-                    ]);
-                }
-
-                $typeValue = $accessoryInput->type;
-
-                if ($typeValue === null) {
-                    throw ValidationException::withMessages([
-                        'accessories.*.accessory_type' => trans('validation.required', ['attribute' => 'accessory type']),
-                    ]);
-                }
-
-                $type = AccessoryType::tryFrom($typeValue);
-
-                if ($type === null) {
-                    throw ValidationException::withMessages([
-                        'accessories.*.accessory_type' => trans('validation.in', ['attribute' => 'accessory type']),
-                    ]);
-                }
-
-                $this->assertAccessoryIsOptionalForProduct($replacement, $accessory, $type);
-
-                $attributes = $accessoryInput->attributes();
-
-                if (! Arr::exists($attributes, 'accessory_type')) {
-                    $attributes['accessory_type'] = $type->value;
-                }
-
-                $accessories[] = [
-                    'product' => $accessory,
-                    'attributes' => $attributes,
-                ];
-            }
-
-            $replacement = $this->quotations->replaceProduct($current, $replacement, $input->attributes(), $accessories);
+            $newItem = $this->quotations->replaceProduct($current, $replacement, $input->attributes(), $accessories);
 
             $this->activityService->log(
                 model: $current,
@@ -109,7 +73,7 @@ class ReplaceQuotationProductUseCase
             );
 
             $this->activityService->log(
-                model: $replacement,
+                model: $newItem,
                 activityType: QuotationActivityType::CREATE,
             );
 
@@ -117,23 +81,70 @@ class ReplaceQuotationProductUseCase
         });
     }
 
-    private function assertEditable(Quotation $quotation, int $supplierId): void
+    private function prepareAccessories(Product $product, array $accessoryInputs, int $supplierId): array
     {
-        if ((int) $quotation->supplier_id !== $supplierId || $quotation->status !== QuotationStatus::DRAFT) {
-            throw ValidationException::withMessages([
-                'quotation' => trans('apiMessages.forbidden'),
+        $accessories = [];
+
+        foreach ($accessoryInputs as $accessoryInput) {
+            $accessory = $this->products->find($accessoryInput->accessoryId);
+
+            if ($accessory === null) {
+                throw ValidationException::withMessages([
+                    'accessories.*.accessory_id' => trans('validation.exists', ['attribute' => 'accessory']),
+                ]);
+            }
+
+            $accessory->loadMissing([
+                'family.supplier',
+                'family.subcategory.department.solution',
+                'brand',
+                'prices',
+                'translations',
             ]);
+
+            $accessorySupplierId = $accessory->family?->supplier?->getKey();
+
+            if ($accessorySupplierId === null || (int) $accessorySupplierId !== $supplierId) {
+                throw ValidationException::withMessages([
+                    'accessories.*.accessory_id' => trans('apiMessages.forbidden'),
+                ]);
+            }
+
+            $typeValue = $accessoryInput->type;
+
+            if ($typeValue === null) {
+                throw ValidationException::withMessages([
+                    'accessories.*.accessory_type' => trans('validation.required', ['attribute' => 'accessory type']),
+                ]);
+            }
+
+            $type = AccessoryType::tryFrom($typeValue);
+
+            if ($type === null) {
+                throw ValidationException::withMessages([
+                    'accessories.*.accessory_type' => trans('validation.in', ['attribute' => 'accessory type']),
+                ]);
+            }
+
+            $this->assertAccessoryIsOptionalForProduct($product, $accessory, $type);
+
+            $attributes = $accessoryInput->attributes();
+
+            if (! Arr::exists($attributes, 'accessory_type')) {
+                $attributes['accessory_type'] = $type->value;
+            }
+
+            $accessories[] = [
+                'product' => $accessory,
+                'attributes' => $attributes,
+            ];
         }
+
+        return $accessories;
     }
 
     private function assertAccessoryIsOptionalForProduct(Product $product, Product $accessory, AccessoryType $type): void
     {
-        // if ($type !== AccessoryType::OPTIONAL) {
-        //     throw ValidationException::withMessages([
-        //         'accessories.*.accessory_type' => trans('apiMessages.forbidden'),
-        //     ]);
-        // }
-
         $linkedAccessory = $product->accessories
             ->first(static function (ProductAccessory $definition) use ($accessory): bool {
                 return (int) $definition->accessory_id === (int) $accessory->getKey();

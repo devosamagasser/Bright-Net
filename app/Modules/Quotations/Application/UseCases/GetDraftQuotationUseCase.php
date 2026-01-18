@@ -12,9 +12,14 @@ class GetDraftQuotationUseCase
     ) {
     }
 
-    public function handle(int $supplierId): Quotation
+    public function handle($user): Quotation
     {
-        $quotation = $this->quotations->getOrCreateDraft($supplierId);
+        $quotation = $this->quotations->getOrCreateDraft($user);
+
+        // Only refresh totals if products exist, otherwise just load relations
+        if ($quotation->wasRecentlyCreated || $quotation->products()->doesntExist()) {
+            return $this->quotations->loadRelations($quotation);
+        }
 
         return $this->quotations->refreshTotals($quotation);
     }

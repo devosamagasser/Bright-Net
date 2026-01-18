@@ -79,18 +79,17 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
     public function addProduct(Quotation $quotation, Product $product, array $attributes, array $accessories = []): QuotationProduct
     {
         return DB::transaction(function () use ($quotation, $product, $attributes, $accessories): QuotationProduct {
-            $product->loadMissing([
-                'prices',
-                'family.subcategory.department.solution',
-                'family.supplier.company',
-                'accessories.accessory.prices',
-                'accessories.accessory.family.subcategory.department.solution',
-                'accessories.accessory.family.supplier.company',
-            ]);
+//            $product->loadMissing([
+//                'prices',
+//                'family.subcategory.department.solution',
+//                'family.supplier.company',
+//                'accessories.accessory.prices',
+//                'accessories.accessory.family.subcategory.department.solution',
+//                'accessories.accessory.family.supplier.company',
+//            ]);
 
             $payload = $this->prepareProductPayload($quotation, $product, $attributes);
 
-            /** @var QuotationProduct $item */
             $item = $quotation->products()->create($payload);
 
             $this->attachIncludedAccessories($item, $product);
@@ -296,18 +295,17 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
 
     private function prepareProductPayload(Quotation $quotation, Product $product, array $attributes): array
     {
-        $quantity = max(1, (int) ($attributes['quantity'] ?? 1));
+        $quantity = $attributes['quantity'];
         $roots = $this->resolveRoots($product);
         $priceData = $this->resolvePrice($product->prices, $quantity);
 
         $listPrice = $priceData['list_price'];
         $unitPrice = $attributes['price'] ?? $listPrice;
-        $discount = (float) ($attributes['discount'] ?? 0);
+        $discount = $attributes['discount'] ?? 0;
         $currency = $attributes['currency'] ?? $priceData['currency'];
         $deliveryUnit = $attributes['delivery_time_unit'] ?? $priceData['delivery_time_unit'];
         $deliveryValue = $attributes['delivery_time_value'] ?? $priceData['delivery_time_value'];
         $vatIncluded = (bool) ($attributes['vat_included'] ?? $priceData['vat_included']);
-
         $itemRef = $attributes['item_ref'] ?? $this->generateItemReference($quotation);
         $position = $attributes['position'] ?? $this->nextItemPosition($quotation);
 
@@ -317,16 +315,23 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
             'solution_id' => $roots['solution_id'],
             'supplier_id' => $roots['supplier_id'],
             'brand_id' => $roots['brand_id'],
+//            'brand_name' => $roots['brand_name'],
             'department_id' => $roots['department_id'],
             'subcategory_id' => $roots['subcategory_id'],
             'family_id' => $roots['family_id'],
+//            'family_name' => $roots['family_name'],
             'product_id' => $product->getKey(),
             'product_code' => $product->code,
             'product_name' => $product->name,
             'product_description' => $product->description,
-            'product_snapshot' => $this->makeProductSnapshot($product),
-            'roots_snapshot' => $this->makeRootsSnapshot($product, $roots),
-            'price_snapshot' => $priceData['snapshot'],
+            'product_stock' => $product->stock,
+            'product_origin' => $product->origin,
+            'product_snapshot' => [],
+            'roots_snapshot' => [],
+//            'product_snapshot' => $this->makeProductSnapshot($product),
+//            'roots_snapshot' => $this->makeRootsSnapshot($product, $roots),
+//            'price_snapshot' => $priceData['snapshot'],
+            'price_snapshot' => [],
             'notes' => $attributes['notes'] ?? null,
             'delivery_time_unit' => $deliveryUnit,
             'delivery_time_value' => $deliveryValue,
@@ -375,16 +380,23 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
             'solution_id' => $roots['solution_id'],
             'supplier_id' => $roots['supplier_id'],
             'brand_id' => $roots['brand_id'],
+//            'brand_name' => $roots['brand_name'],
             'department_id' => $roots['department_id'],
             'subcategory_id' => $roots['subcategory_id'],
             'family_id' => $roots['family_id'],
-            'product_id' => $accessory->getKey(),
-            'product_code' => $accessory->code,
-            'product_name' => $accessory->name,
-            'product_description' => $accessory->description,
-            'product_snapshot' => $this->makeProductSnapshot($accessory),
-            'roots_snapshot' => $this->makeRootsSnapshot($accessory, $roots),
-            'price_snapshot' => $type === AccessoryType::INCLUDED ? null : $priceData['snapshot'],
+//            'family_name' => $roots['family_name'],
+            'product_id' => $product->getKey(),
+            'product_code' => $product->code,
+            'product_name' => $product->name,
+            'product_description' => $product->description,
+            'product_stock' => $product->stock,
+            'product_origin' => $product->origin,
+            'product_snapshot' => [],
+            'roots_snapshot' => [],
+//            'product_snapshot' => $this->makeProductSnapshot($product),
+//            'roots_snapshot' => $this->makeRootsSnapshot($product, $roots),
+//            'price_snapshot' => $priceData['snapshot'],
+            'price_snapshot' => [],
             'notes' => $attributes['notes'] ?? null,
             'delivery_time_unit' => $deliveryUnit,
             'delivery_time_value' => $deliveryValue,
@@ -396,42 +408,26 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
             'total' => $this->calculateLineTotal($unitPrice, $quantity, $discount),
             'currency' => $currency,
             'accessory_type' => $type,
+//            'product_snapshot' => $this->makeProductSnapshot($accessory),
+//            'roots_snapshot' => $this->makeRootsSnapshot($accessory, $roots),
+//            'price_snapshot' => $type === AccessoryType::INCLUDED ? null : $priceData['snapshot'],
         ];
     }
 
     private function resolveRoots(Product $product): array
     {
         $family = $product->family;
-        $subcategory = $family?->subcategory;
-        $department = $subcategory?->department;
-        $solution = $department?->solution;
-        $supplier = $family?->supplier;
-
-        $brand = null;
-        if ($supplier !== null && $department !== null) {
-            $brand = DB::table('supplier_brands as sb')
-                ->join('supplier_solutions as ss', 'sb.supplier_solution_id', '=', 'ss.id')
-                ->join('supplier_departments as sd', 'sb.id', '=', 'sd.supplier_brand_id')
-                ->join('brands', 'brands.id', '=', 'sb.brand_id')
-                ->where('ss.supplier_id', $supplier->getKey())
-                ->where('sd.department_id', $department->getKey())
-                ->select('brands.id', 'brands.name')
-                ->first();
-        }
+        $brand = $product->brand;
 
         return [
-            'solution_id' => $solution?->getKey(),
-            'solution_name' => $solution?->name,
-            'department_id' => $department?->getKey(),
-            'department_name' => $department?->name,
-            'subcategory_id' => $subcategory?->getKey(),
-            'subcategory_name' => $subcategory?->name,
-            'family_id' => $family?->getKey(),
-            'family_name' => $family?->name,
-            'supplier_id' => $supplier?->getKey(),
-            'supplier_name' => $supplier?->company?->name,
-            'brand_id' => $brand->id ?? null,
-            'brand_name' => $brand->name ?? null,
+            'solution_id' => $product->solution_id,
+            'department_id' => $product->department_id,
+            'subcategory_id' => $product->subcategory_id,
+            'supplier_id' => $product->supplier_id,
+            'brand_id' => $brand->id,
+            'brand_name' => $brand->name,
+            'family_id' => $family->getKey(),
+            'family_name' => $family->name,
         ];
     }
 
@@ -473,19 +469,7 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
             'name' => $product->name,
             'description' => $product->description,
             'stock' => $product->stock,
-            'disclaimer' => $product->disclaimer,
-            'color' => $product->color,
-            'style' => $product->style,
-            'manufacturer' => $product->manufacturer,
-            'application' => $product->application,
             'origin' => $product->origin,
-            'translations' => $product->translations
-                ->mapWithKeys(static fn ($translation) => [
-                    $translation->locale => [
-                        'name' => $translation->name,
-                        'description' => $translation->description,
-                    ],
-                ])->toArray(),
         ];
     }
 
@@ -594,11 +578,6 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
 
                 $quantity = $this->normalizeQuantity($accessory->quantity);
 
-                $linked->loadMissing([
-                    'prices',
-                    'family.subcategory.department.solution',
-                    'family.supplier.company',
-                ]);
 
                 $payload = $this->prepareAccessoryPayload(
                     $item,

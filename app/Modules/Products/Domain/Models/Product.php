@@ -2,19 +2,21 @@
 
 namespace App\Modules\Products\Domain\Models;
 
+use App\Models\Supplier;
+use App\Models\SupplierDepartment;
+use App\Models\SupplierSolution;
+use App\Modules\Brands\Domain\Models\Brand;
+use App\Modules\Departments\Domain\Models\Department;
+use App\Modules\SolutionsCatalog\Domain\Models\Solution;
+use App\Modules\Subcategories\Domain\Models\Subcategory;
 use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use App\Modules\Families\Domain\Models\Family;
 use App\Modules\DataSheets\Domain\Models\DataTemplate;
-use App\Modules\Products\Domain\Models\ProductFieldValue;
-use App\Modules\Products\Domain\Models\ProductPrice;
-use App\Modules\Products\Domain\Models\ProductAccessory;
-use App\Modules\Taxonomy\Domain\Models\Color;
 
 class Product extends Model implements HasMedia
 {
@@ -24,7 +26,16 @@ class Product extends Model implements HasMedia
      * @var array<int, string>
      */
     protected $fillable = [
+        'supplier_id',
+        'solution_id',
+        'supplier_solution_id',
+        'brand_id',
+        'supplier_brand_id',
+        'department_id',
+        'supplier_department_id',
+        'subcategory_id',
         'family_id',
+        'product_group_id',
         'data_template_id',
         'code',
         'stock',
@@ -65,6 +76,7 @@ class Product extends Model implements HasMedia
     {
         $this->attributes['stock'] = $value ?? 0;
     }
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('gallery');
@@ -77,6 +89,11 @@ class Product extends Model implements HasMedia
     public function family(): BelongsTo
     {
         return $this->belongsTo(Family::class);
+    }
+
+    public function group(): BelongsTo
+    {
+        return $this->belongsTo(ProductGroup::class);
     }
 
     public function dataTemplate(): BelongsTo
@@ -97,6 +114,41 @@ class Product extends Model implements HasMedia
     public function accessories(): HasMany
     {
         return $this->hasMany(ProductAccessory::class);
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
+    }
+
+    public function solution(): BelongsTo
+    {
+        return $this->belongsTo(Solution::class);
+    }
+
+    public function supplierSolution(): BelongsTo
+    {
+        return $this->belongsTo(SupplierSolution::class);
+    }
+
+    public function brand(): BelongsTo
+    {
+        return $this->belongsTo(Brand::class);
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function supplierDepartment(): BelongsTo
+    {
+        return $this->belongsTo(SupplierDepartment::class);
+    }
+
+    public function subcategory(): BelongsTo
+    {
+        return $this->belongsTo(Subcategory::class);
     }
 
 }

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->cascadeOnDelete();
             $table->foreignId('accessory_id')->constrained('products')->cascadeOnDelete();
             $table->string('accessory_type'); // included, needed, optional
+            $table->string('quantity')->nullable();
             $table->timestamps();
         });
     }

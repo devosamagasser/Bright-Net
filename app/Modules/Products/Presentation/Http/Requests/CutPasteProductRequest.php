@@ -18,6 +18,7 @@ class CutPasteProductRequest extends FormRequest
     {
         return [
             'family_id' => ['required', 'integer', 'exists:families,id'],
+            'group_id' => ['nullable', 'integer', 'exists:product_groups,id'],
         ];
     }
 

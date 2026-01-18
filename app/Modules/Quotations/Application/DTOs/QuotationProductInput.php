@@ -28,10 +28,6 @@ class QuotationProductInput
      */
     public static function fromArray(array $data): self
     {
-        $accessories = array_map(
-            static fn (array $accessory): QuotationAccessoryInput => QuotationAccessoryInput::fromArray($accessory),
-            $data['accessories'] ?? []
-        );
 
         return new self(
             productId: (int) $data['product_id'],
@@ -45,7 +41,10 @@ class QuotationProductInput
             deliveryTimeUnit: $data['delivery_time_unit'] ?? null,
             deliveryTimeValue: $data['delivery_time_value'] ?? null,
             vatIncluded: array_key_exists('vat_included', $data) ? (bool) $data['vat_included'] : null,
-            accessories: $accessories,
+            accessories: array_map(
+                static fn (array $accessory): QuotationAccessoryInput => QuotationAccessoryInput::fromArray($accessory),
+                $data['accessories'] ?? []
+            ),
         );
     }
 

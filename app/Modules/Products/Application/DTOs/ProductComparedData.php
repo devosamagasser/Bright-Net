@@ -3,7 +3,6 @@
 namespace App\Modules\Products\Application\DTOs;
 
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 use App\Modules\Families\Domain\Models\Family;
 use App\Modules\Products\Domain\Models\Product;
 
@@ -27,92 +26,86 @@ class ProductComparedData
     ) {
     }
 
-    public static function collection(Product $firstProduct, Product $secondProduct): self
+    /**
+     * @param  Collection<int, Product>  $products
+     */
+    public static function collection(Collection $products): self
     {
+        $productsArray = $products->values()->all();
+        
         return new self(
-            roots: self::serializeRoots([$firstProduct->family, $secondProduct->family]),
-            attributes: self::serializeAttributes($firstProduct, $secondProduct),
-            values: self::serializeValues($firstProduct, $secondProduct),
-            accessories: self::serializeAccessories($firstProduct, $secondProduct),
-            media: self::serializeMedia($firstProduct, $secondProduct)
+            roots: self::serializeRoots($products->pluck('family')->all()),
+            attributes: self::serializeAttributes($productsArray),
+            values: self::serializeValues($productsArray),
+            accessories: self::serializeAccessories($productsArray),
+            media: self::serializeMedia($productsArray)
         );
     }
 
-    public static function serializeAttributes(Product $firstProduct, Product $secondProduct): array
+    /**
+     * @param  array<int, Product>  $products
+     */
+    public static function serializeAttributes(array $products): array
     {
-        return [
-            [
-                'key' => 'id',
-                'FP_value' => (int) $firstProduct->getKey(),
-                'SP_value' => (int) $secondProduct->getKey(),
-            ],
-            [
-                'key' => 'code',
-                'FP_value' => $firstProduct->code,
-                'SP_value' => $secondProduct->code,
-            ],
-            [
-                'key' => 'stock',
-                'FP_value' => $firstProduct->stock,
-                'SP_value' => $secondProduct->stock,
-            ],
-            [
-                'key' => 'name',
-                'FP_value' => $firstProduct->name,
-                'SP_value' => $secondProduct->name,
-            ],
-            [
-                'key' => 'description',
-                'FP_value' => $firstProduct->description,
-                'SP_value' => $secondProduct->description,
-            ],
-            [
-                'key' => 'style',
-                'FP_value' => $firstProduct->style,
-                'SP_value' => $secondProduct->style,
-            ],
-            [
-                'key' => 'manufacturer',
-                'FP_value' => $firstProduct->manufacturer,
-                'SP_value' => $secondProduct->manufacturer,
-            ],
-            [
-                'key' => 'origin',
-                'FP_value' => $firstProduct->origin,
-                'SP_value' => $secondProduct->origin,
-            ]
-        ];
+        $attributes = ['id', 'code', 'stock', 'name', 'description', 'style', 'manufacturer', 'origin'];
+        $result = [];
+
+        foreach ($attributes as $attr) {
+            $row = ['key' => $attr];
+            foreach ($products as $index => $product) {
+                $row["P" . ($index + 1) . "_value"] = match($attr) {
+                    'id' => (int) $product->getKey(),
+                    default => $product->$attr,
+                };
+            }
+            $result[] = $row;
+        }
+
+        return $result;
     }
 
-    public static function serializeValues(Product $firstProduct, Product $secondProduct): array
+    /**
+     * @param  array<int, Product>  $products
+     */
+    public static function serializeValues(array $products): array
     {
-        $allFields = $firstProduct->fieldValues
-            ->pluck('field')
-            ->merge($secondProduct->fieldValues->pluck('field'))
-            ->unique('id')
-            ->sortBy('position');
+        // Collect all unique fields from all products
+        $allFields = collect();
+        foreach ($products as $product) {
+            $allFields = $allFields->merge($product->fieldValues->pluck('field'));
+        }
+        $allFields = $allFields->unique('id')->sortBy('position');
 
         $serializedValues = [];
 
         foreach ($allFields as $field) {
-            $firstValue = $firstProduct->fieldValues->firstWhere('field_id', $field->id);
-            $secondValue = $secondProduct->fieldValues->firstWhere('field_id', $field->id);
-
-            $serializedValues[] = [
+            $row = [
                 'field_key' => $field->key,
                 'field_type' => $field->type,
-                'FP_value' => $firstValue ? ProductValueData::serializeValue($firstValue, $field) : null,
-                'SP_value' => $secondValue ? ProductValueData::serializeValue($secondValue, $field) : null,
             ];
+
+            foreach ($products as $index => $product) {
+                $value = $product->fieldValues->firstWhere('field_id', $field->id);
+                $row["P" . ($index + 1) . "_value"] = $value 
+                    ? ProductValueData::serializeValue($value, $field) 
+                    : null;
+            }
+
+            $serializedValues[] = $row;
         }
 
         return $serializedValues;
     }
 
-    public static function serializeMedia(Product $firstProduct, Product $secondProduct): array
+    /**
+     * @param  array<int, Product>  $products
+     */
+    public static function serializeMedia(array $products): array
     {
-        return [
-            'FP_gallery' => $firstProduct->media
+        $result = [];
+        
+        foreach ($products as $index => $product) {
+            $result["P" . ($index + 1) . "_gallery"] = $product->media
                 ->where('collection_name', 'gallery')
                 ->map(fn ($media) => [
                     'id' => (int) $media->id,
@@ -120,27 +113,29 @@ class ProductComparedData
                     'file_name' => $media->file_name,
                     'mime_type' => $media->mime_type,
                     'url' => $media->getUrl(),
-                ])->values()->all(),
-            'SP_gallery' => $secondProduct->media
-                ->where('collection_name', 'gallery')
-                ->map(fn ($media) => [
-                    'id' => (int) $media->id,
-                    'name' => $media->name,
-                    'file_name' => $media->file_name,
-                    'mime_type' => $media->mime_type,
-                    'url' => $media->getUrl(),
-                ])->values()->all(),
-        ];
+                ])->values()->all();
+        }
+
+        return $result;
     }
 
-    public static function serializeAccessories(Product $firstProduct, Product $secondProduct): array
+    /**
+     * @param  array<int, Product>  $products
+     */
+    public static function serializeAccessories(array $products): array
     {
-        return [
-            'FP_accessories' => ProductAccessoryData::grouped($firstProduct->accessories),
-            'SP_accessories' => ProductAccessoryData::grouped($secondProduct->accessories),
-        ];
+        $result = [];
+        
+        foreach ($products as $index => $product) {
+            $result["P" . ($index + 1) . "_accessories"] = ProductAccessoryData::grouped($product->accessories);
+        }
+
+        return $result;
     }
 
+    /**
+     * @param  array<int, Family>  $families
+     */
     public static function serializeRoots(array $families): array
     {
         $data = [
@@ -157,40 +152,41 @@ class ProductComparedData
             $data['supplierSnapshotBrand'][$key] = $data['supplierSnapshotDepartment'][$key]->supplierBrand;
         }
 
-        return [
-            [
-                'key' => 'solution',
-                'FP_solution_name' => $data['originalDepartment'][0]->solution->name ?? null,
-                'SP_solution_name' => $data['originalDepartment'][1]->solution->name ?? null
-            ],
-            [
-                'key' => 'brand',
-                'FP_brand_name' => $data['supplierSnapshotBrand'][0]->brand->name ?? null,
-                'FP_brand_id' => $data['supplierSnapshotBrand'][0]->brand->id ?? null,
-                'SP_brand_name' => $data['supplierSnapshotBrand'][1]->brand->name ?? null,
-                'SP_brand_id' => $data['supplierSnapshotBrand'][1]->brand->id ?? null,
-            ],
-            [
-                'key' => 'department',
-                'FP_department_name' => $data['originalDepartment'][0]->name ?? null,
-                'FP_department_id' => $data['supplierSnapshotDepartment'][0]->id ?? null,
-                'SP_department_name' => $data['originalDepartment'][1]->name ?? null,
-                'SP_department_id' => $data['supplierSnapshotDepartment'][1]->id ?? null,
-            ],
-            [
-                'key' => 'subcategory',
-                'FP_subcategory_name' => $data['subcategory'][0]->name,
-                'FP_subcategory_id' => $data['subcategory'][0]->id,
-                'SP_subcategory_name' => $data['subcategory'][1]->name,
-                'SP_subcategory_id' => $data['subcategory'][1]->id,
-            ],
-            [
-                'key' => 'family',
-                'FP_family_name' => $families[0]->name,
-                'FP_family_id' => $families[0]->id,
-                'SP_family_name' => $families[1]->name,
-                'SP_family_id' => $families[1]->id,
-            ]
-        ];
+        $rootKeys = ['solution', 'brand', 'department', 'subcategory', 'family'];
+        $result = [];
+
+        foreach ($rootKeys as $rootKey) {
+            $row = ['key' => $rootKey];
+            
+            foreach ($families as $index => $family) {
+                $prefix = "P" . ($index + 1) . "_";
+                
+                switch ($rootKey) {
+                    case 'solution':
+                        $row[$prefix . 'solution_name'] = $data['originalDepartment'][$index]->solution->name ?? null;
+                        break;
+                    case 'brand':
+                        $row[$prefix . 'brand_name'] = $data['supplierSnapshotBrand'][$index]->brand->name ?? null;
+                        $row[$prefix . 'brand_id'] = $data['supplierSnapshotBrand'][$index]->brand->id ?? null;
+                        break;
+                    case 'department':
+                        $row[$prefix . 'department_name'] = $data['originalDepartment'][$index]->name ?? null;
+                        $row[$prefix . 'department_id'] = $data['supplierSnapshotDepartment'][$index]->id ?? null;
+                        break;
+                    case 'subcategory':
+                        $row[$prefix . 'subcategory_name'] = $data['subcategory'][$index]->name;
+                        $row[$prefix . 'subcategory_id'] = $data['subcategory'][$index]->id;
+                        break;
+                    case 'family':
+                        $row[$prefix . 'family_name'] = $families[$index]->name;
+                        $row[$prefix . 'family_id'] = $families[$index]->id;
+                        break;
+                }
+            }
+            
+            $result[] = $row;
+        }
+
+        return $result;
     }
 }

@@ -25,7 +25,8 @@ class StoreProductRequest extends FormRequest
         $familyId = (int) $this->input('family_id');
 
         return [
-            'family_id' => ['required', 'integer', 'exists:families,id'],
+            'family_id' => ['required', 'integer'],
+            'group_id' => ['nullable', 'integer'],
             'code' => [
                 'required',
                 'string',
@@ -60,7 +61,7 @@ class StoreProductRequest extends FormRequest
             'accessories.*.quantity' => ['required', 'integer', 'min:1'],
 
             'colors' => ['nullable', 'array'],
-            'colors.*' => ['integer', 'exists:colors,id'],
+            'colors.*' => ['integer'],
 
             // media \\
             'gallery' => ['nullable', 'array'],
@@ -93,7 +94,6 @@ class StoreProductRequest extends FormRequest
             if ($errors->any()) {
                 return;
             }
-
             $subcategoryId = Family::find((int) $this->input('family_id'))->subcategory_id;
             $dynamicRules = RequestValidationBuilder::build(
                 $subcategoryId,

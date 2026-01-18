@@ -15,17 +15,14 @@ class ProductsCompareUseCase
     ) {
     }
 
-    public function handle(int $firstProduct, int $secondProduct)
+    /**
+     * @param  array<int>  $productIds
+     */
+    public function handle(array $productIds)
     {
-        $comparedProducts = $this->products->compare(
-            $firstProduct,
-            $secondProduct
-        );
+        $comparedProducts = $this->products->compare($productIds);
 
-        return ProductComparedData::collection(
-            $comparedProducts->first(),
-            $comparedProducts->last()
-        );
+        return ProductComparedData::collection($comparedProducts);
     }
 
 }

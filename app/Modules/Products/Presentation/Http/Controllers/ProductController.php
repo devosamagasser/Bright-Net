@@ -44,14 +44,31 @@ class ProductController
     public function index(Request $request, int $family)
     {
         $supplierId = $this->authenticatedSupplierId() ?? $request->query('supplier_id');
-        $data = $this->listProducts->handle($family, $supplierId !== null ? (int) $supplierId : null);
-        $collection = ProductResource::collection($data['products'])
-            ->additional(['roots' => $data['roots']])
+        $perPage = (int) $request->query('per_page', 15);
+        
+        $data = $this->listProducts->handle(
+            $family, 
+            $perPage,
+            $supplierId !== null ? (int) $supplierId : null
+        );
+        
+        $collection = ProductResource::collection($data['products']->items())
+            ->additional([
+                'roots' => $data['roots'],
+                'pagination' => [
+                    'current_page' => $data['products']->currentPage(),
+                    'last_page' => $data['products']->lastPage(),
+                    'per_page' => $data['products']->perPage(),
+                    'total' => $data['products']->total(),
+                    'from' => $data['products']->firstItem(),
+                    'to' => $data['products']->lastItem(),
+                ]
+            ])
             ->response()
             ->getData(true);
+            
         return ApiResponse::success($collection);
     }
-
 
     public function store(StoreProductRequest $request)
     {
@@ -60,9 +77,7 @@ class ProductController
                 'supplier_id' => $this->authenticatedSupplierId(),
             ]
         );
-
         $product = $this->createProduct->handle($input);
-
         return ApiResponse::created(
             ProductResource::make($product)->resolve()
         );
@@ -110,7 +125,12 @@ class ProductController
     public function paste(CutPasteProductRequest $request, Product $product)
     {
         $destinationFamilyId = $request->input('family_id');
-        $productData =$this->cutPasteProducts->handle($product, (int) $destinationFamilyId);
+        $groupId = $request->input('group_id');
+        $productData = $this->cutPasteProducts->handle(
+            $product, 
+            (int) $destinationFamilyId,
+            $groupId !== null ? (int) $groupId : null
+        );
 
         return ApiResponse::updated(
             ProductResource::make($productData)->resolve()
@@ -136,9 +156,15 @@ class ProductController
         return ApiResponse::message('Products imported successfully');
     }
 
-    public function compare(int $firstProductId, int $secondProductId)
+    public function compare(Request $request)
     {
-        $data = $this->productsCompareUseCase->handle($firstProductId, $secondProductId);
+        $request->validate([
+            'product_ids' => 'required|array|min:2|max:3',
+            'product_ids.*' => 'required|integer|exists:products,id',
+        ]);
+
+        $productIds = $request->input('product_ids');
+        $data = $this->productsCompareUseCase->handle($productIds);
         return ApiResponse::success($data);
     }
 

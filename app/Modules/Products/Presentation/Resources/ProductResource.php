@@ -16,7 +16,7 @@ class ProductResource extends JsonResource
     {
         $collectionRequest = (bool) ($request->is('*/families/*/products') && $request->isMethod('GET'));
         $singleRequest = (bool) ($request->is('*/products/*') && $request->method() === 'GET');
-        $attributes = $this->attributes;    
+        $attributes = $this->attributes;
         return [
             'id' => $attributes['id'] ?? null,
             'roots' => $this->when(!$collectionRequest, $this->roots),

@@ -29,6 +29,11 @@ class Quotation extends Model
         'total',
         'currency',
         'meta',
+        'general_notes',
+        'warranty',
+        'warranty_and_payments',
+        'discount_applied',
+        'vat_applied',
         'log_status',
     ];
 
@@ -45,6 +50,11 @@ class Quotation extends Model
         'total' => 'float',
         'currency' => PriceCurrency::class,
         'meta' => 'array',
+        'general_notes' => 'array',
+        'warranty' => 'array',
+        'warranty_and_payments' => 'array',
+        'discount_applied' => 'boolean',
+        'vat_applied' => 'boolean',
     ];
 
     public function company(): BelongsTo

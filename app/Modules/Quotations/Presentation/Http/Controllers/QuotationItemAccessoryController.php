@@ -2,7 +2,7 @@
 
 namespace App\Modules\Quotations\Presentation\Http\Controllers;
 
-use Illuminate\Validation\ValidationException;
+use Illuminate\Http\Request;
 use App\Modules\Quotations\Domain\Models\{
     QuotationProduct,
     QuotationProductAccessory,
@@ -33,7 +33,7 @@ class QuotationItemAccessoryController
         $quotation = $this->addAccessory->handle(
             $item,
             $request->toInput(),
-            $this->supplierId()
+            $request->input('supplier_id')
         );
 
         return ApiResponse::created(
@@ -46,7 +46,7 @@ class QuotationItemAccessoryController
         $quotation = $this->updateAccessory->handle(
             $accessory,
             $request->toInput(),
-            $this->supplierId()
+            $request->input('supplier_id')
         );
 
         return ApiResponse::updated(
@@ -54,32 +54,15 @@ class QuotationItemAccessoryController
         );
     }
 
-    public function destroy(QuotationProductAccessory $accessory)
+    public function destroy(Request $request, QuotationProductAccessory $accessory)
     {
         $quotation = $this->removeAccessory->handle(
             $accessory,
-            $this->supplierId()
+            $request->input('supplier_id')
         );
 
         return ApiResponse::success(
             QuotationResource::make($quotation)->resolve()
         );
-    }
-
-    private function supplierId(): int
-    {
-        $user = auth()->user();
-
-        if ($user !== null && method_exists($user, 'company')) {
-            $user->loadMissing('company.supplier');
-        }
-
-        if ($user === null || ! method_exists($user, 'company') || $user->company === null || $user->company->supplier === null) {
-            throw ValidationException::withMessages([
-                'supplier' => trans('apiMessages.forbidden'),
-            ]);
-        }
-
-        return (int) $user->company->supplier->getKey();
     }
 }

@@ -6,6 +6,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\Response;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Modules\Shared\Support\Traits\HandleMedia;
 use App\Modules\Shared\Support\Traits\HandlesTranslations;
 use App\Modules\Products\Domain\ValueObjects\AccessoryType;
@@ -44,11 +45,12 @@ class EloquentProductRepository implements ProductRepositoryInterface
         });
     }
 
-    public function find(int $id): ?Product
+    public function find(int $id,array $atttibutes = ["*"], array $relations = []): ?Product
     {
         return Product::query()
-            ->with($this->allRelations())
-            ->find($id);
+            ->select($atttibutes)
+            ->with($relations ?: $this->allRelations())
+            ->findOrFail($id);
     }
 
     public function getByFamily(int $familyId, ?int $supplierId = null): Collection
@@ -72,6 +74,102 @@ class EloquentProductRepository implements ProductRepositoryInterface
             ->get();
     }
 
+    public function paginateByFamily(int $familyId, int $perPage = 15, ?int $supplierId = null): LengthAwarePaginator
+    {
+        return Product::query()
+            ->with([
+                'media',
+                'fieldValues.field',
+                'family.subcategory.department.solution',
+                'family.department.supplierBrand.brand',
+                'family.department.department',
+                'family.subcategory',
+            ])
+            ->where('family_id', $familyId)
+            ->when($supplierId !== null, static function ($query) use ($supplierId): void {
+                $query->whereHas('family', static function ($familyQuery) use ($supplierId): void {
+                    $familyQuery->where('supplier_id', $supplierId);
+                });
+            })
+            ->orderBy('code')
+            ->paginate($perPage);
+    }
+
+    public function getByGroup(int $groupId, ?int $supplierId = null): Collection
+    {
+        return Product::query()
+            ->with([
+                'media',
+                'fieldValues.field',
+                'family.subcategory.department.solution',
+                'family.department.supplierBrand.brand',
+                'family.department.department',
+                'family.subcategory',
+            ])
+            ->where('product_group_id', $groupId)
+            ->when($supplierId !== null, static function ($query) use ($supplierId): void {
+                $query->whereHas('family', static function ($familyQuery) use ($supplierId): void {
+                    $familyQuery->where('supplier_id', $supplierId);
+                });
+            })
+            ->orderBy('code')
+            ->get();
+    }
+
+    public function paginateByGroup(int $groupId, int $perPage = 15, ?int $supplierId = null): LengthAwarePaginator
+    {
+        return Product::query()
+            ->with([
+                'media',
+                'fieldValues.field',
+                'family.subcategory.department.solution',
+                'family.department.supplierBrand.brand',
+                'family.department.department',
+                'family.subcategory',
+            ])
+            ->where('product_group_id', $groupId)
+            ->when($supplierId !== null, static function ($query) use ($supplierId): void {
+                $query->whereHas('family', static function ($familyQuery) use ($supplierId): void {
+                    $familyQuery->where('supplier_id', $supplierId);
+                });
+            })
+            ->orderBy('code')
+            ->paginate($perPage);
+    }
+
+    public function getByGroups(array $groupIds, ?int $supplierId = null): Collection
+    {
+        if (empty($groupIds)) {
+            return collect();
+        }
+
+        // Get first product for each group
+        $allProducts = Product::query()
+            ->with([
+                'media',
+                'fieldValues.field.translations',
+                'translations',
+                'family.subcategory.department.solution',
+                'family.department.supplierBrand.brand',
+                'family.department.department',
+                'family.subcategory',
+            ])
+            ->whereIn('product_group_id', $groupIds)
+            ->when($supplierId !== null, static function ($query) use ($supplierId): void {
+                $query->whereHas('family', static function ($familyQuery) use ($supplierId): void {
+                    $familyQuery->where('supplier_id', $supplierId);
+                });
+            })
+            ->orderBy('product_group_id')
+            ->orderBy('id')
+            ->get();
+        
+        // Get first product for each group
+        return $allProducts->groupBy('product_group_id')
+            ->map(fn($products) => $products->first())
+            ->filter();
+    }
+
     public function cutPasteProduct(Product $product, int $family_id): Product
     {
         return DB::transaction(function () use ($product, $family_id): Product {
@@ -82,23 +180,55 @@ class EloquentProductRepository implements ProductRepositoryInterface
         });
     }
 
-    public function compare(int $firstProduct, int $secondProduct): Collection
+    public function compare(array $productIds): Collection
     {
-        $products = Product::query()
-            ->whereIn('id', [$firstProduct, $secondProduct])
-            ->with($this->allRelations())
-            ->limit(2)
-            ->get();
-
-        if ($products->count() < 2) {
-            throw new \InvalidArgumentException('Both products must exist for comparison.', Response::HTTP_NOT_FOUND);
+        // Limit to maximum 3 products
+        $productIds = array_slice($productIds, 0, 3);
+        $productIds = array_unique($productIds);
+        
+        if (count($productIds) < 2) {
+            throw new \InvalidArgumentException('At least 2 products are required for comparison.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
-        if ($products->first()->family->subcategory_id !== $products->last()->family->subcategory_id) {
-            throw new \InvalidArgumentException('Products must belong to the same roots for comparison.', Response::HTTP_UNPROCESSABLE_ENTITY);
+        // Optimized relations - only load what's needed for comparison
+        $products = Product::query()
+            ->whereIn('id', $productIds)
+            ->with($this->compareRelations())
+            ->get();
+
+        if ($products->count() !== count($productIds)) {
+            throw new \InvalidArgumentException('One or more products not found.', Response::HTTP_NOT_FOUND);
+        }
+
+        // Validate all products belong to the same subcategory
+        $subcategoryIds = $products->pluck('family.subcategory_id')->unique();
+        if ($subcategoryIds->count() > 1) {
+            throw new \InvalidArgumentException('Products must belong to the same subcategory for comparison.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
 
         return $products;
+    }
+
+    /**
+     * Optimized relations for comparison - only load what's needed
+     */
+    private function compareRelations(): array
+    {
+        return [
+            'media',
+            'translations',
+            'fieldValues.field.translations',
+            'family.translations',
+            'family.subcategory.translations',
+            'family.subcategory.department.solution.translations',
+            'family.department.supplierBrand.brand',
+            'family.department.department.translations',
+            'accessories.accessory.translations',
+            'accessories.accessory.media',
+            'accessories.accessory.fieldValues.field.translations',
+            'accessories.accessory.family.translations',
+            'accessories.accessory.family.subcategory.translations',
+        ];
     }
 
     public function attachAccessory( Product $product, Product $accessory, AccessoryType $type, ?int $quantity = null): ProductAccessory {

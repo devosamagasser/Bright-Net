@@ -3,6 +3,7 @@
 namespace App\Modules\Quotations\Domain\Repositories;
 
 use App\Modules\Products\Domain\Models\Product;
+use Illuminate\Database\Eloquent\Model;
 use App\Modules\Quotations\Domain\Models\{
     Quotation,
     QuotationProduct,
@@ -11,7 +12,7 @@ use App\Modules\Quotations\Domain\Models\{
 
 interface QuotationRepositoryInterface
 {
-    public function getOrCreateDraft(int $supplierId): Quotation;
+    public function getOrCreateDraft(Model $user): Quotation;
 
     /**
      * @param  array<string, mixed>  $attributes

@@ -2,67 +2,71 @@
 
 namespace Database\Seeders;
 
+use App\Modules\Brands\Domain\Models\Brand;
 use Illuminate\Database\Seeder;
 use App\Modules\SolutionsCatalog\Domain\Models\Solution;
 use App\Modules\Companies\Domain\Models\Company;
 use App\Modules\Companies\Domain\ValueObjects\CompanyType;
-use App\Models\{Supplier, SupplierSolution};
+use Illuminate\Support\Facades\DB;
+use App\Models\{Supplier, SupplierBrand, SupplierDepartment, SupplierSolution};
 
 class SupplierSeeder extends Seeder
 {
     public function run(): void
     {
-        // 🏢 هجيب كل الشركات اللي نوعها supplier
-        $companies = Company::where('type', CompanyType::SUPPLIER->value)->get();
+        DB::transaction(function () {
 
-        foreach ($companies as $company) {
-            // 🔹 أنشئ الـ Supplier لو مش موجود
-            $supplier = Supplier::firstOrCreate(
-                ['company_id' => $company->getKey()],
-                [
-                    'contact_email' => fake()->unique()->safeEmail(),
-                    'contact_phone' => fake()->phoneNumber(),
-                    'website' => fake()->url(),
-                ]
-            );
+            // 🏢 هجيب كل الشركات اللي نوعها supplier
+            $company = Company::firstOrCreate([
+                'contact_email' =>  "info@sirajlighting.com",
+                'type' => CompanyType::SUPPLIER->value,
+            ],[
+                'name' => " Siraj Lighting",
+                'contact_phone' =>  "+20 2 2526 0015",
+                'website' =>  "https://sirajlighting.com",
+                'description' => " Egyptian supplier specialized in architectural and outdoor lighting solutions.",
+            ]);
 
+            $supplier = Supplier::firstOrCreate([
+                'company_id' => $company->id,
+            ]);
             // ⚙️ اختار حلول عشوائية
-            $solutions = Solution::inRandomOrder()->take(rand(1, 2))->get();
+            $solution = Solution::first();
 
-            foreach ($solutions as $solution) {
-                // 🔗 أنشئ العلاقة بين المورد والسوليوشن
-                $supplierSolution = SupplierSolution::firstOrCreate([
-                    'supplier_id' => $supplier->id,
-                    'solution_id' => $solution->id,
+            // 🔗 أنشئ العلاقة بين المورد والسوليوشن
+            $supplierSolution = SupplierSolution::firstOrCreate([
+                'supplier_id' => $supplier->id,
+                'solution_id' => $solution->id,
+            ]);
+
+            // 🧭 الأقسام المرتبطة بالسوليوشن ده
+            $departmentIds = $solution->departments()
+                ->inRandomOrder()
+                ->take(rand(1, 3))
+                ->pluck('departments.id')
+                ->toArray();
+
+            $brandIds = Brand::inRandomOrder()
+                ->take(rand(1, 4))
+                ->pluck('id')
+                ->toArray();
+
+
+            foreach ($brandIds as $brandId){
+                $supplierBrand = SupplierBrand::create([
+                    'brand_id' => $brandId,
+                    'supplier_solution_id' => $supplierSolution->id
                 ]);
-
-                // 🧭 الأقسام المرتبطة بالسوليوشن ده
-                $departmentIds = $solution->departments()
-                    ->inRandomOrder()
-                    ->take(rand(1, 3))
-                    ->pluck('departments.id')
-                    ->toArray();
-
-                if (! empty($departmentIds)) {
-                    $supplierSolution->departments()->syncWithoutDetaching($departmentIds);
-                }
-
-                // 🎯 هات البراندات المرتبطة بالسوليوشن ده فقط
-                $brandIds = $solution->brands()
-                    ->inRandomOrder()
-                    ->take(rand(1, 3))
-                    ->pluck('brands.id') // نستخدم اسم الجدول لتفادي الالتباس
-                    ->toArray();
-
-                // لو مفيش براندات مرتبطة بالسوليوشن ده، تجاهل
-                if (empty($brandIds)) {
-                    continue;
-                }
-
-                // 🔗 اربط البراندات المختارة بالسوليوشن المورد
-                $supplierSolution->brands()->syncWithoutDetaching($brandIds);
+                $supplierDepartments = collect($departmentIds)->map(function ($departmentId) use ($supplierBrand) {
+                    return [
+                        'supplier_brand_id' => $supplierBrand->id,
+                        'department_id' => $departmentId
+                    ];
+                })->toArray();
+                SupplierDepartment::insert($supplierDepartments);
             }
-        }
+
+        });
 
         $this->command->info('✅ Seeded suppliers with solutions and related brands successfully.');
     }

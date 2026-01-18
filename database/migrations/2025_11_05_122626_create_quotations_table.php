@@ -25,6 +25,12 @@ return new class extends Migration
             $table->decimal('total', 12, 2)->default(0);
             $table->char('currency', 3)->default('EGP');
             $table->json('meta')->nullable();
+            $table->json('general_notes')->nullable();
+            $table->json('warranty')->nullable();
+            $table->json('warranty_and_payments')->nullable();
+            $table->boolean('discount_applied')->default(true);
+            $table->boolean('vat_applied')->default(true);
+            $table->unsignedBigInteger('log_status')->default(0);
             $table->timestamps();
         });
     }

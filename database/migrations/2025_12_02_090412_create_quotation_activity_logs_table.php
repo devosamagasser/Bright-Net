@@ -17,6 +17,10 @@ return new class extends Migration
             $table->string('activity_type'); // edit, create, delete, etc.
             $table->text('old_object')->nullable();
             $table->text('new_object')->nullable();
+            $table->foreignId('quotation_id')
+                ->nullable()
+                ->constrained()
+                ->onDelete('cascade');
             $table->timestamps();
         });
     }

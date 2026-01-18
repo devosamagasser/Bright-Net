@@ -5,15 +5,24 @@ use App\Modules\Quotations\Presentation\Http\Controllers\{
     QuotationDraftController,
     QuotationItemAccessoryController,
     QuotationItemController,
+    QuotationController,
 };
 use App\Modules\QuotationLogs\Presentation\Http\Controllers\QuotationLogsController;
 
 Route::prefix('quotations')
-    ->middleware('auth:sanctum')
+    ->middleware(['auth:sanctum', 'supplier'])
     ->group(function (): void {
-        Route::get('draft', [QuotationDraftController::class, 'show']);
-        Route::patch('draft', [QuotationDraftController::class, 'update']);
-        Route::post('draft/items', [QuotationDraftController::class, 'storeItem']);
+        Route::get('draft', [QuotationController::class, 'show']);
+
+        Route::patch('draft', [QuotationController::class, 'update']);
+
+        Route::patch('{quotation}/flags', [QuotationController::class, 'updateFlags'])
+            ->whereNumber('quotation');
+
+        Route::patch('{quotation}/details', [QuotationController::class, 'updateDetails'])
+            ->whereNumber('quotation');
+
+        Route::post('draft/items', [QuotationItemController::class, 'storeItem']);
 
         Route::patch('items/{item}', [QuotationItemController::class, 'update'])
             ->whereNumber('item');
@@ -26,8 +35,10 @@ Route::prefix('quotations')
 
         Route::post('items/{item}/accessories', [QuotationItemAccessoryController::class, 'store'])
             ->whereNumber('item');
+
         Route::patch('accessories/{accessory}', [QuotationItemAccessoryController::class, 'update'])
             ->whereNumber('accessory');
+
         Route::delete('accessories/{accessory}', [QuotationItemAccessoryController::class, 'destroy'])
             ->whereNumber('accessory');
 
@@ -36,5 +47,4 @@ Route::prefix('quotations')
 
         Route::get('/{quotation}/redo', [QuotationLogsController::class, 'redo'])
             ->whereNumber('quotation');
-
     });

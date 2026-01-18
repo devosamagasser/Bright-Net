@@ -15,7 +15,6 @@ class RequestValidationBuilder
         $template = DataTemplate::with('fields')->where('subcategory_id', $subcategoryId)
                         ->where('type', $dataTemplateType)
                         ->first();
-
         if(is_null($template)) {
             return [];
         }
@@ -55,19 +54,18 @@ class RequestValidationBuilder
 
     private static function rawSelectValidation($options)
     {
-        if(is_array($options[0])){
-            foreach($options as $option){
-                $optionsValues[] = $option['value'] ;
-            }
-        }else{
-            $optionsValues = $options;
+        foreach($options as $option){
+            $optionsValues[] = $option['value'] ;
         }
         return Rule::in($optionsValues);
     }
 
     private static function multiSelectValidation($options)
     {
-        return [Rule::in($options)];
+        foreach($options as $option){
+            $optionsValues[] = $option['value'] ;
+        }
+        return [Rule::in($optionsValues)];
     }
 
 

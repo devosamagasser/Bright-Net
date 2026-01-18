@@ -2,6 +2,8 @@
 
 namespace App\Modules\Products\Infrastructure\Providers;
 
+use App\Modules\Products\Domain\Repositories\ProductGroupRepositoryInterface;
+use App\Modules\Products\Infrastructure\Persistence\Eloquent\ProductGroupRepository;
 use Illuminate\Support\Facades\Route;
 use App\Modules\Shared\Infrastructure\Providers\AbstractModuleServiceProvider;
 use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
@@ -14,6 +16,10 @@ class ProductsServiceProvider extends AbstractModuleServiceProvider
         $this->app->bind(
             ProductRepositoryInterface::class,
             EloquentProductRepository::class,
+        );
+        $this->app->bind(
+            ProductGroupRepositoryInterface::class,
+            ProductGroupRepository::class,
         );
     }
 

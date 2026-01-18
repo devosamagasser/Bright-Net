@@ -17,13 +17,12 @@ class AddQuotationProductRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'product_id' => ['required', 'integer', 'exists:products,id'],
+            'product_id' => ['required', 'integer'],
             'quantity' => ['required', 'integer', 'min:1'],
             'item_ref' => ['nullable', 'string', 'max:50'],
             'accessories' => ['nullable', 'array'],
             'accessories.*' => ['array'],
-            'accessories.*.accessory_id' => ['required', 'integer', 'exists:products,id'],
-            'accessories.*.accessory_type' => ['required', Rule::in([AccessoryType::OPTIONAL->value, AccessoryType::NEEDED->value])],
+            'accessories.*.accessory_id' => ['required', 'integer'],
             'accessories.*.quantity' => ['nullable', 'integer', 'min:1'],
         ];
     }

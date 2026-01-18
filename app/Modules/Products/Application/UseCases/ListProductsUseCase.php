@@ -5,6 +5,7 @@ namespace App\Modules\Products\Application\UseCases;
 use App\Modules\Families\Domain\Repositories\FamilyRepositoryInterface;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Modules\Families\Domain\Models\Family;
 use App\Modules\Products\Application\DTOs\ProductData;
 use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
@@ -19,17 +20,21 @@ class ListProductsUseCase
     }
 
     /**
-     * @return Collection<int, ProductData>
+     * @return array{products: LengthAwarePaginator, roots: array}
      */
-    public function handle(int $familyId, ?int $supplierId = null): Collection
+    public function handle(int $familyId, int $perPage = 15, ?int $supplierId = null): array
     {
-        $products = $this->products->getByFamily($familyId, $supplierId);
-        $family = $products->first()?->family ?? $this->families->find($familyId);
+        $paginator = $this->products->paginateByFamily($familyId, $perPage, $supplierId);
+        $family = $paginator->getCollection()->first()?->family ?? $this->families->find($familyId);
 
-        return collect([
-            'products' => ProductData::collection($products),
+        $paginator->setCollection(
+            ProductData::collection($paginator->getCollection())
+        );
+
+        return [
+            'products' => $paginator,
             'roots' => $family ? ProductData::serializeRoots($family) : [],
-        ]);
+        ];
     }
 
 }

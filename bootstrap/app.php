@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\SetLocale;
+use App\Http\Middleware\EnsureUserIsSupplier;
 use Illuminate\Foundation\Application;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Validation\UnauthorizedException;
@@ -28,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'abilities' => CheckAbilities::class,
             'ability' => CheckForAnyAbility::class,
             'role' => RoleMiddleware::class,
+            'supplier' => EnsureUserIsSupplier::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
@@ -42,9 +44,9 @@ return Application::configure(basePath: dirname(__DIR__))
             return ApiResponse::forbidden();
         });
 
-        $exceptions->render(function (NotFoundHttpException | ModelNotFoundException $e, $request) {
-            return ApiResponse::notFound();
-        });
+//        $exceptions->render(function (NotFoundHttpException | ModelNotFoundException $e, $request) {
+//            return ApiResponse::notFound();
+//        });
 
         $exceptions->render(function (\DomainException $e, $request){
             return ApiResponse::message($e->getMessage(), 400);

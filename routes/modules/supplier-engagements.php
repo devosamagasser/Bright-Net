@@ -6,7 +6,7 @@ use App\Modules\Families\Presentation\Http\Controllers\FamilyController;
 use App\Modules\Products\Presentation\Http\Controllers\ProductController;
 use App\Modules\DataSheets\Presentation\Http\Controllers\SupplierDataTemplateController;
 use App\Modules\SupplierEngagements\Presentation\Http\Controllers\SupplierEngagementController;
-
+use App\Modules\Products\Presentation\Http\Controllers\ProductGroupController;
 
 Route::prefix('suppliers/{company}')
     ->whereNumber('company')
@@ -22,7 +22,6 @@ Route::prefix('suppliers/{company}')
         Route::get('departments/{supplierDepartment}', [SupplierEngagementController::class, 'subcategories'])
             ->whereNumber('supplierDepartment');
 });
-
 
 Route::prefix('suppliers')
     ->middleware('auth:sanctum')
@@ -67,6 +66,16 @@ Route::prefix('suppliers')
                     ->whereNumber('familyBefore');
             });
 
+        Route::prefix('product-groups')
+            ->group(function (): void {
+                Route::get('families/{family}', [ProductGroupController::class, 'index'])
+                    ->whereNumber('family');
+                Route::get('/{group}/products', [ProductGroupController::class, 'products'])
+                    ->whereNumber('group');
+                Route::patch('/cut/{group}/paste', [ProductGroupController::class, 'paste'])
+                    ->whereNumber('group');
+            });
+
         Route::prefix('products')
             ->group(function (): void {
                 Route::post('/', [ProductController::class, 'store']);
@@ -86,8 +95,7 @@ Route::prefix('suppliers')
                     ->whereNumber('family');
                 Route::post('/budget-price/{product}', [ProductController::class, 'budgetPrice'])
                     ->whereNumber('product');
-                Route::get('/{first}/compare-with/{second}', [ProductController::class, 'compare'])
-                    ->whereNumber('product');
+                Route::get('/compare', [ProductController::class, 'compare']);
             });
     });
 

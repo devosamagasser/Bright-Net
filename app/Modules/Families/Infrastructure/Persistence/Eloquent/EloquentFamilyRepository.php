@@ -73,7 +73,10 @@ class EloquentFamilyRepository implements FamilyRepositoryInterface
     public function find(int $id): ?Family
     {
         return Family::query()
-            ->with(['translations', 'fieldValues.field.translations'])
+            ->with([
+                'department.supplierBrand.brand',
+                'subcategory.department.solution'
+            ])
             ->find($id);
     }
 

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Products\Application\DTOs;
 
+use App\Modules\DataSheets\Application\DTOs\DataFieldData;
 use App\Modules\Products\Domain\Models\ProductFieldValue;
 use App\Modules\DataSheets\Domain\Models\DataField;
 use App\Modules\DataSheets\Domain\ValueObjects\DataFieldType;
@@ -19,61 +20,15 @@ class ProductValueData
 
     public static function fromModel(ProductFieldValue $productFieldValue): self
     {
-        /** @var DataField|null $field */
         $field = $productFieldValue->field;
 
         return new self(
-            field: $field ? self::fieldSummary($field) : [],
-            value: $field ? self::normalizeValue($productFieldValue->value, $field->type) : $productFieldValue->value,
+            field: $field ? DataFieldData::fieldAttributes($field) : [],
+            value: $field ? self::normalizeValue(
+                $productFieldValue->value,
+                $field->type
+            ) : $productFieldValue->value,
         );
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    private static function fieldSummary(DataField $field): array
-    {
-        return [
-            'id' => $field->getKey(),
-            'position' => $field->position,
-            'label' => $field->label,
-            'type' => $field->type->value,
-            'name' => $field->name,
-            'placeholder' => $field->placeholder,
-            'is_required' => $field->is_required,
-            'is_filterable' => $field->is_filterable,
-            'options' => match ($field->type) {
-                    DataFieldType::SELECT => collect($field->options ?? [])
-                        ->map(fn ($option) => [
-                            'label' => $option['label'] ?? $option,
-                            'value' => $option['value'] ?? $option,
-                        ])
-                        ->values()
-                        ->all(),
-                    DataFieldType::MULTISELECT => collect($field->options ?? [])
-                        ->map(fn ($option) => [
-                            'label' => $option,
-                            'value' => $option,
-                        ])
-                        ->values()
-                        ->all(),
-                    DataFieldType::GROUPEDSELECT => collect($field->options ?? [])
-                        ->map(fn ($options) => [
-                            'label' => $options['group'],
-                            'options' => collect($options['options'])
-                                ->map(fn ($option) => [
-                                    'label' => $option,
-                                    'value' => $option,
-                                ])
-                                ->values()
-                                ->all(),
-                        ])
-                        ->values()
-                        ->all(),
-
-                    default => [],
-                },
-        ];
     }
 
     private static function normalizeValue(mixed $value, DataFieldType $type): mixed
@@ -84,5 +39,13 @@ class ProductValueData
             DataFieldType::NUMBER => is_numeric($value) ? $value + 0 : $value,
             default => $value,
         };
+    }
+
+    public static function serializeValue(ProductFieldValue $productFieldValue, DataField $field): mixed
+    {
+        return $field ? self::normalizeValue(
+            $productFieldValue->value,
+            $field->type
+        ) : $productFieldValue->value;
     }
 }

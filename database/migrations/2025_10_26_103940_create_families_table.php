@@ -16,7 +16,17 @@ return new class extends Migration
             $table->string('name');
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->foreignId('subcategory_id')->constrained()->onDelete('cascade');
-            $table->foreignId('data_template_id')->constrained()->onDelete('cascade');
+            $table->foreignId('data_template_id')
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete()
+                ->change();
+            $table->foreignId('supplier_department_id')
+                ->constrained()
+                ->onDelete('cascade');
+            $table->unsignedInteger('order')
+                ->default(0)
+                ->index();
             $table->timestamps();
         });
 

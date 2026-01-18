@@ -20,54 +20,7 @@ class DataFieldData
     public static function fromModel(DataField $field): self
     {
         return new self(
-            attributes: [
-                'group' => $field->group,
-                'id' => $field->getKey(),
-                'label' => $field->label,
-                'placeholder' => $field->placeholder,
-                'name' => $field->name,
-                'type' => $field->type instanceof DataFieldType ? $field->type->value : $field->type,
-                'is_required' => $field->is_required,
-                'is_filterable' => $field->is_filterable,
-                'with_custom' => (bool) $field->with_custom,
-                'prefix' => $field->prefix,
-                'suffix' => $field->suffix,
-                'options' => match ($field->type) {
-                    DataFieldType::SELECT => collect($field->options ?? [])
-                        ->map(fn ($option) => [
-                            'label' => $option['label'] ?? $option,
-                            'value' => $option['value'] ?? $option,
-                        ])
-                        ->values()
-                        ->all(),
-                    DataFieldType::MULTISELECT => collect($field->options ?? [])
-                        ->map(fn ($option) => [
-                            'label' => $option,
-                            'value' => $option,
-                        ])
-                        ->values()
-                        ->all(),
-                    DataFieldType::GROUPEDSELECT => collect($field->options ?? [])
-                        ->map(fn ($options) => [
-                            'label' => $options['group'],
-                            'options' => collect($options['options'])
-                                ->map(fn ($option) => [
-                                    'label' => $option,
-                                    'value' => $option,
-                                ])
-                                ->values()
-                                ->all(),
-                        ])
-                        ->values()
-                        ->all(),
-
-                    default => [],
-                },
-                'position' => $field->position,
-                'is_depended' => $field->dependency !== null,
-                'depends_on_field' => $field->dependency?->dependsOnField?->name,
-                'depends_on_values' => $field->dependency?->values ?? [],
-            ],
+            attributes: self::fieldAttributes($field),
             translations: $field->translations->map(function ($translation) {
                 return [
                     'locale' => $translation->locale,
@@ -76,5 +29,27 @@ class DataFieldData
                 ];
             })->all(),
         );
+    }
+
+    public static function fieldAttributes($field): array
+    {
+        return [
+            'id' => $field->getKey(),
+            'group' => $field->group,
+            'label' => $field->label,
+            'placeholder' => $field->placeholder,
+            'name' => $field->name,
+            'type' => $field->type instanceof DataFieldType ? $field->type->value : $field->type,
+            'is_required' => $field->is_required,
+            'is_filterable' => $field->is_filterable,
+            'with_custom' => (bool) $field->with_custom,
+            'prefix' => $field->prefix,
+            'suffix' => $field->suffix,
+            'options' => $field->options,
+            'position' => $field->position,
+            'is_depended' => $field->dependency !== null,
+            'depends_on_field' => $field->dependency?->dependsOnField?->name,
+            'depends_on_values' => $field->dependency?->values ?? [],
+        ];
     }
 }

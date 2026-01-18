@@ -22,19 +22,58 @@ class AGeneralTemplate
             'is_required' => false,
             'is_filterable' => false,
             'options' => [
-                'Recessed (Trimmed)',
-                'Recessed (Trimless / Plaster-in)',
-                'Surface Mounted',
-                'Suspended (Pendant - from ceiling)',
-                'Suspended (Catenary - on horizontal wire)',
-                'Track (3-Phase / LVM)',
-                'Track (Magnetic)',
-                'Wall Mounted (Surface)',
-                'Wall Mounted (Recessed)',
-                'Floor Mounted',
-                'In-Ground',
-                'Pole Mounted',
-                'Bollard',
+                [
+                    'label' => 'Recessed (Trimmed)',
+                    'value' => 'Recessed (Trimmed)',
+                ],
+                [
+                    'label' => 'Recessed (Trimless / Plaster-in)',
+                    'value' => 'Recessed (Trimless / Plaster-in)',
+                ],
+                [
+                    'label' => 'Surface Mounted',
+                    'value' => 'Surface Mounted',
+                ],
+                [
+                    'label' => 'Suspended (Pendant - from ceiling)',
+                    'value' => 'Suspended (Pendant - from ceiling)',
+                ],
+                [
+                    'label' => 'Suspended (Catenary - on horizontal wire)',
+                    'value' => 'Suspended (Catenary - on horizontal wire)',
+                ],
+                [
+                    'label' => 'Track (3-Phase / LVM)',
+                    'value' => 'Track (3-Phase / LVM)',
+                ],
+                [
+                    'label' => 'Track (Magnetic)',
+                    'value' => 'Track (Magnetic)',
+                ],
+                [
+                    'label' => 'Wall Mounted (Surface)',
+                    'value' => 'Wall Mounted (Surface)',
+                ],
+                [
+                    'label' => 'Wall Mounted (Recessed)',
+                    'value' => 'Wall Mounted (Recessed)',
+                ],
+                [
+                    'label' => 'Floor Mounted',
+                    'value' => 'Floor Mounted',
+                ],
+                [
+                    'label' => 'In-Ground',
+                    'value' => 'In-Ground',
+                ],
+                [
+                    'label' => 'Pole Mounted',
+                    'value' => 'Pole Mounted',
+                ],
+                [
+                    'label' => 'Bollard',
+                    'value' => 'Bollard',
+                ],
             ],
             'en' => ['label' => 'Installation Type'],
             'ar' => ['label' => 'نوع التركيب'],
@@ -53,16 +92,56 @@ class AGeneralTemplate
             'is_required' => false,
             'is_filterable' => false,
             'options' => [
-                'Aluminum (Die-cast)',
-                'Aluminum (Extruded)',
-                'Polycarbonate (PC)',
-                'ABS (Acrylonitrile Butadiene Styrene)',
-                'PMMA (Acrylic)',
-                'GRP (Glass-Reinforced Plastic)',
-                'Stainless Steel (304)',
-                'Stainless Steel (316 / Marine Grade)',
-                'Glass',
-                'Gypsum / Plaster',
+                [
+                    'label' => 'Aluminum (Die-cast)',
+                    'value' => 'Aluminum (Die-cast)',
+                ],
+
+                [
+                    'label' => 'Aluminum (Extruded)',
+                    'value' => 'Aluminum (Extruded)',
+                ],
+
+                [
+                    'label' => 'Polycarbonate (PC)',
+                    'value' => 'Polycarbonate (PC)',
+                ],
+
+                [
+                    'label' => 'ABS (Acrylonitrile Butadiene Styrene)',
+                    'value' => 'ABS (Acrylonitrile Butadiene Styrene)',
+                ],
+
+                [
+                    'label' => 'PMMA (Acrylic)',
+                    'value' => 'PMMA (Acrylic)',
+                ],
+
+                [
+                    'label' => 'GRP (Glass-Reinforced Plastic)',
+                    'value' => 'GRP (Glass-Reinforced Plastic)',
+                ],
+
+                [
+                    'label' => 'Stainless Steel (304)',
+                    'value' => 'Stainless Steel (304)',
+                ],
+
+                [
+                    'label' => 'Stainless Steel (316 / Marine Grade)',
+                    'value' => 'Stainless Steel (316 / Marine Grade)',
+                ],
+
+                [
+                    'label' => 'Glass',
+                    'value' => 'Glass',
+                ],
+
+                [
+                    'label' => 'Gypsum / Plaster',
+                    'value' => 'Gypsum / Plaster',
+                ],
+
             ],
             'en' => ['label' => 'Housing Material'],
             'ar' => ['label' => 'مادة الهيكل'],
@@ -84,25 +163,61 @@ class AGeneralTemplate
             'with_custom' => true,
             'options' => [
                 [
-                    'group' => 'Standard',
+                    'label' => 'Standard',
                     'options' => [
-                        'White (Matte)',
-                        'White (Gloss)',
-                        'Black (Matte)',
-                        'Black (Gloss)',
-                        'Grey / Silver',
-                        'Graphite / Anthracite',
+                        [
+                            'label'=>'White (Matte)',
+                            'value'=>'White (Matte)',
+                        ],
+                        [
+                            'label'=>'White (Gloss)',
+                            'value'=>'White (Gloss)',
+                        ],
+                        [
+                            'label'=>'Black (Matte)',
+                            'value'=>'Black (Matte)',
+                        ],
+                        [
+                            'label'=>'Black (Gloss)',
+                            'value'=>'Black (Gloss)',
+                        ],
+                        [
+                            'label'=>'Grey / Silver',
+                            'value'=>'Grey / Silver',
+                        ],
+                        [
+                            'label'=>'Graphite / Anthracite',
+                            'value'=>'Graphite / Anthracite',
+                        ],
                     ],
                 ],
                 [
-                    'group' => 'Metallic',
+                    'label' => 'Metallic',
                     'options' => [
-                        'Anodized Aluminum',
-                        'Brushed Aluminum',
-                        'Chrome (Polished)',
-                        'Bronze',
-                        'Brass',
-                        'Copper',
+                        [
+                            'label' => 'Anodized Aluminum',
+                            'value' => 'Anodized Aluminum',
+                        ],
+                        [
+                            'label' => 'Brushed Aluminum',
+                            'value' => 'Brushed Aluminum',
+                        ],
+                        [
+                            'label' => 'Chrome (Polished)',
+                            'value' => 'Chrome (Polished)',
+                        ],
+                        [
+                            'label' => 'Bronze',
+                            'value' => 'Bronze',
+                        ],
+                        [
+                            'label' => 'Brass',
+                            'value' => 'Brass',
+                        ],
+                        [
+                            'label' => 'Copper',
+                            'value' => 'Copper',
+                        ],
                     ],
                 ],
             ],
@@ -129,13 +244,34 @@ class AGeneralTemplate
             'is_required' => false,
             'is_filterable' => false,
             'options' => [
-                'Opal / Frosted (Uniform light)',
-                'Microprismatic (Low Glare - UGR<19)',
-                'Baffle / Darklight (Deep recessed)',
-                'Louvre (Grid cover)',
-                'Lens (Clear/Spot)',
-                'Asymmetric Lens (Wall-wash)',
-                'Clear Cover (Protective)',
+                [
+                    'label' => 'Opal / Frosted (Uniform light)',
+                    'value' => 'Opal / Frosted (Uniform light)',
+                ],
+                [
+                    'label' => 'Microprismatic (Low Glare - UGR<19)',
+                    'value' => 'Microprismatic (Low Glare - UGR<19)',
+                ],
+                [
+                    'label' => 'Baffle / Darklight (Deep recessed)',
+                    'value' => 'Baffle / Darklight (Deep recessed)',
+                ],
+                [
+                    'label' => 'Louvre (Grid cover)',
+                    'value' => 'Louvre (Grid cover)',
+                ],
+                [
+                    'label' => 'Lens (Clear/Spot)',
+                    'value' => 'Lens (Clear/Spot)',
+                ],
+                [
+                    'label' => 'Asymmetric Lens (Wall-wash)',
+                    'value' => 'Asymmetric Lens (Wall-wash)',
+                ],
+                [
+                    'label' => 'Clear Cover (Protective)',
+                    'value' => 'Clear Cover (Protective)',
+                ],
             ],
             'en' => [
                 'label' => 'Diffuser / Optic Type',
@@ -160,26 +296,50 @@ class AGeneralTemplate
             'group' => 'Physical',
             'options' => [
                 [
-                    'group' => 'Standard Spots',
+                    'label' => 'Standard Spots',
                     'options' => [
-                        '< 18°',
-                        '18°-29°',
-                        '29°-46°',
+                        [
+                            'label'=>'< 18°',
+                            'value'=>'< 18°',
+                        ],
+                        [
+                            'label'=>'18°-29°',
+                            'value'=>'18°-29°',
+                        ],
+                        [
+                            'label'=>'29°-46°',
+                            'value'=>'29°-46°',
+                        ],
                     ],
                 ],
                 [
-                    'group' => 'Standard Floods',
+                    'label' => 'Standard Floods',
                     'options' => [
-                        '46°-70°',
-                        '70°-100°',
-                        '> 100°',
+                        [
+                            'label'=>'46°-70°',
+                            'value'=>'46°-70°',
+                        ],
+                        [
+                            'label'=>'70°-100°',
+                            'value'=>'70°-100°',
+                        ],
+                        [
+                            'label'=>'> 100°',
+                            'value'=>'> 100°',
+                        ],
                     ],
                 ],
                 [
-                    'group' => 'Specialist',
+                    'label' => 'Specialist',
                     'options' => [
-                        'Asymmetric',
-                        'Double Asymmetric',
+                        [
+                            'label'=>'Asymmetric',
+                            'value'=>'Asymmetric',
+                        ],
+                        [
+                            'label'=>'Double Asymmetric',
+                            'value'=>'Double Asymmetric',
+                        ],
                     ],
                 ],
             ],
@@ -205,7 +365,24 @@ class AGeneralTemplate
             'position' => 5,
             'is_required' => false,
             'is_filterable' => false,
-            'options' => ['Linear', 'Rectangular', 'Square', 'Round'],
+            'options' => [
+                [
+                    'label' => 'Linear',
+                    'value' => 'Linear',
+                ],
+                [
+                    'label' => 'Rectangular',
+                    'value' => 'Rectangular',
+                ],
+                [
+                    'label' => 'Square',
+                    'value' => 'Square',
+                ],
+                [
+                    'label' => 'Round',
+                    'value' => 'Round'
+                ],
+            ],
             'en' => ['label' => 'Shape'],
             'ar' => ['label' => 'الشكل'],
         ]);
@@ -350,8 +527,14 @@ class AGeneralTemplate
             'is_required' => false,
             'is_filterable' => false,
             'options' => [
-                'Integrated LED (Chip is built-in)',
-                'Replaceable Lamp (Fixture is a holder/socket)',
+                [
+                    'label' => 'Integrated LED (Chip is built-in)',
+                    'value' => 'Integrated LED',
+                ],
+                [
+                    'label' => 'Replaceable Lamp (Fixture is a holder/socket)',
+                    'value' => 'Replaceable Lamp',
+                ],
             ],
             'en' => ['label' => 'Light Source Type'],
             'ar' => ['label' => 'نوع مصدر الضوء'],
@@ -368,10 +551,22 @@ class AGeneralTemplate
             'name' => 'led_type',
             'position' => 18,
             'options' => [
-                'SMD (Surface Mount Device - e.g., 2835, 5050)',
-                'COB (Chip on Board - Single large chip)',
-                'MCOB (Multi-Chip on Board)',
-                'Filament (LED)',
+                [
+                    'label' => 'SMD (Surface Mount Device - e.g., 2835, 5050)',
+                    'value' => 'SMD',
+                ],
+                [
+                    'label' => 'COB (Chip on Board - Single large chip)',
+                    'value' => 'COB ',
+                ],
+                [
+                    'label' => 'MCOB (Multi-Chip on Board)',
+                    'value' => 'MCOB',
+                ],
+                [
+                    'label' => 'Filament (LED)',
+                    'value' => 'Filament',
+                ],
             ],
             'en' => ['label' => 'LED Type'],
             'ar' => ['label' => 'نوع الـ LED'],
@@ -393,16 +588,46 @@ class AGeneralTemplate
             'name' => 'lamp_base',
             'position' => 19,
             'options' => [
-                'E27 (Edison Screw)',
-                'E14 (Small Edison Screw)',
-                'GU10 (Twist-Lock)',
-                'MR16 / GU5.3 (Low Voltage Pins)',
-                'G9 (Bi-pin)',
-                'G4 (Bi-pin)',
-                'T8 / G13 (Linear Tube)',
-                'T5 / G5 (Linear Tube)',
-                'AR111 / G53',
-                'GX53',
+                [
+                    'label' => 'E27 (Edison Screw)',
+                    'value' => 'E27',
+                ],
+                [
+                    'label' => 'E14 (Small Edison Screw)',
+                    'value' => 'E14',
+                ],
+                [
+                    'label' => 'GU10 (Twist-Lock)',
+                    'value' => 'GU10',
+                ],
+                [
+                    'label' => 'MR16 / GU5.3 (Low Voltage Pins)',
+                    'value' => 'MR16 / GU5.3',
+                ],
+                [
+                    'label' => 'G9 (Bi-pin)',
+                    'value' => 'G9',
+                ],
+                [
+                    'label' => 'G4 (Bi-pin)',
+                    'value' => 'G4',
+                ],
+                [
+                    'label' => 'T8 / G13 (Linear Tube)',
+                    'value' => 'T8 / G13',
+                ],
+                [
+                    'label' => 'T5 / G5 (Linear Tube)',
+                    'value' => 'T5 / G5',
+                ],
+                [
+                    'label' => 'AR111 / G53',
+                    'value' => 'AR111 / G53',
+                ],
+                [
+                    'label' => 'GX53',
+                    'value' => 'GX53',
+                ],
             ],
             'en' => ['label' => 'Lamp Base / Socket'],
             'ar' => ['label' => 'قاعدة اللمبة'],
@@ -423,7 +648,16 @@ class AGeneralTemplate
             'group' => 'Photometric',
             'name' => 'lamp_included',
             'position' => 20,
-            'options' => ['Yes', 'No'],
+            'options' => [
+                [
+                    'label' => 'Yes',
+                    'value' => 'Yes',
+                ],
+                [
+                    'label' => 'No',
+                    'value' => 'No',
+                ],
+            ],
             'en' => ['label' => 'Lamp Included'],
             'ar' => ['label' => 'هل اللمبة مرفقة؟'],
         ]);
@@ -538,8 +772,38 @@ class AGeneralTemplate
             'name' => 'lifetime_hours',
             'position' => 30,
             'options' => [
-                '15000 hrs','25000 hrs','30000 hrs','35000 hrs',
-                '50000 hrs','60000 hrs','75000 hrs','100000 hrs',
+                [
+                    'label' => '15000 hrs',
+                    'value' => '15000 hrs',
+                ],
+                [
+                    'label' => '25000 hrs',
+                    'value' => '25000 hrs',
+                ],
+                [
+                    'label' => '30000 hrs',
+                    'value' => '30000 hrs',
+                ],
+                [
+                    'label' => '35000 hrs',
+                    'value' => '35000 hrs',
+                ],
+                [
+                    'label' => '50000 hrs',
+                    'value' => '50000 hrs',
+                ],
+                [
+                    'label' => '60000 hrs',
+                    'value' => '60000 hrs',
+                ],
+                [
+                    'label' => '75000 hrs',
+                    'value' => '75000 hrs',
+                ],
+                [
+                    'label' => '100000 hrs',
+                    'value' => '100000 hrs',
+                ],
             ],
             'en' => [
                 'label' => 'Lifetime (Hours (at L-B))',
@@ -575,11 +839,26 @@ class AGeneralTemplate
             'position' => 11,
             'is_filterable' => false,
             'options' => [
-                '220-240V AC',
-                '100-277V AC',
-                '12V DC',
-                '24V DC',
-                '48V DC',
+                [
+                    'label' => '220-240V AC',
+                    'value' => '220-240V AC',
+                ],
+                [
+                    'label' => '100-277V AC',
+                    'value' => '100-277V AC',
+                ],
+                [
+                    'label' => '12V DC',
+                    'value' => '12V DC',
+                ],
+                [
+                    'label' => '24V DC',
+                    'value' => '24V DC',
+                ],
+                [
+                    'label' => '48V DC',
+                    'value' => '48V DC',
+                ],
             ],
             'en' => ['label' => 'Input Voltage'],
             'ar' => ['label' => 'جهد التشغيل'],
@@ -918,7 +1197,6 @@ class AGeneralTemplate
             'name' => 'ik_rating',
             'position' => 32,
             'options' => [
-
                 [
                     'value' => 'IK00',
                     'label' => 'IK00 (No Protection)',
@@ -968,19 +1246,39 @@ class AGeneralTemplate
             'name' => 'warranty',
             'position' => 33,
             'options' => [
-                '1 Year','2 Years','3 Years',
-                '5 Years','7 Years','10 Years',
+                [
+                    'label' => '1 Year',
+                    'value' => '1 Year',
+                ],
+                [
+                    'label' => '2 Years',
+                    'value' => '2 Years',
+                ],
+                [
+                    'label' => '3 Years',
+                    'value' => '3 Years',
+                ],
+                [
+                    'label' => '5 Years',
+                    'value' => '5 Years',
+                ],
+                [
+                    'label' => '7 Years',
+                    'value' => '7 Years',
+                ],
+                [
+                    'label' => '10 Years',
+                    'value' => '10 Years',
+                ],
             ],
             'en' => [
                 'label' => 'Warranty',
                 'placeholder' => 'Select warranty period'
             ],
-
             'ar' => [
                 'label' => 'الضمان',
                 'placeholder' => 'Select warranty period'
             ],
-
         ]);
     }
 }

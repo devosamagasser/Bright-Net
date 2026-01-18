@@ -36,31 +36,52 @@ class QuotationAccessoryResource extends JsonResource
             'item_ref' => $this->item_ref,
             'position' => (int) $this->position,
             'type' => $type,
-            'snapshot' => $this->product_snapshot,
-            'roots' => $this->roots_snapshot,
+            'product_id' => $this->product_id,
+            'product_code' => $this->product_code,
+            'product_name' => $this->product_name,
+            'product_description' => $this->product_description,
+            'product_origin' => $this->product_origin,
+            'brand_id' => $this->brand_id,
+            'brand_name' => $this->brand_name,
             'notes' => $this->notes,
             'bill' => [
                 'quantity' => (int) $quantity,
-                'price' => $this->price !== null ? (float) $this->price : null,
-                // 'list_price' => $this->list_price !== null ? (float) $this->list_price : null,
-                'discount' => (float) $discount,
-                'discount_amount' => round($discountValue, 2),
-                'subtotal' => round($lineSubtotal, 2),
-                'total' => (float) $this->total,
-                'currency' => $currency,
-                'vat_included' => (bool) $this->vat_included,
-                'delivery_time' => [
-                    'unit' => $deliveryUnit,
-                    'value' => $this->delivery_time_value,
-                ],
+                'price' => $this->when(
+                    $this->accessory_type !== AccessoryType::INCLUDED,
+                    $this->price !== null ? (float) $this->price : null
+                ),
+                'discount' => $this->when(
+                    $this->accessory_type !== AccessoryType::INCLUDED,
+                    (float) $discount,
+                ),
+                'discount_amount' => $this->when(
+                    $this->accessory_type !== AccessoryType::INCLUDED,
+                    round($discountValue, 2),
+                ),
+                'subtotal' => $this->when(
+                    $this->accessory_type !== AccessoryType::INCLUDED,
+                    round($lineSubtotal, 2),
+                ),
+                'total' => $this->when(
+                    $this->accessory_type !== AccessoryType::INCLUDED,
+                    (float) $this->total,
+                ),
+                'currency' => $this->when(
+                    $this->accessory_type !== AccessoryType::INCLUDED,
+                    $currency,
+                ),
+                'vat_included' => $this->when(
+                    $this->accessory_type !== AccessoryType::INCLUDED,
+                    (bool) $this->vat_included,
+                ),
+                'delivery_time' => $this->when(
+                    $this->accessory_type !== AccessoryType::INCLUDED,
+                    [
+                        'unit' => $deliveryUnit,
+                        'value' => $this->delivery_time_value,
+                    ],
+                ),
             ],
-            // 'product' => [
-                // 'id' => $this->product_id,
-                // 'code' => $this->product_code,
-                // 'name' => $this->product_name,
-                // 'description' => $this->product_description,
-            // ],
-            // 'price_snapshot' => $this->price_snapshot,
         ];
     }
 }

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('solution_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('supplier_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('brand_id')->nullable()->constrained()->nullOnDelete();
+            $table->string('brand_name')->nullable();
             $table->foreignId('department_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('subcategory_id')->nullable()->constrained()->nullOnDelete();
             $table->foreignId('family_id')->nullable()->constrained()->nullOnDelete();
@@ -27,9 +28,10 @@ return new class extends Migration
             $table->string('product_code');
             $table->string('product_name');
             $table->text('product_description')->nullable();
-            $table->json('product_snapshot');
-            $table->json('roots_snapshot')->nullable();
-            $table->json('price_snapshot')->nullable();
+            $table->text('product_origin')->nullable();
+//            $table->json('product_snapshot');
+//            $table->json('roots_snapshot')->nullable();
+//            $table->json('price_snapshot')->nullable();
             $table->text('notes')->nullable();
             $table->string('delivery_time_unit')->nullable();
             $table->string('delivery_time_value')->nullable();
@@ -41,6 +43,7 @@ return new class extends Migration
             $table->decimal('total', 12, 2)->default(0);
             $table->char('currency', 3)->default('EGP');
             $table->string('accessory_type');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

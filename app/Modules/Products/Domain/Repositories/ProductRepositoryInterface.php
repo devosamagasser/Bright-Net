@@ -3,6 +3,7 @@
 namespace App\Modules\Products\Domain\Repositories;
 
 use Illuminate\Support\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Modules\Products\Domain\Models\{Product, ProductAccessory};
 use App\Modules\Products\Domain\ValueObjects\AccessoryType;
 
@@ -26,14 +27,41 @@ interface ProductRepositoryInterface
 
     public function delete(Product $product): void;
 
-    public function find(int $id): ?Product;
+    public function find(int $id, array $atttibutes = [], array $relations = []): ?Product;
 
-    public function compare(int $firstProduct, int $secondProduct): Collection;
+    /**
+     * @param  array<int>  $productIds
+     * @return Collection<int, Product>
+     */
+    public function compare(array $productIds): Collection;
 
     /**
      * @return Collection<int, Product>
      */
     public function getByFamily(int $familyId, ?int $supplierId = null): Collection;
+
+    /**
+     * @return LengthAwarePaginator
+     */
+    public function paginateByFamily(int $familyId, int $perPage = 15, ?int $supplierId = null): LengthAwarePaginator;
+
+    /**
+     * @return Collection<int, Product>
+     */
+    public function getByGroup(int $groupId, ?int $supplierId = null): Collection;
+
+    /**
+     * @return LengthAwarePaginator
+     */
+    public function paginateByGroup(int $groupId, int $perPage = 15, ?int $supplierId = null): LengthAwarePaginator;
+
+    /**
+     * Get first product for each group
+     * @param  array<int>  $groupIds
+     * @param  int|null  $supplierId
+     * @return Collection<int, Product>
+     */
+    public function getByGroups(array $groupIds, ?int $supplierId = null): Collection;
 
     public function attachAccessory(
         Product $product,

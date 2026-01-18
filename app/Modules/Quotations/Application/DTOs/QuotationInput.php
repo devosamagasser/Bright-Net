@@ -19,7 +19,12 @@ class QuotationInput
         foreach ($data as $key => $value) {
             $normalized[$key] = match ($key) {
                 'company_id' => $value !== null ? (int) $value : null,
-                'meta' => is_array($value) ? $value : null,
+                'meta',
+                'general_notes',
+                'warranty',
+                'warranty_and_payments' => is_array($value) ? $value : null,
+                'discount_applied',
+                'vat_applied' => $value !== null ? (bool) $value : null,
                 default => $value,
             };
         }

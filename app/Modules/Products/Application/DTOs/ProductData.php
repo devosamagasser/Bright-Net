@@ -6,6 +6,7 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use App\Modules\Families\Domain\Models\Family;
 use App\Modules\Products\Domain\Models\Product;
+use App\Modules\Products\Domain\Models\ProductGroup;
 
 class ProductData
 {
@@ -29,13 +30,14 @@ class ProductData
     ) {
     }
 
-    public static function fromModel(Product $product, ?Family $family = null): self
+    public static function fromModel(Product $product, ?Family $family = null, ?ProductGroup $group = null): self
     {
         $productData = new self(
-            roots: $family ? self::serializeRoots($family) : [],
+            roots: $family ? self::serializeRoots($family, $group ?? $product->group) : [],
             attributes: [
                 'id' => (int) $product->getKey(),
                 'family_id' => (int) $product->family_id,
+                'product_group_id' => $product->product_group_id ? (int) $product->product_group_id : null,
                 'data_template_id' => (int) $product->data_template_id,
                 'code' => $product->code,
                 'stock' => $product->stock,
@@ -47,27 +49,33 @@ class ProductData
                 'manufacturer' => $product->manufacturer,
                 'application' => $product->application,
                 'origin' => $product->origin,
-                'created_at' => $product->created_at?->toISOString(),
-                'updated_at' => $product->updated_at?->toISOString(),
+                'created_at' => $product->created_at?->diffForHumans(),
+                'updated_at' => $product->updated_at?->diffForHumans(),
             ],
-            translations: $product->relationLoaded('translations') ? $product->translations
+            translations: $product->relationLoaded('translations') ?
+                $product->translations
                 ->mapWithKeys(static fn ($translation) => [
                     $translation->locale => [
                         'name' => $translation->name,
                         'description' => $translation->description,
                     ],
-                ])->toArray() : [],
+                ])->toArray()
+                : [],
             values: $product->fieldValues
                 ->sortBy(static fn ($value) => $value->field?->position ?? 0)
                 ->map(static fn ($value) => ProductValueData::fromModel($value))
                 ->values()
                 ->all(),
-            prices: $product->relationLoaded('prices') ? $product->prices
+            prices: $product->relationLoaded('prices') ?
+                $product->prices
                 ->sortBy('from')
                 ->map(static fn ($price) => ProductPriceData::fromModel($price))
                 ->values()
-                ->all() : [],
-            accessories: $product->relationLoaded('accessories') ? ProductAccessoryData::grouped($product->accessories) : [],
+                ->all()
+                : [],
+            accessories: $product->relationLoaded('accessories') ?
+                ProductAccessoryData::grouped($product->accessories)
+                : [],
             media: [
                 'quotation_image' => self::serializeMedia($product, 'quotation_image'),
                 'gallery' => self::serializeMedia($product, 'gallery'),
@@ -104,16 +112,17 @@ class ProductData
             ->all();
     }
 
-    public static function serializeRoots(Family $family): array
+    public static function serializeRoots(Family $family, ?ProductGroup $group = null): array
     {
         $subcategory = $family->subcategory;
         $originalDepartment = $subcategory->department;
         $supplierSnapshotDepartment = $family->department;
         $supplierSnapshotBrand = $supplierSnapshotDepartment->supplierBrand;
 
-        return [
+        $roots = [
             'solution' => [
                 'name' => $originalDepartment->solution->name ?? null,
+                'id' => $originalDepartment->solution_id ?? null
             ],
             'brand' => [
                 'name' => $supplierSnapshotBrand->brand->name ?? null,
@@ -132,5 +141,13 @@ class ProductData
                 'id' => $family->id,
             ],
         ];
+
+        if ($group !== null) {
+            $roots['group'] = [
+                'id' => $group->id,
+            ];
+        }
+
+        return $roots;
     }
 }

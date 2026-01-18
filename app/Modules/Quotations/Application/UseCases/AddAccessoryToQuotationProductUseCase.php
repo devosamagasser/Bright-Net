@@ -3,22 +3,23 @@
 namespace App\Modules\Quotations\Application\UseCases;
 
 use Illuminate\Validation\ValidationException;
+use App\Modules\Quotations\Application\Concerns\AssertsQuotationEditable;
 use App\Modules\Quotations\Application\DTOs\QuotationAccessoryInput;
 use App\Modules\Products\Domain\Models\Product;
 use App\Modules\Products\Domain\Models\ProductAccessory;
 use App\Modules\Products\Domain\Repositories\ProductRepositoryInterface;
-use App\Modules\Products\Domain\ValueObjects\AccessoryType;
 use App\Modules\Quotations\Domain\Models\{
     Quotation,
     QuotationProduct,
 };
 use App\Modules\Quotations\Domain\Repositories\QuotationRepositoryInterface;
-use App\Modules\Quotations\Domain\ValueObjects\QuotationStatus;
 use App\Modules\QuotationLogs\Domain\Services\ActivityService;
 use App\Modules\QuotationLogs\Domain\ValueObjects\QuotationActivityType;
 
 class AddAccessoryToQuotationProductUseCase
 {
+    use AssertsQuotationEditable;
+
     public function __construct(
         private readonly QuotationRepositoryInterface $quotations,
         private readonly ProductRepositoryInterface $products,
@@ -40,7 +41,14 @@ class AddAccessoryToQuotationProductUseCase
             ]);
         }
 
-        $accessory->loadMissing('family.supplier');
+        // Eager load all needed relations at once
+        $accessory->loadMissing([
+            'family.supplier',
+            'family.subcategory.department.solution',
+            'brand',
+            'prices',
+            'translations',
+        ]);
 
         $accessorySupplierId = $accessory->family?->supplier?->getKey();
 
@@ -50,6 +58,7 @@ class AddAccessoryToQuotationProductUseCase
             ]);
         }
 
+        // Load product accessories for validation
         $item->loadMissing('product.accessories');
 
         $product = $item->product;
@@ -62,23 +71,14 @@ class AddAccessoryToQuotationProductUseCase
 
         $this->assertAccessoryIsOptionalForProduct($product, $accessory);
 
-        $accessory = $this->quotations->addAccessory($item, $accessory, $input->attributes());
+        $record = $this->quotations->addAccessory($item, $accessory, $input->attributes());
 
         $this->activityService->log(
-            model: $accessory,
+            model: $record,
             activityType: QuotationActivityType::CREATE,
         );
-        
-        return $this->quotations->refreshTotals($quotation);
-    }
 
-    private function assertEditable(Quotation $quotation, int $supplierId): void
-    {
-        if ((int) $quotation->supplier_id !== $supplierId || $quotation->status !== QuotationStatus::DRAFT) {
-            throw ValidationException::withMessages([
-                'quotation' => trans('apiMessages.forbidden'),
-            ]);
-        }
+        return $this->quotations->refreshTotals($quotation);
     }
 
     private function assertAccessoryIsOptionalForProduct(Product $product, Product $accessory): void

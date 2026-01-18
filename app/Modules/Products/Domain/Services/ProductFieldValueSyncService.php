@@ -14,11 +14,8 @@ class ProductFieldValueSyncService
         /**
      * @param  array<string, mixed>  $values
      */
-    public function syncFieldValues(Product $product, array $values): void
+    public function syncFieldValues(DataTemplate $template = null, Product $product, array $values): void
     {
-        $template = DataTemplate::query()
-            ->with('fields')
-            ->find($product->data_template_id);
         if ($template === null) {
             return;
         }

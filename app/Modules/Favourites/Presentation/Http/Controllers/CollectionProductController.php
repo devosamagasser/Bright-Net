@@ -39,7 +39,7 @@ class CollectionProductController
     {
         $this->authorizeCollection($collection);
 
-        $collectionData = $this->removeProduct->handle(
+        $this->removeProduct->handle(
             $collection,
             $product->getKey()
         );

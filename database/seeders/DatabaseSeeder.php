@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             BrandSeeder::class,
             DataTemplateSeeder::class,
             // CompanySeeder::class,
-            // SupplierSeeder::class,
+             SupplierSeeder::class,
         ]);
 
         User::create([
