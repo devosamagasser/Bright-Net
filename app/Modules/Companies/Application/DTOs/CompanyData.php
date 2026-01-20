@@ -23,7 +23,7 @@ class CompanyData
     ) {
     }
 
-    public static function fromModel(Company $company, CompanyProfileInterface $profile, bool $withProfile = true): self
+    public static function fromModel(Company $company, ?CompanyProfileInterface $profile = null, bool $withProfile = true): self
     {
         return new self(
             id: $company->getKey(),
@@ -41,7 +41,7 @@ class CompanyData
      * @param  Collection<int, Company>  $companies
      * @return Collection<int, self>
      */
-    public static function collection(Collection $companies, CompanyProfileInterface $profile, bool $withProfile = true): Collection
+    public static function collection(Collection $companies, ?CompanyProfileInterface $profile = null, bool $withProfile = true): Collection
     {
         return $companies->map(static fn (Company $company) => self::fromModel($company, $profile, $withProfile));
     }

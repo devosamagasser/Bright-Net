@@ -32,10 +32,10 @@ class SolutionData
             departments: $solution->relationLoaded('departments')
                 ? $solution->departments
                 : null,
-            translations: $solution->translations
+            translations: $solution->relationLoaded('departments') ? $solution->translations
                 ->mapWithKeys(static fn ($translation) => [
                     $translation->locale => ['name' => $translation->name],
-                ])->toArray(),
+                ])->toArray() : [],
             createdAt: $solution->created_at?->toISOString() ?? '',
             updatedAt: $solution->updated_at?->toISOString() ?? '',
         );

@@ -20,12 +20,18 @@ Route::prefix('favourites')
         Route::delete('{collection}', [CollectionController::class, 'destroy'])
             ->whereNumber('collection')
             ->name('destroy');
+        Route::get('{collection}/group-by', [CollectionController::class, 'groupBy'])
+            ->whereNumber('collection')
+            ->name('products.destroy');
 
         // Collection Products
         Route::post('{collection}/products', [CollectionProductController::class, 'store'])
             ->whereNumber('collection')
             ->name('products.store');
-        Route::delete('{collection}/products/{product}', [CollectionProductController::class, 'destroy'])
+        Route::post('{collection}/products', [CollectionProductController::class, 'store'])
+            ->whereNumber('collection')
+            ->name('products.store');
+        Route::delete('{collection}/product/{product}', [CollectionProductController::class, 'destroy'])
             ->whereNumber('collection')
             ->whereNumber('product')
             ->name('products.destroy');

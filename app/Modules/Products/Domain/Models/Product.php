@@ -10,6 +10,7 @@ use App\Modules\Departments\Domain\Models\Department;
 use App\Modules\SolutionsCatalog\Domain\Models\Solution;
 use App\Modules\Subcategories\Domain\Models\Subcategory;
 use Astrotomic\Translatable\Translatable;
+use EloquentFilter\Filterable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -20,7 +21,7 @@ use App\Modules\DataSheets\Domain\Models\DataTemplate;
 
 class Product extends Model implements HasMedia
 {
-    use InteractsWithMedia, Translatable;
+    use InteractsWithMedia, Translatable, Filterable;
 
     /**
      * @var array<int, string>

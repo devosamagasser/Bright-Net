@@ -2,11 +2,15 @@
 
 namespace App\Modules\Favourites\Infrastructure\Persistence\Eloquent;
 
+use App\Models\Supplier;
+use App\Modules\Brands\Domain\Models\Brand;
+use App\Modules\Departments\Domain\Models\Department;
 use App\Modules\Favourites\Domain\Models\FavouriteCollection;
 use App\Modules\Favourites\Domain\Repositories\CollectionRepositoryInterface;
+use App\Modules\Favourites\Domain\Services\RelationModelService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
+use Illuminate\Database\Eloquent\Model;
 
 class EloquentCollectionRepository implements CollectionRepositoryInterface
 {
@@ -18,20 +22,34 @@ class EloquentCollectionRepository implements CollectionRepositoryInterface
             ->orderByDesc('id')
             ->paginate($perPage);
     }
-    public function getByCompany(int $companyId): Collection
+    public function getByCompany(int $companyId, $perPage): LengthAwarePaginator
     {
-        return $this->query()
-            ->with(['products'])
+        return FavouriteCollection::withCount('products')
+            ->with('company')
             ->where('company_id', $companyId)
-            ->orderByDesc('id')
-            ->get();
+            ->paginate($perPage);
     }
 
-    public function find(int $id): ?FavouriteCollection
+    public function find(int $id, $perPage, $filter = []): array
     {
-        return $this->query()
-            ->with(['products'])
-            ->find($id);
+        $collection = FavouriteCollection::findOrFail($id);
+        $collectionProducts = $collection
+        ->products()
+        ->filter($filter)
+        ->with([
+            'supplier',
+            'solution',
+            'department',
+            'brand',
+            'subcategory',
+            'family',
+            'fieldValues.field',
+            'media',
+        ])->paginate($perPage);
+        return [
+            'collection' => $collection,
+            'products' => $collectionProducts
+        ];
     }
 
     public function create(array $attributes): FavouriteCollection
@@ -73,5 +91,27 @@ class EloquentCollectionRepository implements CollectionRepositoryInterface
     {
         return FavouriteCollection::query();
     }
+
+
+    public function getRelatedModelsForCollection(int $collectionId, string $relationName, int $perPage = 15): LengthAwarePaginator
+    {
+        $collection = FavouriteCollection::findOrFail($collectionId);
+
+        $relation = $collection->products()
+            ->getModel()
+            ->{$relationName}();
+
+        $relationColumn = $relation->getForeignKeyName(); // brand_id مثلا
+        $relationModel  = $relation->getRelated();        // Brand model object
+
+        $ids = $collection->products()
+            ->whereNotNull($relationColumn)
+            ->distinct()
+            ->pluck($relationColumn);
+
+        return RelationModelService::modelQuery($relationModel, $ids, $perPage);
+    }
+
+
 }
 

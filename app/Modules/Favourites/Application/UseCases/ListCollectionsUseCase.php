@@ -14,13 +14,13 @@ class ListCollectionsUseCase
     ) {
     }
 
-    public function handle(int $companyId, int $perPage = 15): Collection
+    public function handle(int $companyId, int $perPage = 15): LengthAwarePaginator
     {
-         return $this->repository->getByCompany($companyId, $perPage);
+        $paginator = $this->repository->getByCompany($companyId, $perPage);
 
-//        $paginator->setCollection(
-//            CollectionData::collection($paginator->getCollection(), withProducts: false)
-//        );
+        return $paginator->setCollection(
+            CollectionData::collection($paginator->getCollection())
+        );
     }
 }
 

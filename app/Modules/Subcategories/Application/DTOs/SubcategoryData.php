@@ -26,10 +26,10 @@ class SubcategoryData
             id: $subcategory->getKey(),
             departmentId: (int) $subcategory->department_id,
             name: $subcategory->name,
-            translations: $subcategory->translations
+            translations: $subcategory->relationLoaded('translations') ? $subcategory->translations
                 ->mapWithKeys(static fn ($translation) => [
                     $translation->locale => ['name' => $translation->name],
-                ])->toArray(),
+                ])->toArray() : [],
             createdAt: $subcategory->created_at?->toISOString() ?? '',
             updatedAt: $subcategory->updated_at?->toISOString() ?? '',
         );

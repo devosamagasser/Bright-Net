@@ -29,14 +29,14 @@ class DepartmentData
             id: $department->getKey(),
             solutionId: (int) $department->solution_id,
             name: $department->name,
+            cover: $department->getFirstMediaUrl('cover'),
             subcategories: $department->relationLoaded('subcategories')
                 ? $department->subcategories
                 : null,
-            translations: $department->translations
+            translations: $department->relationLoaded('translations') ? $department->translations
                 ->mapWithKeys(static fn ($translation) => [
                     $translation->locale => ['name' => $translation->name],
-                ])->toArray(),
-            cover: $department->getFirstMediaUrl('cover'),
+                ])->toArray() : [],
             createdAt: $department->created_at?->toISOString() ?? '',
             updatedAt: $department->updated_at?->toISOString() ?? '',
         );

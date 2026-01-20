@@ -25,10 +25,9 @@ class CollectionResource extends JsonResource
             'id' => $data->id,
             'name' => $data->name,
             'company_id' => $data->companyId,
-            'products' => $this->when($data->products, $data->products),
+            'company_name' => $data->companyName,
             'products_count' => $data->productsCount,
-            'created_at' => $data->createdAt,
-            'updated_at' => $data->updatedAt,
+            'products' => $data->products,
         ];
     }
 }

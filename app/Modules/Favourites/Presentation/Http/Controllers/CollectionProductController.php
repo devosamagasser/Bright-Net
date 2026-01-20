@@ -55,5 +55,7 @@ class CollectionProductController
             abort(403);
         }
     }
+
+
 }
 

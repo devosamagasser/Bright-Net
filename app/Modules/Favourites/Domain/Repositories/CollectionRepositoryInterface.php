@@ -11,12 +11,12 @@ interface CollectionRepositoryInterface
     /**
      * Paginate collections for a company.
      */
-    public function getByCompany(int $companyId): Collection;
+    public function getByCompany(int $companyId, $perPage): LengthAwarePaginator;
 
     /**
      * Retrieve a collection by its primary key.
      */
-    public function find(int $id): ?FavouriteCollection;
+    public function find(int $id, $perPage, $filter = []): array;
 
     /**
      * Create a new collection.
@@ -51,4 +51,6 @@ interface CollectionRepositoryInterface
      * Check if a product exists in a collection.
      */
     public function hasProduct(FavouriteCollection $collection, int $productId): bool;
+
+    public function getRelatedModelsForCollection(int $collectionId, string $relationName, int $perPage = 15);
 }

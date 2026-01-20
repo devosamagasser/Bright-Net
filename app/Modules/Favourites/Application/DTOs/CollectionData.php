@@ -3,6 +3,8 @@
 namespace App\Modules\Favourites\Application\DTOs;
 
 use App\Modules\Favourites\Domain\Models\FavouriteCollection;
+use App\Modules\Products\Domain\Models\Product;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
 class CollectionData
@@ -14,48 +16,32 @@ class CollectionData
         public readonly int $id,
         public readonly string $name,
         public readonly int $companyId,
-        public readonly array $products,
+        public readonly string $companyName,
+        public readonly ?LengthAwarePaginator $products = null,
         public readonly int $productsCount,
-        public readonly string $createdAt,
-        public readonly string $updatedAt,
     ) {
     }
 
-    public static function fromModel(FavouriteCollection $collection, bool $withProducts = true): self
+    public static function fromModel(FavouriteCollection $collection,?LengthAwarePaginator $products = null): self
     {
-        $products = [];
-        $productsCount = 0;
-
-        if ($collection->relationLoaded('products')) {
-            $productsCount = $collection->products->count();
-
-            if ($withProducts) {
-                $products = $collection->products->map(static fn ($product) => [
-                    'id' => $product->getKey(),
-                    'code' => $product->code,
-                    'name' => $product->name,
-                ])->values()->all();
-            }
-        }
-
         return new self(
             id: $collection->getKey(),
             name: $collection->name,
             companyId: (int) $collection->company_id,
+            companyName: $collection->company->name,
             products: $products,
-            productsCount: $productsCount,
-            createdAt: $collection->created_at?->toISOString() ?? '',
-            updatedAt: $collection->updated_at?->toISOString() ?? '',
+            productsCount: $products ? $products->total() : $collection->products_count  ,
         );
     }
 
     /**
-     * @param Collection<int, FavouriteCollection> $collections
      * @return Collection<int, self>
+     * @param Collection<int, Product> $products
      */
-    public static function collection(Collection $collections, bool $withProducts = true): Collection
+    public static function collection(Collection $products): Collection
     {
-        return $collections->map(static fn (FavouriteCollection $collection) => self::fromModel($collection, $withProducts));
+        return $products->map(static fn (FavouriteCollection $collection) => self::fromModel($collection));
     }
+
 }
 
