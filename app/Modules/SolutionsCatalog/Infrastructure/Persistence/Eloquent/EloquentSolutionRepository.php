@@ -2,11 +2,11 @@
 
 namespace App\Modules\SolutionsCatalog\Infrastructure\Persistence\Eloquent;
 
-use Illuminate\Database\Eloquent\Builder;
-use App\Modules\SolutionsCatalog\Domain\Models\Solution;
-use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use App\Modules\Shared\Support\Traits\HandlesTranslations;
+use App\Modules\SolutionsCatalog\Domain\Models\Solution;
 use App\Modules\SolutionsCatalog\Domain\Repositories\SolutionRepositoryInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 
 class EloquentSolutionRepository implements SolutionRepositoryInterface
 {

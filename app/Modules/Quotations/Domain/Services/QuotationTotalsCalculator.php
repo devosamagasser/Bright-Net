@@ -13,11 +13,11 @@ class QuotationTotalsCalculator
      * 
      * @return array{subtotal: float, discount_total: float, total: float}
      */
-    public function calculateOptimized(int $quotationId): array
+    public function calculateOptimized(Quotation $quotation): array
     {
         // Calculate products totals
         $productTotals = DB::table('quotation_products')
-            ->where('quotation_id', $quotationId)
+            ->where('quotation_id', $quotation->getKey())
             ->whereNull('deleted_at')
             ->selectRaw('
                 COALESCE(SUM(COALESCE(price, 0) * COALESCE(quantity, 0)), 0) as subtotal,
@@ -27,7 +27,7 @@ class QuotationTotalsCalculator
 
         // Calculate accessories totals (excluding INCLUDED type)
         $accessoryTotals = DB::table('quotation_product_accessories')
-            ->where('quotation_id', $quotationId)
+            ->where('quotation_id', $quotation->getKey())
             ->whereNull('deleted_at')
             ->where('accessory_type', '!=', AccessoryType::INCLUDED->value)
             ->selectRaw('
@@ -37,7 +37,9 @@ class QuotationTotalsCalculator
             ->first();
 
         $subtotal = (float) ($productTotals->subtotal ?? 0) + (float) ($accessoryTotals->subtotal ?? 0);
-        $discountTotal = (float) ($productTotals->discount_total ?? 0) + (float) ($accessoryTotals->discount_total ?? 0);
+        $rawDiscountTotal = (float) ($productTotals->discount_total ?? 0) + (float) ($accessoryTotals->discount_total ?? 0);
+
+        $discountTotal = $quotation->discount_applied ? $rawDiscountTotal : 0.0;
         $total = $subtotal - $discountTotal;
 
         return [

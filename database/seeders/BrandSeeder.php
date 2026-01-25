@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Modules\Brands\Domain\Models\Brand;
 use App\Modules\Departments\Domain\Models\Department;
 use App\Modules\Geography\Domain\Models\Region;
 use App\Modules\SolutionsCatalog\Domain\Models\Solution;
 use Faker\Factory as Faker;
+use Illuminate\Database\Seeder;
 
 class BrandSeeder extends Seeder
 {

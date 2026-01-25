@@ -2,13 +2,11 @@
 
 namespace App\Modules\Quotations\Domain\Services;
 
-use App\Modules\Products\Domain\ValueObjects\PriceCurrency;
+use App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
 use App\Modules\Products\Domain\Models\Product;
 use App\Modules\Products\Domain\Models\ProductAccessory;
 use App\Modules\Products\Domain\ValueObjects\AccessoryType;
-use App\Modules\Quotations\Domain\Models\{
-    QuotationProduct,
-};
+use App\Modules\Quotations\Domain\Models\{QuotationProduct,};
 
 class QuotationAccessoryService
 {

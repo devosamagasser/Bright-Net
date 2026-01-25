@@ -2,9 +2,9 @@
 
 namespace App\Modules\SolutionsCatalog\Application\UseCases;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Modules\Brands\Domain\Repositories\BrandRepositoryInterface;
 use App\Modules\SolutionsCatalog\Application\DTOs\SolutionBrandData;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class ShowSolutionBrandUseCase
 {

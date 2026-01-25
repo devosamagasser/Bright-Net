@@ -49,7 +49,7 @@ class AddProductToQuotationUseCase
             ]);
         }
 
-        $accessories = $this->accessoryService->buildQuotationAccessoriesPayload($product, $input->accessories());
+        $accessories = $this->accessoryService->buildQutOrSpecAccessoriesPayload($product, $input->accessories());
 
         $quotationProduct = $this->quotations->addProduct(
             $quotation,

@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\Modules\SolutionsCatalog\Domain\Models\Solution;
 use App\Modules\Brands\Domain\Models\Brand;
+use App\Modules\SolutionsCatalog\Domain\Models\Solution;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 

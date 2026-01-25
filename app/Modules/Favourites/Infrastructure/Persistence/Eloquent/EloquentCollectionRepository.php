@@ -92,7 +92,6 @@ class EloquentCollectionRepository implements CollectionRepositoryInterface
         return FavouriteCollection::query();
     }
 
-
     public function getRelatedModelsForCollection(int $collectionId, string $relationName, int $perPage = 15): LengthAwarePaginator
     {
         $collection = FavouriteCollection::findOrFail($collectionId);

@@ -2,8 +2,9 @@
 
 namespace App\Modules\Quotations\Presentation\Resources;
 
+use App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
+use App\Modules\Products\Domain\ValueObjects\{AccessoryType, DeliveryTimeUnit};
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Modules\Products\Domain\ValueObjects\{AccessoryType, DeliveryTimeUnit, PriceCurrency};
 
 class QuotationAccessoryResource extends JsonResource
 {
@@ -27,7 +28,7 @@ class QuotationAccessoryResource extends JsonResource
 
         $unitPrice = $this->price ?? 0;
         $quantity = $this->quantity ?? 0;
-        $discount = $this->discount ?? 0;
+        $discount = $request->discount_applied ? $this->discount ?? 0 : 0;
         $lineSubtotal = $unitPrice * $quantity;
         $discountValue = $lineSubtotal * ($discount / 100);
 
@@ -64,7 +65,7 @@ class QuotationAccessoryResource extends JsonResource
                 ),
                 'total' => $this->when(
                     $this->accessory_type !== AccessoryType::INCLUDED,
-                    (float) $this->total,
+                    $request->discount_applied ? (float) $this->total : round($lineSubtotal, 2)
                 ),
                 'currency' => $this->when(
                     $this->accessory_type !== AccessoryType::INCLUDED,

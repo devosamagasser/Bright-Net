@@ -30,10 +30,15 @@ class ProductData
     ) {
     }
 
-    public static function fromModel(Product $product, ?Family $family = null, ?ProductGroup $group = null): self
+    public static function fromModel(Product $product, $withRoots = false, ?string $targetCurrency = null): self
     {
-        $productData = new self(
-            roots: $family ? self::serializeRoots($family, $group ?? $product->group) : [],
+        $supplier = $product->relationLoaded('supplier') ? $product->supplier : null;
+        if ($supplier === null && $product->supplier_id) {
+            $supplier = $product->supplier;
+        }
+
+        return new self(
+            roots: $withRoots ? self::serializeRoots($product) : [],
             attributes: [
                 'id' => (int) $product->getKey(),
                 'family_id' => (int) $product->family_id,
@@ -52,49 +57,61 @@ class ProductData
                 'created_at' => $product->created_at?->diffForHumans(),
                 'updated_at' => $product->updated_at?->diffForHumans(),
             ],
-            translations: $product->relationLoaded('translations') ?
-                $product->translations
-                ->mapWithKeys(static fn ($translation) => [
-                    $translation->locale => [
-                        'name' => $translation->name,
-                        'description' => $translation->description,
-                    ],
-                ])->toArray()
-                : [],
-            values: $product->fieldValues
-                ->sortBy(static fn ($value) => $value->field?->position ?? 0)
-                ->map(static fn ($value) => ProductValueData::fromModel($value))
-                ->values()
-                ->all(),
-            prices: $product->relationLoaded('prices') ?
-                $product->prices
-                ->sortBy('from')
-                ->map(static fn ($price) => ProductPriceData::fromModel($price))
-                ->values()
-                ->all()
-                : [],
-            accessories: $product->relationLoaded('accessories') ?
-                ProductAccessoryData::grouped($product->accessories)
-                : [],
-            media: [
-                'quotation_image' => self::serializeMedia($product, 'quotation_image'),
-                'gallery' => self::serializeMedia($product, 'gallery'),
-                'documents' => self::serializeMedia($product, 'documents'),
-                'dimensions' => self::serializeMedia($product, 'dimensions'),
-                'consultant_approvals' => self::serializeMedia($product, 'consultant_approvals'),
-            ],
+            translations: $product->whenRelationLoaded(
+                relation: 'translations',
+                callback: fn() => $product->translations
+                    ->mapWithKeys(static fn ($translation) => [
+                        $translation->locale => [
+                            'name' => $translation->name,
+                            'description' => $translation->description,
+                        ],
+                    ])->toArray(),
+                default: []
+            ),
+            values: $product->whenRelationLoaded(
+                relation: 'fieldValues',
+                callback: fn() => $product->fieldValues
+                    ->sortBy(static fn ($value) => $value->field?->position ?? 0)
+                    ->map(static fn ($value) => ProductValueData::fromModel($value))
+                    ->values()
+                    ->all(),
+                default: []
+            ),
+            prices: $product->whenRelationLoaded(
+                relation: 'prices',
+                callback: fn() => $product->prices
+                    ->sortBy('from')
+                    ->map(static fn ($price) => ProductPriceData::fromModel($price, $targetCurrency, $supplier))
+                    ->values()
+                    ->all(),
+                default: []
+            ),
+            accessories: $product->whenRelationLoaded(
+                relation: 'accessories',
+                callback: fn() => ProductAccessoryData::grouped($product->accessories),
+                default: [],
+            ),
+            media: $product->whenRelationLoaded(
+                relation: 'media',
+                callback: fn() => [
+                    'quotation_image' => self::serializeMedia($product, 'quotation_image'),
+                    'gallery' => self::serializeMedia($product, 'gallery'),
+                    'documents' => self::serializeMedia($product, 'documents'),
+                    'dimensions' => self::serializeMedia($product, 'dimensions'),
+                    'consultant_approvals' => self::serializeMedia($product, 'consultant_approvals'),
+                ],
+                default: [],
+            )
         );
-
-        return $productData;
     }
 
     /**
      * @param  Collection<int, Product>  $products
      * @return Collection<int, self>
      */
-    public static function collection(Collection $products): Collection
+    public static function collection(Collection $products, bool $withRoots = false, ?string $targetCurrency = null): Collection
     {
-        return $products->map(fn(Product $product) => self::fromModel($product));
+        return $products->map(fn(Product $product) => self::fromModel($product, withRoots: $withRoots, targetCurrency: $targetCurrency));
     }
 
     public static function serializeMedia(Product $product, string $collection): array
@@ -112,42 +129,70 @@ class ProductData
             ->all();
     }
 
-    public static function serializeRoots(Family $family, ?ProductGroup $group = null): array
+//    public static function serializeRoots(Family $family, ?ProductGroup $group = null): array
+//    {
+//        $subcategory = $family->subcategory;
+//        $originalDepartment = $subcategory->department;
+//        $supplierSnapshotDepartment = $family->department;
+//        $supplierSnapshotBrand = $supplierSnapshotDepartment->supplierBrand;
+//
+//        $roots = [
+//            'solution' => [
+//                'name' => $originalDepartment->solution->name ?? null,
+//                'id' => $originalDepartment->solution_id ?? null
+//            ],
+//            'brand' => [
+//                'name' => $supplierSnapshotBrand->brand->name ?? null,
+//                'id' => $supplierSnapshotBrand->id ?? null,
+//            ],
+//            'department' => [
+//                'name' => $originalDepartment->name ?? null,
+//                'id' => $supplierSnapshotDepartment->id ?? null,
+//            ],
+//            'subcategory' => [
+//                'name' => $subcategory->name,
+//                'id' => $subcategory->id,
+//            ],
+//            'family' => [
+//                'name' => $family->name,
+//                'id' => $family->id,
+//            ],
+//        ];
+//
+//        if ($group !== null) {
+//            $roots['group'] = [
+//                'id' => $group->id,
+//            ];
+//        }
+//
+//        return $roots;
+//    }
+    public static function serializeRoots(Product $product): array
     {
-        $subcategory = $family->subcategory;
-        $originalDepartment = $subcategory->department;
-        $supplierSnapshotDepartment = $family->department;
-        $supplierSnapshotBrand = $supplierSnapshotDepartment->supplierBrand;
-
-        $roots = [
+        return [
             'solution' => [
-                'name' => $originalDepartment->solution->name ?? null,
-                'id' => $originalDepartment->solution_id ?? null
+                'name' => $product->name ,
+                'id' => $product->solution_id
             ],
             'brand' => [
-                'name' => $supplierSnapshotBrand->brand->name ?? null,
-                'id' => $supplierSnapshotBrand->id ?? null,
+                'name' => $product->brand->name ,
+                'id' => $product->supplier_brand_id ,
             ],
             'department' => [
-                'name' => $originalDepartment->name ?? null,
-                'id' => $supplierSnapshotDepartment->id ?? null,
+                'id' => $product->supplier_department_id ,
+                'name' => $product->department->name ,
             ],
             'subcategory' => [
-                'name' => $subcategory->name,
-                'id' => $subcategory->id,
+                'name' => $product->subcategory->name,
+                'id' => $product->subcategory_id,
             ],
             'family' => [
-                'name' => $family->name,
-                'id' => $family->id,
+                'name' => $product->family->name,
+                'id' => $product->family_id,
             ],
+            'group' => [
+                'id' => $product->product_group_id,
+            ]
         ];
-
-        if ($group !== null) {
-            $roots['group'] = [
-                'id' => $group->id,
-            ];
-        }
-
-        return $roots;
     }
 }

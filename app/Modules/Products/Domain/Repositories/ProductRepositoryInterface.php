@@ -71,4 +71,6 @@ interface ProductRepositoryInterface
     ): ProductAccessory;
 
     public function cutPasteProduct(Product $product, int $family_id): Product;
+
+    public function paginateAll(int $supplierId, int $perPage, array $filters, string $currency = 'USD'): LengthAwarePaginator;
 }

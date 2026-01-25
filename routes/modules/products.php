@@ -9,8 +9,8 @@ use App\Modules\Products\Presentation\Http\Controllers\{
 
 Route::prefix('products')
     ->group(function (): void {
-        Route::get('families/{family}', [ProductController::class, 'index'])
-            ->whereNumber('family');
+//        Route::get('families/{family}', [ProductController::class, 'index'])
+//            ->whereNumber('family');
         Route::post('/', [ProductController::class, 'store']);
         Route::get('/{product}', [ProductController::class, 'show'])
             ->whereNumber('product');

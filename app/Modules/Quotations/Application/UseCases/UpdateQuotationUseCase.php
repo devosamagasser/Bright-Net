@@ -17,11 +17,9 @@ class UpdateQuotationUseCase
     ) {
     }
 
-    public function handle(Model $user, QuotationInput $input): Quotation
+    public function handle(Quotation $quotation, QuotationInput $input): Quotation
     {
-        $quotation = $this->quotations->getOrCreateDraft($user);
-
-        $this->assertEditable($quotation, $user->company->supplier->id);
+        $this->assertEditable($quotation, request('supplier_id'));
 
         $updated = $this->quotations->update($quotation, $input->attributes());
 

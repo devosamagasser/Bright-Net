@@ -2,21 +2,21 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Http\Response;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\CompanyUser;
+use App\Models\Supplier;
+use App\Modules\Companies\Domain\Models\Company;
+use App\Modules\Companies\Domain\ValueObjects\CompanyType;
 use App\Modules\DataSheets\Domain\Models\{DataField, DataTemplate};
 use App\Modules\DataSheets\Domain\ValueObjects\DataFieldType;
 use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 use App\Modules\Departments\Domain\Models\Department;
-use App\Modules\Subcategories\Domain\Models\Subcategory;
 use App\Modules\SolutionsCatalog\Domain\Models\Solution;
-use App\Modules\Companies\Domain\Models\Company;
-use App\Modules\Companies\Domain\ValueObjects\CompanyType;
-use App\Models\Supplier;
-use App\Models\CompanyUser;
+use App\Modules\Subcategories\Domain\Models\Subcategory;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Tests\TestCase;
 
 class FamilyManagementTest extends TestCase
 {

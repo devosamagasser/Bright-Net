@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
+use App\Models\{Supplier, SupplierBrand, SupplierDepartment, SupplierSolution};
 use App\Modules\Brands\Domain\Models\Brand;
-use Illuminate\Database\Seeder;
-use App\Modules\SolutionsCatalog\Domain\Models\Solution;
 use App\Modules\Companies\Domain\Models\Company;
 use App\Modules\Companies\Domain\ValueObjects\CompanyType;
+use App\Modules\SolutionsCatalog\Domain\Models\Solution;
+use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use App\Models\{Supplier, SupplierBrand, SupplierDepartment, SupplierSolution};
 
 class SupplierSeeder extends Seeder
 {

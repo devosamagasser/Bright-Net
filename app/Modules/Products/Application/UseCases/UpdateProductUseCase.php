@@ -85,7 +85,7 @@ class UpdateProductUseCase
             return $updatedProduct;
         });
 
-        return ProductData::fromModel($updatedProduct,$family);
+        return ProductData::fromModel($updatedProduct,true);
     }
 
     private function requireFamily(int $familyId): Family

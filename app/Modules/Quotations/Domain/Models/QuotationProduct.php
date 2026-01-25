@@ -3,17 +3,18 @@
 namespace App\Modules\Quotations\Domain\Models;
 
 use App\Models\Supplier;
-use Illuminate\Database\Eloquent\Model;
 use App\Modules\Brands\Domain\Models\Brand;
-use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Modules\Families\Domain\Models\Family;
-use App\Modules\Products\Domain\Models\Product;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Modules\Departments\Domain\Models\Department;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use App\Modules\Families\Domain\Models\Family;
+use App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
+use App\Modules\Products\Domain\Models\Product;
+use App\Modules\Products\Domain\ValueObjects\{DeliveryTimeUnit};
 use App\Modules\SolutionsCatalog\Domain\Models\Solution;
 use App\Modules\Subcategories\Domain\Models\Subcategory;
-use App\Modules\Products\Domain\ValueObjects\{DeliveryTimeUnit, PriceCurrency};
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class QuotationProduct extends Model
 {

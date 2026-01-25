@@ -14,12 +14,7 @@ Route::prefix('quotations')
     ->group(function (): void {
         Route::get('draft', [QuotationController::class, 'show']);
 
-        Route::patch('draft', [QuotationController::class, 'update']);
-
-        Route::patch('{quotation}/flags', [QuotationController::class, 'updateFlags'])
-            ->whereNumber('quotation');
-
-        Route::patch('{quotation}/details', [QuotationController::class, 'updateDetails'])
+        Route::patch('{quotation}/update', [QuotationController::class, 'update'])
             ->whereNumber('quotation');
 
         Route::post('draft/items', [QuotationItemController::class, 'storeItem']);

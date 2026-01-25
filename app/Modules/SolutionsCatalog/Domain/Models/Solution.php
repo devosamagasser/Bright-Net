@@ -2,15 +2,15 @@
 
 namespace App\Modules\SolutionsCatalog\Domain\Models;
 
-use App\Modules\Brands\Domain\Models\Brand;
 use App\Models\Supplier;
 use App\Models\SupplierSolution;
-use Illuminate\Database\Eloquent\Model;
-use Astrotomic\Translatable\Translatable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Modules\Brands\Domain\Models\Brand;
 use App\Modules\Departments\Domain\Models\Department;
+use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Solution extends Model
 {

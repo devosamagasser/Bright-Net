@@ -35,6 +35,9 @@ class EnsureUserIsSupplier
         // Store supplier_id in request for easy access
         $request->merge([
             'supplier_id' => (int) $user->company->supplier->getKey(),
+            'supplier' => $user->company->supplier,
+            'company' => $user->company,
+            'company_id' => $user->company->getKey(),
         ]);
 
         return $next($request);

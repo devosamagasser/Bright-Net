@@ -17,6 +17,24 @@ class EloquentProductRepository implements ProductRepositoryInterface
 {
     use HandlesTranslations, HandleMedia;
 
+    public function paginateAll(int $supplierId, int $perPage, array $filters, string $currency = 'USD' ): LengthAwarePaginator
+    {
+        return Product::query()
+            ->filter($filters)
+            ->with([
+                'supplier',
+                'media',
+                'fieldValues.field',
+                'family',
+                'subcategory',
+                'department',
+                'brand',
+                'solution',
+                'prices'
+            ])
+            ->where('supplier_id', $supplierId)
+            ->paginate($perPage);
+    }
     public function create(array $attributes, array $translations, array $media): Product
     {
         return $this->fillProduct(
@@ -57,6 +75,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
     {
         return Product::query()
             ->with([
+                'supplier',
                 'media',
                 'fieldValues.field',
                 'family.subcategory.department.solution',
@@ -78,6 +97,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
     {
         return Product::query()
             ->with([
+                'supplier',
                 'media',
                 'fieldValues.field',
                 'family.subcategory.department.solution',
@@ -99,6 +119,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
     {
         return Product::query()
             ->with([
+                'supplier',
                 'media',
                 'fieldValues.field',
                 'family.subcategory.department.solution',
@@ -120,6 +141,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
     {
         return Product::query()
             ->with([
+                'supplier',
                 'media',
                 'fieldValues.field',
                 'family.subcategory.department.solution',
@@ -146,6 +168,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
         // Get first product for each group
         $allProducts = Product::query()
             ->with([
+                'supplier',
                 'media',
                 'fieldValues.field.translations',
                 'translations',
@@ -163,7 +186,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
             ->orderBy('product_group_id')
             ->orderBy('id')
             ->get();
-        
+
         // Get first product for each group
         return $allProducts->groupBy('product_group_id')
             ->map(fn($products) => $products->first())
@@ -185,7 +208,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
         // Limit to maximum 3 products
         $productIds = array_slice($productIds, 0, 3);
         $productIds = array_unique($productIds);
-        
+
         if (count($productIds) < 2) {
             throw new \InvalidArgumentException('At least 2 products are required for comparison.', Response::HTTP_UNPROCESSABLE_ENTITY);
         }
@@ -215,6 +238,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
     private function compareRelations(): array
     {
         return [
+            'supplier',
             'media',
             'translations',
             'fieldValues.field.translations',
@@ -265,6 +289,7 @@ class EloquentProductRepository implements ProductRepositoryInterface
     private function allRelations()
     {
         return [
+            'supplier',
             'media',
             'translations',
             'fieldValues.field.translations',
@@ -286,4 +311,5 @@ class EloquentProductRepository implements ProductRepositoryInterface
             'accessories.accessory.family.subcategory.translations',
         ];
     }
+
 }

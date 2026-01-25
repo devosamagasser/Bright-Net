@@ -2,10 +2,10 @@
 
 namespace App\Modules\Quotations\Presentation\Http\Requests;
 
+use App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
+use App\Modules\Quotations\Application\DTOs\QuotationInput;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Modules\Quotations\Application\DTOs\QuotationInput;
-use App\Modules\Products\Domain\ValueObjects\PriceCurrency;
 
 class UpdateQuotationRequest extends FormRequest
 {
@@ -23,7 +23,11 @@ class UpdateQuotationRequest extends FormRequest
             'valid_until' => ['sometimes', 'nullable', 'date'],
             'notes' => ['sometimes', 'nullable', 'string'],
             'currency' => ['sometimes', 'nullable', Rule::in(PriceCurrency::values())],
-            'meta' => ['sometimes', 'nullable', 'array'],
+            'general_notes' => ['sometimes', 'nullable', 'array'],
+            'warranty' => ['sometimes', 'nullable', 'array'],
+            'warranty_and_payments' => ['sometimes', 'nullable', 'array'],
+            'discount_applied' => ['required', 'boolean'],
+            'vat_applied' => ['required', 'boolean'],
         ];
     }
 

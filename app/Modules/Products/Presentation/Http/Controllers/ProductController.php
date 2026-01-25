@@ -41,40 +41,27 @@ class ProductController
     ) {
     }
 
-    public function index(Request $request, int $family)
+    public function index(Request $request)
     {
-        $supplierId = $this->authenticatedSupplierId() ?? $request->query('supplier_id');
         $perPage = (int) $request->query('per_page', 15);
-        
+        $filters = $request->all(['supplier_brand', 'supplier_department', 'subcategory', 'solution', 'family']);
+        $currency = $request->query('currency', 'USD');
         $data = $this->listProducts->handle(
-            $family, 
+            $request->supplier_id,
             $perPage,
-            $supplierId !== null ? (int) $supplierId : null
+            $filters,
+            $currency
         );
-        
-        $collection = ProductResource::collection($data['products']->items())
-            ->additional([
-                'roots' => $data['roots'],
-                'pagination' => [
-                    'current_page' => $data['products']->currentPage(),
-                    'last_page' => $data['products']->lastPage(),
-                    'per_page' => $data['products']->perPage(),
-                    'total' => $data['products']->total(),
-                    'from' => $data['products']->firstItem(),
-                    'to' => $data['products']->lastItem(),
-                ]
-            ])
-            ->response()
-            ->getData(true);
-            
-        return ApiResponse::success($collection);
+        return ApiResponse::success(
+            ProductResource::collection($data)->resource
+        );
     }
 
     public function store(StoreProductRequest $request)
     {
         $input = ProductInput::fromArray(
-            $request->all() + [
-                'supplier_id' => $this->authenticatedSupplierId(),
+            $request->validated() + [
+                'supplier_id' => $request->supplier_id,
             ]
         );
         $product = $this->createProduct->handle($input);
@@ -83,9 +70,10 @@ class ProductController
         );
     }
 
-    public function show(Product $product)
+    public function show(Request $request, Product $product)
     {
-        $productData = $this->showProduct->handle((int) $product->getKey());
+        $currency = $request->query('currency', null);
+        $productData = $this->showProduct->handle((int) $product->getKey(), $currency);
 
         return ApiResponse::success(
             ProductResource::make($productData)->resolve()
@@ -104,8 +92,8 @@ class ProductController
     public function update(UpdateProductRequest $request, Product $product)
     {
         $input = ProductInput::fromArray(
-            $request->all() + [
-                'supplier_id' => $this->authenticatedSupplierId(),
+            $request->validated() + [
+                'supplier_id' =>$request->supplier_id,
             ]
         );
         $productData = $this->updateProduct->handle($product, $input);
@@ -124,12 +112,11 @@ class ProductController
 
     public function paste(CutPasteProductRequest $request, Product $product)
     {
-        $destinationFamilyId = $request->input('family_id');
-        $groupId = $request->input('group_id');
+
         $productData = $this->cutPasteProducts->handle(
-            $product, 
-            (int) $destinationFamilyId,
-            $groupId !== null ? (int) $groupId : null
+            $product,
+            $request->validated('family_id'),
+            $request->validated('group_id')
         );
 
         return ApiResponse::updated(
@@ -173,10 +160,5 @@ class ProductController
         $data = $request->validate(['quantity'=>'required|integer|min:1']);
         $budgetPrice = $this->calculateBudgetPrice->handle($product, $data['quantity']);
         return ApiResponse::success($budgetPrice);
-    }
-
-    private function authenticatedSupplierId(): ?int
-    {
-        return auth()->user()?->company?->supplier?->id;
     }
 }

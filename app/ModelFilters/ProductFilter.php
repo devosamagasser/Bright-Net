@@ -29,15 +29,31 @@ class ProductFilter extends ModelFilter
         $this->where('brand_id', $value);
     }
 
+    public function supplierBrand($value)
+    {
+        $this->where('supplier_brand_id', $value);
+    }
+
     public function department($value)
     {
         $this->where('department_id', $value);
+    }
+
+    public function supplierDepartment($value)
+    {
+        $this->where('supplier_department_id', $value);
     }
 
     public function subcategory($value)
     {
         $this->where('subcategory_id', $value);
     }
+
+    public function family($value)
+    {
+        $this->where('family_id', $value);
+    }
+
 
 
 }

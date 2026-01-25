@@ -2,8 +2,8 @@
 
 namespace App\Modules\SolutionsCatalog\Application\DTOs;
 
-use Illuminate\Support\Collection;
 use App\Modules\Brands\Domain\Models\Brand;
+use Illuminate\Support\Collection;
 
 class SolutionBrandData
 {

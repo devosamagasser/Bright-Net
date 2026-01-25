@@ -2,8 +2,9 @@
 
 namespace App\Modules\Quotations\Presentation\Resources;
 
+use App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
+use App\Modules\Products\Domain\ValueObjects\{DeliveryTimeUnit};
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Modules\Products\Domain\ValueObjects\{DeliveryTimeUnit, PriceCurrency};
 
 class QuotationProductResource extends JsonResource
 {
@@ -23,7 +24,7 @@ class QuotationProductResource extends JsonResource
 
         $unitPrice = $this->price ?? 0;
         $quantity = $this->quantity ?? 0;
-        $discount = $this->discount ?? 0;
+        $discount = $request->discount_applied ? $this->discount ?? 0 : 0;
         $lineSubtotal = $unitPrice * $quantity;
         $discountValue = $lineSubtotal * ($discount / 100);
 
@@ -45,7 +46,7 @@ class QuotationProductResource extends JsonResource
                 'discount' => (float) $discount,
                 'discount_amount' => round($discountValue, 2),
                 'subtotal' => round($lineSubtotal, 2),
-                'total' => (float) $this->total,
+                'total' => $request->discount_applied ? (float) $this->total : round($lineSubtotal, 2),
                 'currency' => $currency,
                 'vat_included' => (bool) $this->vat_included,
                 'delivery_time' =>  $this->delivery_time_value . ' ' . $deliveryUnit,

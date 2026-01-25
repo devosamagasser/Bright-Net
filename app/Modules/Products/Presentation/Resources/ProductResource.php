@@ -19,7 +19,7 @@ class ProductResource extends JsonResource
         $attributes = $this->attributes;
         return [
             'id' => $attributes['id'] ?? null,
-            'roots' => $this->when(!$collectionRequest, $this->roots),
+            'roots' => $this->when(isset($this->roots) && !empty($this->roots), $this->roots),
             'data_template_id' => $attributes['data_template_id'] ?? null,
             'code' => $attributes['code'] ?? null,
             'stock' => $attributes['stock'] ?? null,
@@ -35,11 +35,12 @@ class ProductResource extends JsonResource
                 condition: $singleRequest,
                 value: fn() => $this->translations ?? []
             ),
-            'values' => array_values(array_filter(
+            'values' => array_values(
+                array_filter(
                     array: array_map(
                         callback: static function (ProductValueData $value) use ($collectionRequest) {
                             if ($collectionRequest && !$value->field['is_filterable']) {
-                                return;
+                                return [];
                             }
                             return [
                                 'field' => $value->field,

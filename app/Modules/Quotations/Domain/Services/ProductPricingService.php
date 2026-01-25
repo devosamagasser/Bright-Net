@@ -2,9 +2,9 @@
 
 namespace App\Modules\Quotations\Domain\Services;
 
-use Illuminate\Support\Collection;
+use App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
 use App\Modules\Products\Domain\Models\ProductPrice;
-use App\Modules\Products\Domain\ValueObjects\PriceCurrency;
+use Illuminate\Support\Collection;
 
 class ProductPricingService
 {

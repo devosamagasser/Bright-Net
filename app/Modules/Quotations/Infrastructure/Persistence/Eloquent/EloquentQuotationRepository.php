@@ -2,24 +2,18 @@
 
 namespace App\Modules\Quotations\Infrastructure\Persistence\Eloquent;
 
+use App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
+use App\Modules\Products\Domain\Models\Product;
+use App\Modules\Quotations\Domain\Models\{Quotation, QuotationProduct, QuotationProductAccessory,};
+use App\Modules\Quotations\Domain\Repositories\QuotationRepositoryInterface;
+use App\Modules\Quotations\Domain\Services\{ProductPricingService,
+    QuotationAccessoryService,
+    QuotationNumberingService,
+    QuotationTotalsCalculator,};
+use App\Modules\Quotations\Domain\ValueObjects\QuotationStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
-use App\Modules\Products\Domain\Models\Product;
-use App\Modules\Products\Domain\ValueObjects\PriceCurrency;
-use App\Modules\Quotations\Domain\Models\{
-    Quotation,
-    QuotationProduct,
-    QuotationProductAccessory,
-};
-use App\Modules\Quotations\Domain\Repositories\QuotationRepositoryInterface;
-use App\Modules\Quotations\Domain\Services\{
-    QuotationTotalsCalculator,
-    ProductPricingService,
-    QuotationAccessoryService,
-    QuotationNumberingService,
-};
-use App\Modules\Quotations\Domain\ValueObjects\QuotationStatus;
 
 class EloquentQuotationRepository implements QuotationRepositoryInterface
 {
@@ -43,6 +37,11 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
             'currency' => PriceCurrency::EGP,
             'reference' => $this->numberingService->generateReference(),
         ]);
+    }
+
+    public function find(int $quotationId): Quotation
+    {
+        return Quotation::findtOrFail($quotationId);
     }
 
     public function update(Quotation $quotation, array $attributes): Quotation
@@ -247,7 +246,7 @@ class EloquentQuotationRepository implements QuotationRepositoryInterface
     public function refreshTotals(Quotation $quotation): Quotation
     {
         // Use DB aggregation for better performance instead of loading all relations
-        $totals = $this->calculator->calculateOptimized($quotation->getKey());
+        $totals = $this->calculator->calculateOptimized($quotation);
 
         $quotation->fill($totals);
         $quotation->save();

@@ -2,12 +2,12 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Modules\Brands\Domain\Models\Brand;
-use App\Modules\Geography\Domain\Models\Region;
 use App\Modules\Departments\Domain\Models\Department;
+use App\Modules\Geography\Domain\Models\Region;
 use App\Modules\SolutionsCatalog\Domain\Models\Solution;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SolutionBrandEndpointsTest extends TestCase
 {

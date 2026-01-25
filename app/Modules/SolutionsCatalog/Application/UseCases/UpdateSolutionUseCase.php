@@ -2,9 +2,10 @@
 
 namespace App\Modules\SolutionsCatalog\Application\UseCases;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use App\Modules\SolutionsCatalog\Application\DTOs\{SolutionData, SolutionInput};
+use App\Modules\SolutionsCatalog\Application\DTOs\{SolutionData};
+use App\Modules\SolutionsCatalog\Application\DTOs\SolutionInput;
 use App\Modules\SolutionsCatalog\Domain\Repositories\SolutionRepositoryInterface;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class UpdateSolutionUseCase
 {

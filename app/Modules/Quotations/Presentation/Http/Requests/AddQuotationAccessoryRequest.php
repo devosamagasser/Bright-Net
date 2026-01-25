@@ -2,10 +2,11 @@
 
 namespace App\Modules\Quotations\Presentation\Http\Requests;
 
+use App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use App\Modules\Quotations\Application\DTOs\QuotationAccessoryInput;
-use App\Modules\Products\Domain\ValueObjects\{AccessoryType, DeliveryTimeUnit, PriceCurrency};
+use App\Modules\Products\Domain\ValueObjects\{AccessoryType, DeliveryTimeUnit};
 
 class AddQuotationAccessoryRequest extends FormRequest
 {
@@ -17,7 +18,7 @@ class AddQuotationAccessoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'accessory_id' => ['required', 'integer', 'exists:products,id'],
+            'accessory_id' => ['required', 'integer'],
             'quantity' => ['nullable', 'integer', 'min:1'],
             'item_ref' => ['nullable', 'string', 'max:50']
         ];

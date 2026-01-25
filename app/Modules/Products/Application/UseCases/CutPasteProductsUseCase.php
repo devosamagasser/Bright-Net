@@ -26,7 +26,7 @@ class CutPasteProductsUseCase
 
         $updatedProduct = DB::transaction(function () use ($product, $family_id, $group_id, $family) {
             $product->family_id = $family_id;
-            
+
             // Handle group_id if provided
             if ($group_id !== null) {
                 $group = $this->groups->find($group_id);
@@ -42,12 +42,12 @@ class CutPasteProductsUseCase
                     $product->product_group_id = $group->id;
                 }
             }
-            
+
             $product->save();
             return $this->products->cutPasteProduct($product, $family_id);
         });
 
-        return ProductData::fromModel($updatedProduct, $family);
+        return ProductData::fromModel($updatedProduct, true);
     }
 
     private function requireFamily(int $familyId): Family

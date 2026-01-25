@@ -26,7 +26,10 @@ return [
         \App\Modules\Families\Infrastructure\Providers\FamiliesServiceProvider::class,
         \App\Modules\Products\Infrastructure\Providers\ProductsServiceProvider::class,
         \App\Modules\Quotations\Infrastructure\Providers\QuotationsServiceProvider::class,
+        \App\Modules\Specifications\Infrastructure\Providers\SpecificationsServiceProvider::class,
+        \App\Modules\SpecificationLogs\Infrastructure\Providers\SpecificationLogsServiceProvider::class,
         \App\Modules\Favourites\Infrastructure\Providers\FavouritesServiceProvider::class,
+        \App\Modules\PriceRules\Infrastructure\Providers\PriceRulesServiceProvider::class,
     ],
 ];
 

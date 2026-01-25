@@ -2,10 +2,10 @@
 
 namespace App\Modules\Products\Domain\Models;
 
+use App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
+use App\Modules\Products\Domain\ValueObjects\DeliveryTimeUnit;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use App\Modules\Products\Domain\ValueObjects\PriceCurrency;
-use App\Modules\Products\Domain\ValueObjects\DeliveryTimeUnit;
 
 class ProductPrice extends Model
 {

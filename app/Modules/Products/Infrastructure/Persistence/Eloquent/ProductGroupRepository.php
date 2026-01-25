@@ -49,7 +49,7 @@ class ProductGroupRepository implements ProductGroupRepositoryInterface
         return ProductGroup::query()
             ->select($atttibutes)
             ->with($relations ?: $this->allRelations())
-            ->find($id);
+            ->findOrFail($id);
     }
 
     public function getByFamily(int $familyId, ?int $supplierId = null): Collection

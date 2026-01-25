@@ -75,7 +75,7 @@ class CreateProductUseCase
             return $product;
         });
 
-        return ProductData::fromModel($product, $family);
+        return ProductData::fromModel($product, true);
     }
 
     private function requireFamily(int $familyId): Family

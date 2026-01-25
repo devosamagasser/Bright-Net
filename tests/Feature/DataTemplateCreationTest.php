@@ -2,14 +2,14 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Http\Response;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Modules\DataSheets\Domain\Models\{DataField, DataTemplate};
 use App\Modules\DataSheets\Domain\ValueObjects\{DataFieldType, DataTemplateType};
 use App\Modules\Departments\Domain\Models\Department;
-use App\Modules\Subcategories\Domain\Models\Subcategory;
 use App\Modules\SolutionsCatalog\Domain\Models\Solution;
+use App\Modules\Subcategories\Domain\Models\Subcategory;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\Response;
+use Tests\TestCase;
 
 class DataTemplateCreationTest extends TestCase
 {

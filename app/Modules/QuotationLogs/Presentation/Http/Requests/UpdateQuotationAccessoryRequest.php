@@ -2,10 +2,10 @@
 
 namespace App\Modules\Quotations\Presentation\Http\Requests;
 
+use App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
+use App\Modules\Quotations\Application\DTOs\QuotationAccessoryUpdateInput;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
-use App\Modules\Quotations\Application\DTOs\QuotationAccessoryUpdateInput;
-use App\Modules\Products\Domain\ValueObjects\{AccessoryType, DeliveryTimeUnit, PriceCurrency};
 
 class UpdateQuotationAccessoryRequest extends FormRequest
 {

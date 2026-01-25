@@ -2,12 +2,17 @@
 
 namespace App\Modules\SolutionsCatalog\Presentation\Http\Controllers;
 
-use Illuminate\Http\{Request, Response};
 use App\Modules\Shared\Support\Helper\ApiResponse;
 use App\Modules\SolutionsCatalog\Application\DTOs\SolutionInput;
+use App\Modules\SolutionsCatalog\Application\UseCases\{DeleteSolutionUseCase};
+use App\Modules\SolutionsCatalog\Application\UseCases\CreateSolutionUseCase;
+use App\Modules\SolutionsCatalog\Application\UseCases\ListSolutionsUseCase;
+use App\Modules\SolutionsCatalog\Application\UseCases\ShowSolutionUseCase;
+use App\Modules\SolutionsCatalog\Application\UseCases\UpdateSolutionUseCase;
+use App\Modules\SolutionsCatalog\Presentation\Http\Requests\{UpdateSolutionRequest};
+use App\Modules\SolutionsCatalog\Presentation\Http\Requests\StoreSolutionRequest;
 use App\Modules\SolutionsCatalog\Presentation\Resources\SolutionResource;
-use App\Modules\SolutionsCatalog\Presentation\Http\Requests\{StoreSolutionRequest, UpdateSolutionRequest};
-use App\Modules\SolutionsCatalog\Application\UseCases\{CreateSolutionUseCase, DeleteSolutionUseCase, ListSolutionsUseCase, ShowSolutionUseCase, UpdateSolutionUseCase};
+use Illuminate\Http\{Request, Response};
 
 class SolutionController
 {

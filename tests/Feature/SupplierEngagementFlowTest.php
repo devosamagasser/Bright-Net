@@ -2,8 +2,6 @@
 
 namespace Tests\Feature;
 
-use Tests\TestCase;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Supplier;
 use App\Models\SupplierBrand;
 use App\Models\SupplierDepartment;
@@ -15,6 +13,8 @@ use App\Modules\Departments\Domain\Models\Department;
 use App\Modules\Geography\Domain\Models\Region;
 use App\Modules\SolutionsCatalog\Domain\Models\Solution;
 use App\Modules\Subcategories\Domain\Models\Subcategory;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\TestCase;
 
 class SupplierEngagementFlowTest extends TestCase
 {

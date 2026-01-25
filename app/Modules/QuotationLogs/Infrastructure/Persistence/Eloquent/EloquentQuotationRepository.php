@@ -2,22 +2,19 @@
 
 namespace App\Modules\Quotations\Infrastructure\Persistence\Eloquent;
 
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Collection;
 use App\Models\Supplier;
+use App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
 use App\Modules\Products\Domain\Models\Product;
 use App\Modules\Products\Domain\Models\ProductAccessory;
 use App\Modules\Products\Domain\Models\ProductPrice;
-use App\Modules\Products\Domain\ValueObjects\{AccessoryType, PriceCurrency};
-use App\Modules\Quotations\Domain\Models\{
-    Quotation,
-    QuotationProduct,
-    QuotationProductAccessory,
-};
+use App\Modules\Products\Domain\ValueObjects\{AccessoryType};
+use App\Modules\Quotations\Domain\Models\{Quotation, QuotationProduct, QuotationProductAccessory,};
 use App\Modules\Quotations\Domain\Repositories\QuotationRepositoryInterface;
 use App\Modules\Quotations\Domain\Services\QuotationTotalsCalculator;
 use App\Modules\Quotations\Domain\ValueObjects\QuotationStatus;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class EloquentQuotationRepository implements QuotationRepositoryInterface
 {

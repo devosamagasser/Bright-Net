@@ -2,11 +2,11 @@
 
 namespace App\Modules\SolutionsCatalog\Presentation\Http\Controllers;
 
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use App\Modules\Shared\Support\Helper\ApiResponse;
-use App\Modules\SolutionsCatalog\Presentation\Resources\SolutionBrandResource;
 use App\Modules\SolutionsCatalog\Application\UseCases\ListSolutionBrandsUseCase;
 use App\Modules\SolutionsCatalog\Application\UseCases\ShowSolutionBrandUseCase;
+use App\Modules\SolutionsCatalog\Presentation\Resources\SolutionBrandResource;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class SolutionBrandController
 {

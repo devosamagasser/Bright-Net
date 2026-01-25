@@ -6,7 +6,10 @@ use App\Models\Supplier;
 use App\Models\SupplierDepartment;
 use App\Models\SupplierSolution;
 use App\Modules\Brands\Domain\Models\Brand;
+use App\Modules\DataSheets\Domain\Models\DataTemplate;
 use App\Modules\Departments\Domain\Models\Department;
+use App\Modules\Families\Domain\Models\Family;
+use App\Modules\Shared\Support\Traits\ModelHelper;
 use App\Modules\SolutionsCatalog\Domain\Models\Solution;
 use App\Modules\Subcategories\Domain\Models\Subcategory;
 use Astrotomic\Translatable\Translatable;
@@ -16,12 +19,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
-use App\Modules\Families\Domain\Models\Family;
-use App\Modules\DataSheets\Domain\Models\DataTemplate;
 
 class Product extends Model implements HasMedia
 {
-    use InteractsWithMedia, Translatable, Filterable;
+    use InteractsWithMedia, Translatable, Filterable, ModelHelper;
 
     /**
      * @var array<int, string>

@@ -2,8 +2,8 @@
 
 namespace App\Modules\Quotations\Presentation\Resources;
 
+use App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Modules\Products\Domain\ValueObjects\PriceCurrency;
 
 class QuotationResource extends JsonResource
 {
@@ -16,11 +16,15 @@ class QuotationResource extends JsonResource
         $currency = $this->currency instanceof PriceCurrency
             ? $this->currency->value
             : $this->currency;
+        $request->merge([
+            'discount_applied' => (bool) $this->discount_applied,
+            'vat_applied' => (bool) $this->vat_applied,
+        ]);
 
         return [
             'id' => (int) $this->getKey(),
             'reference' => $this->reference,
-            // 'title' => $this->title,
+             'title' => $this->title,
             // 'status' => $this->status?->value,
             // 'status_label' => $this->status?->label(),
             'currency' => $currency,

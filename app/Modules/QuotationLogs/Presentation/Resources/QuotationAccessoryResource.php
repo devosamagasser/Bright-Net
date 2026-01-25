@@ -2,8 +2,9 @@
 
 namespace App\Modules\Quotations\Presentation\Resources;
 
+use App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
+use App\Modules\Products\Domain\ValueObjects\{AccessoryType, DeliveryTimeUnit};
 use Illuminate\Http\Resources\Json\JsonResource;
-use App\Modules\Products\Domain\ValueObjects\{AccessoryType, DeliveryTimeUnit, PriceCurrency};
 
 class QuotationAccessoryResource extends JsonResource
 {

@@ -13,7 +13,7 @@ class ShowProductUseCase
     {
     }
 
-    public function handle(int $productId)
+    public function handle(int $productId, ?string $currency = null)
     {
         $product = $this->products->find($productId);
 
@@ -21,7 +21,7 @@ class ShowProductUseCase
             throw new ModelNotFoundException();
         }
 
-        return ProductData::fromModel($product, $product->family);
+        return ProductData::fromModel($product, true, $currency);
 
     }
 }

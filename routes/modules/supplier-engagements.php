@@ -24,7 +24,7 @@ Route::prefix('suppliers/{company}')
 });
 
 Route::prefix('suppliers')
-    ->middleware('auth:sanctum')
+    ->middleware(['auth:sanctum', 'supplier'])
     ->group(function (): void {
         Route::get('solutions', [SupplierEngagementController::class, 'solutions']);
 
@@ -45,8 +45,8 @@ Route::prefix('suppliers')
             ->whereNumber('subcategory')
             ->whereIn('type', DataTemplateType::values());
 
-        Route::get('families/{family}/products', [ProductController::class, 'index'])
-            ->whereNumber('family');
+//        Route::get('families/{family}/products', [ProductController::class, 'index'])
+//            ->whereNumber('family');
 
         Route::prefix('families')
             ->group(function (): void {
@@ -96,6 +96,10 @@ Route::prefix('suppliers')
                 Route::post('/budget-price/{product}', [ProductController::class, 'budgetPrice'])
                     ->whereNumber('product');
                 Route::get('/compare', [ProductController::class, 'compare']);
+                Route::prefix('prices')
+                    ->group(function (): void {
+                       Route::get('/',[ProductController::class, 'index']);
+                    });
             });
     });
 

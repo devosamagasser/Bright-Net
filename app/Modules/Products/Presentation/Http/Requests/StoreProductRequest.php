@@ -2,12 +2,13 @@
 
 namespace App\Modules\Products\Presentation\Http\Requests;
 
-use Illuminate\Validation\Rule;
-use Illuminate\Foundation\Http\FormRequest;
-use App\Modules\Families\Domain\Models\Family;
-use App\Modules\Shared\Support\Helper\RequestValidationBuilder;
 use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
-use App\Modules\Products\Domain\ValueObjects\{AccessoryType, PriceCurrency, DeliveryTimeUnit};
+use App\Modules\Families\Domain\Models\Family;
+use App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
+use App\Modules\Products\Domain\ValueObjects\{AccessoryType, DeliveryTimeUnit};
+use App\Modules\Shared\Support\Helper\RequestValidationBuilder;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Enum;
 
 class StoreProductRequest extends FormRequest
