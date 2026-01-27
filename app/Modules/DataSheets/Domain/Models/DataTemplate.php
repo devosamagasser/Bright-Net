@@ -2,6 +2,7 @@
 
 namespace App\Modules\DataSheets\Domain\Models;
 
+use App\Modules\Shared\Support\Traits\ModelHelper;
 use Astrotomic\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,7 +12,7 @@ use App\Modules\DataSheets\Domain\ValueObjects\DataTemplateType;
 
 class DataTemplate extends Model
 {
-    use Translatable;
+    use Translatable, ModelHelper;
 
     /**
      * @var array<int, string>

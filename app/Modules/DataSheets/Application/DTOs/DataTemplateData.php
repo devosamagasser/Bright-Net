@@ -30,13 +30,18 @@ class DataTemplateData
                 'description' => $template->description,
                 'type' => $template->type instanceof DataTemplateType ? $template->type->value : $template->type,
             ],
-            translations: $template->translations->map(function ($translation) {
-                return [
-                    'locale' => $translation->locale,
-                    'name' => $translation->name,
-                    'description' => $translation->description,
-                ];
-            })->all(),
+            translations: $template->whenrelationLoaded(
+                relation:'translations',
+                callback: $template->translations->map(
+                    function ($translation) {
+                        return [
+                            'locale' => $translation->locale,
+                            'name' => $translation->name,
+                            'description' => $translation->description,
+                        ];
+                    })->all(),
+                default: []
+            ),
             fields: $template->fields->map(fn ($field) => DataFieldData::fromModel($field))->all(),
         );
     }

@@ -16,21 +16,21 @@ class SupplierDataTemplateController
     ) {
     }
 
-    public function show(int $subcategory, string $type)
-    {
-        $typeEnum = DataTemplateType::tryFrom(strtolower($type));
-
-        if (! $typeEnum) {
-            return ApiResponse::validationError([
-                'type' => [trans('validation.in', ['attribute' => 'type'])],
-            ]);
-        }
-        $template = $this->showSubcategoryDataTemplate->handle($subcategory, $typeEnum);
-
-        return ApiResponse::success(
-            DataTemplateResource::make($template)->resolve()
-        );
-    }
+//    public function show(int $subcategory, string $type)
+//    {
+//        $typeEnum = DataTemplateType::tryFrom(strtolower($type));
+//
+//        if (! $typeEnum) {
+//            return ApiResponse::validationError([
+//                'type' => [trans('validation.in', ['attribute' => 'type'])],
+//            ]);
+//        }
+//        $template = $this->showSubcategoryDataTemplate->handle($subcategory, $typeEnum);
+//
+//        return ApiResponse::success(
+//            DataTemplateResource::make($template)->resolve()
+//        );
+//    }
 
     public function showV2(int $subcategory, string $type)
     {

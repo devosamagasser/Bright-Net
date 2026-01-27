@@ -37,10 +37,6 @@ Route::prefix('suppliers')
         Route::get('departments/{supplierDepartment}', [SupplierEngagementController::class, 'subcategories'])
             ->whereNumber('supplierDepartment');
 
-//        Route::get('subcategories/{subcategory}/data-templates/{type}', [SupplierDataTemplateController::class, 'show'])
-//            ->whereNumber('subcategory')
-//            ->whereIn('type', DataTemplateType::values());
-
         Route::get('subcategories/{subcategory}/data-templates/{type}/v2', [SupplierDataTemplateController::class, 'showV2'])
             ->whereNumber('subcategory')
             ->whereIn('type', DataTemplateType::values());
