@@ -61,90 +61,22 @@ class EloquentPriceRulesRepository implements PriceRulesRepositoryInterface
     }
 
     // Price Factors
-    public function applyPriceFactor(
-        Supplier $supplier,
-        array $productIds,
-        float $factor,
-        int $userId,
-        ?string $notes = null
-    ): PriceFactor {
-        return DB::transaction(function () use ($supplier, $productIds, $factor, $userId, $notes) {
-            // Create the price factor
-            $priceFactor = PriceFactor::create([
-                'supplier_id' => $supplier->id,
-                'user_id' => $userId,
-                'factor' => $factor,
-                'status' => PriceFactorStatus::ACTIVE,
-                'notes' => $notes,
-            ]);
-
-            // Get all product prices for the specified products
-            $productPrices = ProductPrice::whereIn('product_id', $productIds)->get();
-
-            // Create ProductPriceFactor records for each price
-            $productPriceFactors = $productPrices->map(function (ProductPrice $price) use ($priceFactor) {
-                return [
-                    'price_id' => $price->id,
-                    'factor_id' => $priceFactor->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            })->toArray();
-
-            if (!empty($productPriceFactors)) {
-                ProductPriceFactor::insert($productPriceFactors);
-            }
-
-            return $priceFactor->load(['user', 'productPriceFactors.price.product']);
-        });
-    }
-
-    public function revertPriceFactor(int $factorId): PriceFactor
+    public function applyPriceFactor(int $supplier_id, float $factor, int $userId, ?string $notes = null,): PriceFactor
     {
-        $factor = PriceFactor::findOrFail($factorId);
-        $factor->revert();
-        return $factor->fresh();
-    }
-
-    public function reapplyPriceFactor(int $factorId): PriceFactor
-    {
-        return DB::transaction(function () use ($factorId) {
-            $originalFactor = PriceFactor::findOrFail($factorId);
-
-            // Create a new factor with the same values
-            $newFactor = PriceFactor::create([
-                'supplier_id' => $originalFactor->supplier_id,
-                'user_id' => $originalFactor->user_id,
-                'factor' => $originalFactor->factor,
-                'status' => PriceFactorStatus::ACTIVE,
-                'parent_factor_id' => $originalFactor->id,
-                'notes' => $originalFactor->notes,
-            ]);
-
-            // Get all product prices that were affected by the original factor
-            $originalProductPriceFactors = ProductPriceFactor::where('factor_id', $originalFactor->id)->get();
-
-            // Create new ProductPriceFactor records
-            $newProductPriceFactors = $originalProductPriceFactors->map(function (ProductPriceFactor $ppf) use ($newFactor) {
-                return [
-                    'price_id' => $ppf->price_id,
-                    'factor_id' => $newFactor->id,
-                    'created_at' => now(),
-                    'updated_at' => now(),
-                ];
-            })->toArray();
-
-            if (!empty($newProductPriceFactors)) {
-                ProductPriceFactor::insert($newProductPriceFactors);
-            }
-
-            return $newFactor->load(['user', 'productPriceFactors.price.product']);
-        });
+        $priceFactor = PriceFactor::create([
+            'supplier_id' => $supplier_id,
+            'user_id' => $userId,
+            'factor' => $factor,
+            'status' => PriceFactorStatus::ACTIVE,
+            'notes' => $notes,
+        ]);
+        return $priceFactor->load(['user', 'productPriceFactors']);
     }
 
     public function getPriceFactorHistory(Supplier $supplier, ?int $perPage = null): LengthAwarePaginator|Collection
     {
         $query = PriceFactor::where('supplier_id', $supplier->id)
+            ->whereNull('deleted_at')
             ->with(['user', 'parentFactor'])
             ->orderBy('created_at', 'desc');
 
@@ -155,19 +87,35 @@ class EloquentPriceRulesRepository implements PriceRulesRepositoryInterface
         return $query->get();
     }
 
-    public function getProductsByPriceFactor(int $factorId): Collection
+    public function getProductsIdsByPriceFactor(int $factorId): array
     {
-        $priceIds = ProductPriceFactor::where('factor_id', $factorId)
+        $selectedFactor = PriceFactor::find($factorId);
+
+        if ($selectedFactor === null) {
+            return [];
+        }
+
+        $selectedCreatedAt = $selectedFactor->created_at;
+
+        // Get all factors with created_at <= selected factor's created_at
+        // Including the selected factor itself
+        $factorIds = PriceFactor::where('supplier_id', $selectedFactor->supplier_id)
+            ->whereNull('deleted_at')
+            ->where('status', PriceFactorStatus::ACTIVE)
+            ->where('created_at', '<=', $selectedCreatedAt)
+            ->orderBy('created_at', 'asc')
+            ->pluck('id')
+            ->toArray();
+
+        // Get all price IDs that have any of these factors applied
+        $priceIds = ProductPriceFactor::whereIn('factor_id', $factorIds)
             ->pluck('price_id')
             ->unique();
 
-        $productIds = ProductPrice::whereIn('id', $priceIds)
+        return ProductPrice::whereIn('id', $priceIds)
             ->pluck('product_id')
-            ->unique();
-
-        return Product::whereIn('id', $productIds)
-            ->with(['prices', 'family'])
-            ->get();
+            ->unique()
+            ->toArray();
     }
 
     public function getActivePriceFactorsForPrice(int $priceId): Collection
@@ -176,6 +124,19 @@ class EloquentPriceRulesRepository implements PriceRulesRepositoryInterface
             $query->where('price_id', $priceId);
         })
             ->where('status', PriceFactorStatus::ACTIVE)
+            ->whereNull('deleted_at')
+            ->orderBy('created_at', 'asc')
+            ->get();
+    }
+
+    public function getActivePriceFactorsForPriceUpToFactor(int $priceId, \DateTime $maxFactorCreatedAt): Collection
+    {
+        return PriceFactor::whereHas('productPriceFactors', function ($query) use ($priceId) {
+            $query->where('price_id', $priceId);
+        })
+            ->where('status', PriceFactorStatus::ACTIVE)
+            ->whereNull('deleted_at')
+            ->where('created_at', '<=', $maxFactorCreatedAt)
             ->orderBy('created_at', 'asc')
             ->get();
     }
@@ -184,5 +145,48 @@ class EloquentPriceRulesRepository implements PriceRulesRepositoryInterface
     {
         return PriceFactor::with(['user', 'productPriceFactors.price.product', 'parentFactor'])
             ->find($factorId);
+    }
+
+    public function getFactorsToFlatten(int $supplier_id, int $factorId): array
+    {
+        $factorIds = PriceFactor::where('supplier_id', $supplier_id)
+            ->whereNull('deleted_at')
+            ->where('status', PriceFactorStatus::ACTIVE)
+            ->where('id', '<=', $factorId)
+            ->orderBy('created_at', 'asc')
+            ->pluck('id')
+            ->toArray();
+
+        return $factorIds;
+    }
+
+    public function restorePriceFactor(int $factorId): PriceFactor
+    {
+        return DB::transaction(function () use ($factorId) {
+            $selectedFactor = PriceFactor::withTrashed()->findOrFail($factorId);
+
+            // Restore the selected factor if it was soft deleted
+            if ($selectedFactor->trashed()) {
+                $selectedFactor->restore();
+            }
+
+            // Activate the selected factor if it was reverted
+            if ($selectedFactor->isReverted()) {
+                $selectedFactor->activate();
+            }
+
+            // Get all factors created after the selected factor
+            $factorsToDelete = PriceFactor::where('supplier_id', $selectedFactor->supplier_id)
+                ->whereNull('deleted_at')
+                ->where('created_at', '>', $selectedFactor->created_at)
+                ->get();
+
+            // Soft delete all factors after the selected one
+            foreach ($factorsToDelete as $factor) {
+                $factor->delete();
+            }
+
+            return $selectedFactor->fresh(['user', 'productPriceFactors.price.product', 'parentFactor']);
+        });
     }
 }

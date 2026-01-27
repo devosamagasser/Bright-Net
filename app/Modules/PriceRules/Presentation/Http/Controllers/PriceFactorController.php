@@ -3,17 +3,22 @@
 namespace App\Modules\PriceRules\Presentation\Http\Controllers;
 
 use App\Models\Supplier;
+use App\Modules\Products\Presentation\Resources\ProductResource;
 use Illuminate\Http\Request;
 use App\Modules\Shared\Support\Helper\ApiResponse;
 use App\Modules\PriceRules\Application\DTOs\PriceFactorInput;
 use App\Modules\PriceRules\Application\UseCases\{
     ApplyPriceFactorUseCase,
-    RevertPriceFactorUseCase,
-    ReapplyPriceFactorUseCase,
     GetPriceFactorHistoryUseCase,
-    GetProductsByPriceFactorUseCase
+    GetProductsByPriceFactorUseCase,
+    FlattenPriceFactorsHistoryUseCase,
+    RestorePriceFactorUseCase
 };
-use App\Modules\PriceRules\Presentation\Http\Requests\ApplyPriceFactorRequest;
+use App\Modules\PriceRules\Application\DTOs\FlattenPriceFactorsHistoryInput;
+use App\Modules\PriceRules\Presentation\Http\Requests\{
+    ApplyPriceFactorRequest,
+    FlattenPriceFactorsHistoryRequest
+};
 use App\Modules\PriceRules\Presentation\Resources\{
     PriceFactorResource,
     PriceFactorHistoryResource
@@ -24,10 +29,10 @@ class PriceFactorController
 {
     public function __construct(
         private readonly ApplyPriceFactorUseCase $applyFactor,
-        private readonly RevertPriceFactorUseCase $revertFactor,
-        private readonly ReapplyPriceFactorUseCase $reapplyFactor,
         private readonly GetPriceFactorHistoryUseCase $getHistory,
         private readonly GetProductsByPriceFactorUseCase $getProducts,
+        private readonly FlattenPriceFactorsHistoryUseCase $flattenHistory,
+        private readonly RestorePriceFactorUseCase $restoreFactor,
     ) {
     }
 
@@ -38,31 +43,17 @@ class PriceFactorController
 
         $factor = $this->applyFactor->handle($request->supplier, $input, $userId);
 
-        return ApiResponse::success(
+        return ApiResponse::created(
             PriceFactorResource::make($factor),
-            __('apiMessages.created'),
-            \Illuminate\Http\Response::HTTP_CREATED
         );
     }
 
-    public function revert(int $factorId)
+    public function restore(int $factorId)
     {
-        $factor = $this->revertFactor->handle($factorId);
+        $factor = $this->restoreFactor->handle($factorId);
 
-        return ApiResponse::success(
+        return ApiResponse::updated(
             PriceFactorResource::make($factor),
-            __('apiMessages.updated')
-        );
-    }
-
-    public function reapply(int $factorId)
-    {
-        $factor = $this->reapplyFactor->handle($factorId);
-
-        return ApiResponse::success(
-            PriceFactorResource::make($factor),
-            __('apiMessages.created'),
-            \Illuminate\Http\Response::HTTP_CREATED
         );
     }
 
@@ -84,12 +75,31 @@ class PriceFactorController
         );
     }
 
-    public function products(int $factorId)
+    public function products(Request $request, int $factorId)
     {
-        $products = $this->getProducts->handle($factorId);
+        $perPage = (int) $request->query('per_page', 15);
+        $filters = $request->all(['supplier_brand', 'supplier_department', 'subcategory', 'solution', 'family']);
+        $currency = $request->query('currency', 'USD');
+        $products = $this->getProducts->handle(
+            $factorId,
+            $request->supplier->id,
+            $perPage,
+            $filters,
+            $currency
+        );
 
         return ApiResponse::success(
-            AllProductResource::collection($products)
+            ProductResource::collection($products)->resource
+        );
+    }
+
+    public function flatten(FlattenPriceFactorsHistoryRequest $request)
+    {
+        $input = FlattenPriceFactorsHistoryInput::fromArray($request->validated());
+        $this->flattenHistory->handle($input, $request->supplier_id);
+
+        return ApiResponse::message(
+            'Flatten job queued successfully'
         );
     }
 }

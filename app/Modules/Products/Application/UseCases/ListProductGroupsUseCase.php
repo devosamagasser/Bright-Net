@@ -15,7 +15,6 @@ class ListProductGroupsUseCase
     public function __construct(
         private readonly ProductGroupRepositoryInterface $groups,
         private readonly ProductRepositoryInterface $products,
-        private readonly FamilyRepositoryInterface $families
     ) {
     }
 
@@ -25,11 +24,11 @@ class ListProductGroupsUseCase
     public function handle(int $familyId, int $perPage = 15, ?int $supplierId = null): LengthAwarePaginator
     {
         $paginator = $this->groups->paginateByFamily($familyId, $perPage, $supplierId);
-        
+
         // Get first product for each group
         $groupIds = $paginator->getCollection()->pluck('id')->toArray();
         $firstProducts = collect();
-        
+
         if (!empty($groupIds)) {
             $firstProducts = $this->products->getByGroups($groupIds, $supplierId);
         }

@@ -2,6 +2,7 @@
 
 namespace App\Modules;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 class ModulesServiceProvider extends ServiceProvider
@@ -22,5 +23,9 @@ class ModulesServiceProvider extends ServiceProvider
     protected function providers(): array
     {
         return config('modules.providers', []);
+    }
+
+    protected function bootRoutes(): void
+    {
     }
 }

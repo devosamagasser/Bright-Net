@@ -16,8 +16,12 @@ class ProductPriceData
     ) {
     }
 
-    public static function fromModel(ProductPrice $price, ?string $targetCurrency = null, ?Supplier $supplier = null): self
-    {
+    public static function fromModel(
+        ProductPrice $price,
+        ?string $targetCurrency = null,
+        ?Supplier $supplier = null,
+        ?\DateTime $maxFactorCreatedAt = null
+    ): self {
         $attributes = [
             'id' => (int) $price->getKey(),
             'price' => (float) $price->price,
@@ -32,20 +36,25 @@ class ProductPriceData
         // Calculate final price if target currency and supplier are provided
         if ($targetCurrency !== null && $supplier !== null) {
             $calculationService = app(PriceCalculationService::class);
-            $calculatedPrice = $calculationService->calculateFinalPrice(
-                $price,
-                $targetCurrency,
-                $supplier
-            );
 
-            $attributes['calculated_price'] = [
-                'original_price' => $calculatedPrice['original_price'],
-                'original_currency' => $calculatedPrice['original_currency'],
-                'converted_price' => $calculatedPrice['converted_price'],
-                'final_price' => $calculatedPrice['final_price'],
-                'currency' => $calculatedPrice['currency'],
-                'factors_applied' => $calculatedPrice['factors_applied'],
-            ];
+            // Use calculateFinalPriceUpToFactor if maxFactorCreatedAt is provided
+            if ($maxFactorCreatedAt !== null) {
+                $calculatedPrice = $calculationService->calculateFinalPriceUpToFactor(
+                    $price,
+                    $targetCurrency,
+                    $supplier,
+                    $maxFactorCreatedAt
+                );
+            } else {
+                $calculatedPrice = $calculationService->calculateFinalPrice(
+                    $price,
+                    $targetCurrency,
+                    $supplier
+                );
+            }
+
+            $attributes['price'] = $calculatedPrice['final_price'];
+            $attributes['currency'] =  $calculatedPrice['currency'];
         }
 
         return new self($attributes);

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Shared\Infrastructure\Providers;
 
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -58,7 +59,14 @@ abstract class AbstractModuleServiceProvider extends ServiceProvider
      */
     protected function bootRoutes(): void
     {
-        // Intended to be overridden by modules that define routes.
+        if ($this->app->routesAreCached()) {
+            return;
+        }
+
+        Route::middleware(['api', 'locale', 'auth:sanctum', 'supplier'])
+            ->prefix('api/easy-access')
+            ->name('api.')
+            ->group(base_path('routes/modules/easy-access.php'));
     }
 
     /**

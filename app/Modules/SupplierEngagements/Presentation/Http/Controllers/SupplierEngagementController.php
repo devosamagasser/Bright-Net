@@ -2,8 +2,7 @@
 
 namespace App\Modules\SupplierEngagements\Presentation\Http\Controllers;
 
-use App\Modules\Companies\Domain\Models\Company;
-use App\Modules\Companies\Domain\ValueObjects\CompanyType;
+use App\Models\Supplier;
 use App\Modules\Shared\Support\Helper\ApiResponse;
 use App\Modules\SupplierEngagements\Domain\Services\SupplierEngagementService;
 use App\Modules\SupplierEngagements\Presentation\Resources\SupplierBrandResource;
@@ -20,42 +19,35 @@ class SupplierEngagementController
     {
     }
 
-    public function solutions(Company $company = null)
+    public function solutions(?Supplier $supplier = null)
     {
-        $company = $this->assertCompanyOwnership($company);
-        $this->assertSupplierCompany($company);
-
+        $supplier = $this->assertSupplier($supplier);
+        $solutions = $this->engagements->listSolutions($supplier);
         return ApiResponse::success(
-            SupplierSolutionResource::collection($this->engagements->listSolutions($company))->resolve()
+            SupplierSolutionResource::collection($solutions)
         );
     }
 
-    public function brands(Company $company, SupplierSolution $supplierSolution)
+    public function brands(SupplierSolution $supplierSolution, ?Supplier $supplier = null )
     {
-        $company = $this->assertCompanyOwnership($company);
-
-        $this->assertSupplierCompany($company);
-
-        $resource = $this->engagements->listBrands($company, $supplierSolution);
-
+        $supplier = $this->assertSupplier($supplier);
+        $resource = $this->engagements->listBrands($supplier, $supplierSolution);
         return ApiResponse::success(SupplierBrandResource::collection($resource));
     }
 
-    public function departments(Company $company, SupplierBrand $supplierBrand)
+    public function departments(SupplierBrand $supplierBrand, ?Supplier $supplier = null)
     {
-        $company = $this->assertCompanyOwnership($company);
-        $this->assertSupplierCompany($company);
+        $supplier = $this->assertSupplier($supplier);
 
         return ApiResponse::success(
-            SupplierDepartmentResource::collection($this->engagements->listDepartments($company, $supplierBrand))->resolve()
+            SupplierDepartmentResource::collection($this->engagements->listDepartments($supplier, $supplierBrand))->resolve()
         );
     }
 
-    public function subcategories(Company $company, SupplierDepartment $supplierDepartment)
+    public function subcategories(SupplierDepartment $supplierDepartment, ?Supplier $supplier = null)
     {
-        $company = $this->assertCompanyOwnership($company);
-        $this->assertSupplierCompany($company);
-        $subcategories = $this->engagements->listSubcategories($company, $supplierDepartment);
+        $supplier = $this->assertSupplier($supplier);
+        $subcategories = $this->engagements->listSubcategories($supplier, $supplierDepartment);
 
         $resource = SupplierSubcategoryResource::collection($subcategories)
             ->additional(['department' => [
@@ -70,16 +62,8 @@ class SupplierEngagementController
 
     }
 
-    private function assertSupplierCompany(Company $company): void
+    private function assertSupplier($supplier = null)
     {
-        if ($company->type !== CompanyType::SUPPLIER) {
-            abort(404);
-        }
-    }
-
-    private function assertCompanyOwnership(Company $company)
-    {
-        return ($company->id === null) ?
-            auth()->user()->company : $company;
+        return $supplier ?? request()->supplier;
     }
 }

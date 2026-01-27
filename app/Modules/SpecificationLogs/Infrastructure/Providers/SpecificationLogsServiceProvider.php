@@ -11,7 +11,6 @@ class SpecificationLogsServiceProvider extends AbstractModuleServiceProvider
     {
         // No bindings yet; uses Specification module repositories.
     }
-
     protected function bootRoutes(): void
     {
         if ($this->app->routesAreCached()) {
@@ -21,5 +20,6 @@ class SpecificationLogsServiceProvider extends AbstractModuleServiceProvider
         // Routes are already loaded via routes/modules/specifications.php
     }
 }
+
 
 

@@ -5,6 +5,8 @@ use App\Modules\PriceRules\Presentation\Http\Controllers\{
     CurrencyTransformFactorController,
     PriceFactorController
 };
+use \App\Modules\PriceRules\Domain\ValueObjects\PriceCurrency;
+use \App\Modules\Shared\Support\Helper\ApiResponse;
 
 Route::prefix('suppliers')
     ->middleware(['auth:sanctum', 'supplier'])
@@ -25,9 +27,8 @@ Route::prefix('suppliers')
             ->group(function (): void {
                 Route::post('/apply', [PriceFactorController::class, 'apply']);
                 Route::get('/history', [PriceFactorController::class, 'history']);
-                Route::post('/{factor}/revert', [PriceFactorController::class, 'revert'])
-                    ->whereNumber('factor');
-                Route::post('/{factor}/reapply', [PriceFactorController::class, 'reapply'])
+                Route::post('/flatten', [PriceFactorController::class, 'flatten']);
+                Route::post('/{factor}/restore', [PriceFactorController::class, 'restore'])
                     ->whereNumber('factor');
                 Route::get('/{factor}/products', [PriceFactorController::class, 'products'])
                     ->whereNumber('factor');

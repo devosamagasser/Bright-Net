@@ -37,16 +37,13 @@ Route::prefix('suppliers')
         Route::get('departments/{supplierDepartment}', [SupplierEngagementController::class, 'subcategories'])
             ->whereNumber('supplierDepartment');
 
-        Route::get('subcategories/{subcategory}/data-templates/{type}', [SupplierDataTemplateController::class, 'show'])
-            ->whereNumber('subcategory')
-            ->whereIn('type', DataTemplateType::values());
+//        Route::get('subcategories/{subcategory}/data-templates/{type}', [SupplierDataTemplateController::class, 'show'])
+//            ->whereNumber('subcategory')
+//            ->whereIn('type', DataTemplateType::values());
 
         Route::get('subcategories/{subcategory}/data-templates/{type}/v2', [SupplierDataTemplateController::class, 'showV2'])
             ->whereNumber('subcategory')
             ->whereIn('type', DataTemplateType::values());
-
-//        Route::get('families/{family}/products', [ProductController::class, 'index'])
-//            ->whereNumber('family');
 
         Route::prefix('families')
             ->group(function (): void {
@@ -78,6 +75,7 @@ Route::prefix('suppliers')
 
         Route::prefix('products')
             ->group(function (): void {
+               Route::get('/',[ProductController::class, 'index']);
                 Route::post('/', [ProductController::class, 'store']);
                 Route::get('/{product}', [ProductController::class, 'show'])
                     ->whereNumber('product');
@@ -93,13 +91,9 @@ Route::prefix('suppliers')
                     ->whereNumber('product');
                 Route::post('/upload/{family}', [ProductController::class, 'import'])
                     ->whereNumber('family');
-                Route::post('/budget-price/{product}', [ProductController::class, 'budgetPrice'])
-                    ->whereNumber('product');
+                Route::post('{brand}/budget-price', [ProductController::class, 'budgetPrice'])
+                    ->whereNumber('brand');
                 Route::get('/compare', [ProductController::class, 'compare']);
-                Route::prefix('prices')
-                    ->group(function (): void {
-                       Route::get('/',[ProductController::class, 'index']);
-                    });
             });
     });
 

@@ -5,7 +5,7 @@ namespace App\Modules\PriceRules\Application\UseCases;
 use App\Modules\PriceRules\Application\DTOs\PriceFactorData;
 use App\Modules\PriceRules\Domain\Repositories\PriceRulesRepositoryInterface;
 
-class RevertPriceFactorUseCase
+class RestorePriceFactorUseCase
 {
     public function __construct(
         private readonly PriceRulesRepositoryInterface $repository,
@@ -14,7 +14,7 @@ class RevertPriceFactorUseCase
 
     public function handle(int $factorId): PriceFactorData
     {
-        $factor = $this->repository->revertPriceFactor($factorId);
+        $factor = $this->repository->restorePriceFactor($factorId);
 
         return PriceFactorData::fromModel($factor);
     }

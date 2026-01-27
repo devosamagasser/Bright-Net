@@ -24,11 +24,11 @@ class AllProductResource extends JsonResource
             'disclaimer' => $this->attributes['disclaimer'] ?? null,
             'name' => $this->attributes['name'] ?? null,
             'description' => $this->attributes['description'] ?? null,
-            'color' => $this->when($this->attributes['color'], fn() => $this->attributes['color']),
-            'style' => $this->when($this->attributes['style'], fn() => $this->attributes['style']),
-            'manufacturer' => $this->when($this->attributes['manufacturer'], fn() => $this->attributes['manufacturer']),
-            'application' => $this->when($this->attributes['application'], fn() => $this->attributes['application']),
-            'origin' => $this->when($this->attributes['origin'], fn() => $this->attributes['origin']),
+            'color' => $this->when($this->attributes['color'] ?? null, fn() => $this->attributes['color']),
+            'style' => $this->when($this->attributes['style'] ?? null , fn() => $this->attributes['style']),
+            'manufacturer' => $this->when($this->attributes['manufacturer'] ?? null , fn() => $this->attributes['manufacturer']),
+            'application' => $this->when($this->attributes['application'] ?? null , fn() => $this->attributes['application']),
+            'origin' => $this->when($this->attributes['origin'] ?? null , fn() => $this->attributes['origin']),
             'values' => array_values(array_filter(array_map(
                 static function (ProductValueData $value) use ($hide) {
                     if ($hide && !$value->field['is_filterable']) {

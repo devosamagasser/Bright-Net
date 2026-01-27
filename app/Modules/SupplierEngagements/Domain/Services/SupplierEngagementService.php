@@ -6,6 +6,8 @@ use App\Models\Supplier;
 use App\Models\SupplierBrand;
 use App\Models\SupplierSolution;
 use App\Models\SupplierDepartment;
+use http\Exception\InvalidArgumentException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Eloquent\Model;
 use App\Modules\Families\Domain\Models\Family;
@@ -20,15 +22,8 @@ class SupplierEngagementService
      *
      * @return array<int, array<string, mixed>>
      */
-    public function listSolutions(Company $company): array
+    public function listSolutions(Supplier $supplier): array
     {
-        $supplier = $company->supplier;
-
-        if ($supplier === null) {
-            return [];
-        }
-
-
         return $supplier->solutions()
             ->with('solution.translations')
             ->orderBy('id')
@@ -52,10 +47,11 @@ class SupplierEngagementService
      *
      * @return array<int, array<string, mixed>>
      */
-    public function listBrands(Company $company, SupplierSolution $supplierSolution): array
+    public function listBrands(Supplier $supplier, SupplierSolution $supplierSolution): array
     {
-        $supplier = $company->supplier;
-        $this->ensureSupplierSolutionBelongsToSupplier($supplierSolution, (int) $supplier->getKey());
+        if ((int) $supplierSolution->supplier_id !== $supplier->id) {
+            throw new InvalidArgumentException();
+        }
 
         return $supplierSolution->brands()
             ->with(['brand.media', 'brand.region'])
@@ -82,9 +78,8 @@ class SupplierEngagementService
      *
      * @return array<int, array<string, mixed>>
      */
-    public function listDepartments(Company $company, SupplierBrand $supplierBrand): array
+    public function listDepartments(Supplier $supplier, SupplierBrand $supplierBrand): array
     {
-        $supplier = $company->supplier;
         $this->ensureSupplierBrandBelongsToSupplier($supplierBrand, (int) $supplier->getKey());
 
         return $supplierBrand->departments()
@@ -109,9 +104,8 @@ class SupplierEngagementService
      *
      * @return array<int, array<string, mixed>>
      */
-    public function listSubcategories(Company $company, SupplierDepartment $supplierDepartment): Collection
+    public function listSubcategories(Supplier $supplier, SupplierDepartment $supplierDepartment): Collection
     {
-        $supplier = $company->supplier;
         $supplierId = (int) $supplier->getKey();
         $departmentId = $this->ensureSupplierDepartmentBelongsToSupplier($supplierDepartment, $supplierId);
 
@@ -130,9 +124,7 @@ class SupplierEngagementService
 
     private function ensureSupplierSolutionBelongsToSupplier(SupplierSolution $supplierSolution, int $supplierId): void
     {
-        if ((int) $supplierSolution->supplier_id !== $supplierId) {
-            abort(404);
-        }
+
     }
 
     private function ensureSupplierBrandBelongsToSupplier(SupplierBrand $supplierBrand, int $supplierId): void

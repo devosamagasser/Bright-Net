@@ -6,28 +6,21 @@ use App\Modules\SolutionsCatalog\Presentation\Http\Controllers\SolutionControlle
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('solutions')
-    ->name('solutions.')
-    ->group(function (): void {
-        Route::get('/', [SolutionController::class, 'index'])->name('index');
-        Route::post('/', [SolutionController::class, 'store'])->name('store');
+        ->group(function (): void {
+        Route::get('/', [SolutionController::class, 'index']);
+        Route::post('/', [SolutionController::class, 'store']);
         Route::get('{solution}', [SolutionController::class, 'show'])
-            ->whereNumber('solution')
-            ->name('show');
+            ->whereNumber('solution');
         Route::put('{solution}', [SolutionController::class, 'update'])
-            ->whereNumber('solution')
-            ->name('update');
+            ->whereNumber('solution');
         Route::delete('{solution}', [SolutionController::class, 'destroy'])
-            ->whereNumber('solution')
-            ->name('destroy');
-        Route::get('{solutionId}/departments', [DepartmentController::class, 'index'])->name('departments.index');
+            ->whereNumber('solution');
+        Route::get('{solutionId}/departments', [DepartmentController::class, 'index']);
 
         Route::get('{solution}/brands', [SolutionBrandController::class, 'index'])
-            ->whereNumber('solution')
-            ->name('brands.index');
+            ->whereNumber('solution');
 
         Route::get('{solution}/brands/{brand}', [SolutionBrandController::class, 'show'])
             ->whereNumber('solution')
-            ->whereNumber('brand')
-            ->name('brands.show');
-
+            ->whereNumber('brand');
     });

@@ -30,8 +30,12 @@ class ProductData
     ) {
     }
 
-    public static function fromModel(Product $product, $withRoots = false, ?string $targetCurrency = null): self
-    {
+    public static function fromModel(
+        Product $product,
+        $withRoots = false,
+        ?string $targetCurrency = null,
+        ?\DateTime $maxFactorCreatedAt = null
+    ): self {
         $supplier = $product->relationLoaded('supplier') ? $product->supplier : null;
         if ($supplier === null && $product->supplier_id) {
             $supplier = $product->supplier;
@@ -81,7 +85,7 @@ class ProductData
                 relation: 'prices',
                 callback: fn() => $product->prices
                     ->sortBy('from')
-                    ->map(static fn ($price) => ProductPriceData::fromModel($price, $targetCurrency, $supplier))
+                    ->map(static fn ($price) => ProductPriceData::fromModel($price, $targetCurrency, $supplier, $maxFactorCreatedAt))
                     ->values()
                     ->all(),
                 default: []
@@ -109,9 +113,18 @@ class ProductData
      * @param  Collection<int, Product>  $products
      * @return Collection<int, self>
      */
-    public static function collection(Collection $products, bool $withRoots = false, ?string $targetCurrency = null): Collection
-    {
-        return $products->map(fn(Product $product) => self::fromModel($product, withRoots: $withRoots, targetCurrency: $targetCurrency));
+    public static function collection(
+        Collection $products,
+        bool $withRoots = false,
+        ?string $targetCurrency = null,
+        ?\DateTime $maxFactorCreatedAt = null
+    ): Collection {
+        return $products->map(fn(Product $product) => self::fromModel(
+            $product,
+            withRoots: $withRoots,
+            targetCurrency: $targetCurrency,
+            maxFactorCreatedAt: $maxFactorCreatedAt
+        ));
     }
 
     public static function serializeMedia(Product $product, string $collection): array

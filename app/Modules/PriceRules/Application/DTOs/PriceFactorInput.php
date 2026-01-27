@@ -8,9 +8,13 @@ class PriceFactorInput
      * @param array<int> $productIds
      */
     private function __construct(
-        public readonly array $productIds,
+        public readonly ?array $productIds,
         public readonly float $factor,
         public readonly ?string $notes,
+        public readonly ?int $brandId,
+        public readonly ?int $categoryId,
+        public readonly ?int $subcategoryId,
+        public readonly ?int $familyId,
     ) {
     }
 
@@ -28,6 +32,10 @@ class PriceFactorInput
             productIds: array_map(fn ($id) => (int) $id, $productIds),
             factor: (float) $data['factor'],
             notes: $data['notes'] ?? null,
+            brandId: $data['brand_id'] ?? null,
+            categoryId: $data['category_id'] ?? null,
+            subcategoryId: $data['subcategory_id'] ?? null,
+            familyId: $data['family_id'] ?? null,
         );
     }
 }

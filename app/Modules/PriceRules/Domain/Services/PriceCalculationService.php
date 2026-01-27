@@ -60,6 +60,52 @@ class PriceCalculationService
     }
 
     /**
+     * Calculate final price with currency conversion and price factors applied up to a specific factor
+     *
+     * @param ProductPrice $price The original product price
+     * @param string $targetCurrency The target currency code
+     * @param Supplier $supplier The supplier to get conversion factors from
+     * @param \DateTime $maxFactorCreatedAt Only apply factors created at or before this time
+     * @return array{original_price: float, converted_price: float, final_price: float, currency: string, factors_applied: array}
+     */
+    public function calculateFinalPriceUpToFactor(
+        ProductPrice $price,
+        string $targetCurrency,
+        Supplier $supplier,
+        \DateTime $maxFactorCreatedAt
+    ): array {
+        $originalPrice = (float) $price->price;
+        $originalCurrency = $price->currency?->value ?? PriceCurrency::USD->value;
+
+        // Step 1: Convert currency if needed
+        $convertedPrice = $this->convertCurrency($originalPrice, $originalCurrency, $targetCurrency, $supplier);
+
+        // Step 2: Apply price factors up to the specified factor (cumulative)
+        $activeFactors = $this->priceRulesRepository->getActivePriceFactorsForPriceUpToFactor($price->id, $maxFactorCreatedAt);
+        $finalPrice = $convertedPrice;
+        $factorsApplied = [];
+
+        foreach ($activeFactors as $factor) {
+            $factorValue = (float) $factor->factor;
+            $finalPrice = $finalPrice * $factorValue;
+            $factorsApplied[] = [
+                'id' => $factor->id,
+                'factor' => $factorValue,
+                'applied_at' => $factor->created_at?->toDateTimeString(),
+            ];
+        }
+
+        return [
+            'original_price' => $originalPrice,
+            'original_currency' => $originalCurrency,
+            'converted_price' => $convertedPrice,
+            'final_price' => round($finalPrice, 2),
+            'currency' => $targetCurrency,
+            'factors_applied' => $factorsApplied,
+        ];
+    }
+
+    /**
      * Convert price from one currency to another
      */
     private function convertCurrency(

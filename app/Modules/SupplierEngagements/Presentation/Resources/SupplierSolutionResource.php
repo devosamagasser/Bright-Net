@@ -21,11 +21,8 @@ class SupplierSolutionResource extends JsonResource
     {
         return [
             'supplier_solution_id' => (int) ($this->resource['supplier_solution_id'] ?? 0),
-            'solution_id' => (int) ($this->resource['solution_id'] ?? 0),
-            'solution' => [
-                'id' => (int) ($this->resource['solution']['id'] ?? 0),
-                'name' => $this->resource['solution']['name'] ?? null,
-            ],
+            'name' => $this->resource['solution']['name'] ?? null,
+            'solution_id' => (int) ($this->resource['solution']['id'] ?? 0),
         ];
     }
 }

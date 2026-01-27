@@ -27,28 +27,13 @@ interface ProductRepositoryInterface
 
     public function delete(Product $product): void;
 
-    public function find(int $id, array $atttibutes = [], array $relations = []): ?Product;
+    public function find(int $id, array $attributes = [], array $relations = []): ?Product;
 
     /**
      * @param  array<int>  $productIds
      * @return Collection<int, Product>
      */
     public function compare(array $productIds): Collection;
-
-    /**
-     * @return Collection<int, Product>
-     */
-    public function getByFamily(int $familyId, ?int $supplierId = null): Collection;
-
-    /**
-     * @return LengthAwarePaginator
-     */
-    public function paginateByFamily(int $familyId, int $perPage = 15, ?int $supplierId = null): LengthAwarePaginator;
-
-    /**
-     * @return Collection<int, Product>
-     */
-    public function getByGroup(int $groupId, ?int $supplierId = null): Collection;
 
     /**
      * @return LengthAwarePaginator
@@ -63,14 +48,13 @@ interface ProductRepositoryInterface
      */
     public function getByGroups(array $groupIds, ?int $supplierId = null): Collection;
 
-    public function attachAccessory(
-        Product $product,
-        Product $accessory,
-        AccessoryType $type,
-        ?int $quantity = null
-    ): ProductAccessory;
+    public function attachAccessory(Product $product, Product $accessory, AccessoryType $type, ?int $quantity = null): ProductAccessory;
 
     public function cutPasteProduct(Product $product, int $family_id): Product;
 
     public function paginateAll(int $supplierId, int $perPage, array $filters, string $currency = 'USD'): LengthAwarePaginator;
+
+    public function paginateByProductIds(array $productsIds, int $perPage, array $filters, string $currency = 'USD'): LengthAwarePaginator;
+
+    public function findWhere(array $array, array $relations);
 }

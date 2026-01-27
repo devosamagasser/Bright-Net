@@ -18,13 +18,18 @@ use App\Modules\DataSheets\Domain\Repositories\DataTemplateRepositoryInterface;
 class CalculateBudgetPriceUseCase
 {
     public function __construct(
+        private ProductRepositoryInterface $productRepository,
         private readonly ProductPriceService $productPriceService,
     ) {
     }
 
-    public function handle(Product $product, int $quantity)
+    public function handle(array $data, int $brandId)
     {
-        return $this->productPriceService->calculateBudgetPrice($product, $quantity);
+        $product = $this->productRepository->findWhere([
+            ['code',$data['code']],
+            ['supplier_brand_id', $brandId],
+        ], relations: ['prices']);
+        return $this->productPriceService->calculateBudgetPrice($product, $data['quantity']);
     }
 
 }

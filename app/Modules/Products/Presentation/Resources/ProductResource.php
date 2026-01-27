@@ -52,7 +52,7 @@ class ProductResource extends JsonResource
                 )
             ),
             'prices' => $this->when(
-                condition: $singleRequest,
+                condition: $this->prices,
                 value: fn() => array_map(
                     callback: static fn (ProductPriceData $price) => $price->attributes,
                     array: $this->prices

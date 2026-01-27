@@ -8,9 +8,12 @@ use App\Modules\PriceRules\Domain\ValueObjects\PriceFactorStatus;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class PriceFactor extends Model
 {
+    use SoftDeletes;
+
     protected $fillable = [
         'supplier_id',
         'user_id',
@@ -23,6 +26,7 @@ class PriceFactor extends Model
     protected $casts = [
         'factor' => 'decimal:8',
         'status' => PriceFactorStatus::class,
+        'deleted_at' => 'datetime',
     ];
 
     public function user(): BelongsTo
@@ -70,5 +74,10 @@ class PriceFactor extends Model
     {
         $this->status = PriceFactorStatus::ACTIVE;
         $this->save();
+    }
+
+    public function scopeWithoutDeleted($query)
+    {
+        return $query->whereNull('deleted_at');
     }
 }

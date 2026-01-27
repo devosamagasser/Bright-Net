@@ -24,7 +24,6 @@ class ProductGroupController
 
     public function index(Request $request, int $family)
     {
-
         $perPage = (int) $request->query('per_page', 15);
 
         $paginator = $this->listGroups->handle(

@@ -25,15 +25,13 @@ class GetPriceFactorHistoryUseCase
         if ($history instanceof LengthAwarePaginator) {
             return $history->setCollection(
                 $history->getCollection()->map(function ($factor) {
-                    $products = $this->repository->getProductsByPriceFactor($factor->id);
-                    return PriceFactorHistoryData::fromModel($factor, $products);
+                    return PriceFactorHistoryData::fromModel($factor);
                 })
             );
         }
 
         return $history->map(function ($factor) {
-            $products = $this->repository->getProductsByPriceFactor($factor->id);
-            return PriceFactorHistoryData::fromModel($factor, $products);
+            return PriceFactorHistoryData::fromModel($factor);
         });
     }
 }

@@ -155,10 +155,13 @@ class ProductController
         return ApiResponse::success($data);
     }
 
-    public function budgetPrice(Request $request, Product $product)
+    public function budgetPrice(Request $request, int $brand)
     {
-        $data = $request->validate(['quantity'=>'required|integer|min:1']);
-        $budgetPrice = $this->calculateBudgetPrice->handle($product, $data['quantity']);
+        $data = $request->validate([
+            'quantity'=> 'required|integer|min:1',
+            'code' => 'required|string|max:255',
+        ]);
+        $budgetPrice = $this->calculateBudgetPrice->handle($data, $brand);
         return ApiResponse::success($budgetPrice);
     }
 }
