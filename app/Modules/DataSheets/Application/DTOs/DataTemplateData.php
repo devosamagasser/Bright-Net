@@ -32,7 +32,7 @@ class DataTemplateData
             ],
             translations: $template->whenrelationLoaded(
                 relation:'translations',
-                callback: $template->translations->map(
+                callback: fn() => $template->translations->map(
                     function ($translation) {
                         return [
                             'locale' => $translation->locale,
