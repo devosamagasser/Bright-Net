@@ -81,10 +81,11 @@ class EloquentProductRepository implements ProductRepositoryInterface
                 'supplier',
                 'media',
                 'fieldValues.field',
-                'family.subcategory.department.solution',
-                'family.department.supplierBrand.brand',
-                'family.department.department',
-                'family.subcategory',
+                'family',
+                'solution',
+                'subcategory',
+                'department',
+                'brand',
             ])
             ->where('product_group_id', $groupId)
             ->when($supplierId !== null, static function ($query) use ($supplierId): void {

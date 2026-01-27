@@ -8,7 +8,6 @@ use App\Modules\Products\Presentation\Resources\ProductGroupResource;
 use App\Modules\Products\Application\UseCases\{
     ListProductGroupsUseCase,
     ListProductsByGroupUseCase,
-    CutPasteProductGroupUseCase
 };
 use App\Modules\Products\Domain\Models\ProductGroup;
 use App\Modules\Products\Presentation\Resources\ProductResource;
@@ -33,18 +32,9 @@ class ProductGroupController
         );
 
         return ApiResponse::success(
-            ProductGroupResource::collection($paginator->items())
-                ->additional([
-                    'pagination' => [
-                        'current_page' => $paginator->currentPage(),
-                        'last_page' => $paginator->lastPage(),
-                        'per_page' => $paginator->perPage(),
-                        'total' => $paginator->total(),
-                        'from' => $paginator->firstItem(),
-                        'to' => $paginator->lastItem(),
-                    ]
-                ])
-                ->resolve()
+            ProductGroupResource::collection($paginator)
+                ->response()
+                ->getData(true)
         );
     }
 
@@ -57,17 +47,9 @@ class ProductGroupController
             $request->supplier_id
         );
 
-        $collection = ProductResource::collection($data['products']->items())
+        $collection = ProductResource::collection($data['products'])
             ->additional([
-                'roots' => $data['roots'],
-                'pagination' => [
-                    'current_page' => $data['products']->currentPage(),
-                    'last_page' => $data['products']->lastPage(),
-                    'per_page' => $data['products']->perPage(),
-                    'total' => $data['products']->total(),
-                    'from' => $data['products']->firstItem(),
-                    'to' => $data['products']->lastItem(),
-                ]
+                'roots' => $data['roots']
             ])
             ->response()
             ->getData(true);

@@ -20,11 +20,11 @@ class ListProductsByGroupUseCase
     {
         $paginator = $this->products->paginateByGroup($groupId, $perPage, $supplierId);
         return [
-            'products' => $paginator->setCollection(
-                ProductData::collection($paginator->getCollection())
-            ),
             'roots' => ProductData::serializeRoots(
                 $paginator->getCollection()->first()
+            ),
+            'products' => $paginator->setCollection(
+                ProductData::collection($paginator->getCollection())
             ),
         ];
     }

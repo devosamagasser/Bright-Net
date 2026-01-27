@@ -184,7 +184,7 @@ class ProductData
     {
         return [
             'solution' => [
-                'name' => $product->name ,
+                'name' => $product->solution->name ,
                 'id' => $product->solution_id
             ],
             'brand' => [

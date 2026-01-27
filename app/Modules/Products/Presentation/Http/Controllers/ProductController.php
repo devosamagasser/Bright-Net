@@ -53,7 +53,9 @@ class ProductController
             $currency
         );
         return ApiResponse::success(
-            ProductResource::collection($data)->resource
+            ProductResource::collection($data)
+                ->response()
+                ->getData(true)
         );
     }
 
